@@ -1,0 +1,51 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-color-base: #121212;
+  --bg-color-highlight: #232323;
+  --bg-linear-gradient: linear-gradient(
+    0deg,
+    var(--bg-color-base),
+    var(--bg-color-highlight) 90%
+  );
+  --text-base: #ffffff;
+
+  --default-font: "roboto", sans-serif;
+
+  --topbar-height: 42px;
+}
+#root {
+  height: 100dvh;
+}
+#topbar {
+  height: var(--topbar-height);
+  background-color: #676767;
+}
+#game {
+  position: relative;
+  height: calc(100% - var(--topbar-height));
+}
+#versionNumber {
+  position: fixed;
+  bottom: 0.5rem;
+  left: 0.5rem;
+}
+#langBox {
+  position: fixed;
+  top: 42%;
+  left: 42%;
+  display: none;
+  align-items: center;
+  flex-direction: column;
+  padding: 1rem;
+  background-color: var(--bg-color-base);
+  color: var(--text-base);
+  font-family: var(--default-font);
+}
