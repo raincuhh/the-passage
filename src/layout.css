@@ -5,6 +5,7 @@
   padding: 0;
   border: 0;
   box-sizing: border-box;
+  background: transparent;
 }
 
 :root {
@@ -19,15 +20,69 @@
 
   --default-font: "roboto", sans-serif;
 
-  --topbar-height: 42px;
+  --topbar-height: 32px;
 }
 #root {
   height: 100dvh;
 }
+/*topbar*/
 #topbar {
   height: var(--topbar-height);
-  background-color: #676767;
+  background: var(--bg-linear-gradient);
+  display: flex;
+  justify-content: space-between;
+  .topbarLeft,
+  .topbarRight {
+    display: flex;
+    .box {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      color: var(--text-base);
+      padding: 0 0.5rem;
+      font-size: 0.875rem;
+      font-family: "roboto", sans-serif;
+      a {
+        height: 100%;
+        text-decoration: none;
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        color: var(--text-base);
+        span {
+          font-size: 0.75rem;
+        }
+        i {
+          font-size: 0.9rem;
+        }
+      }
+      button {
+        color: var(--text-base);
+        font-size: 0.875rem;
+      }
+    }
+    .box:hover {
+      background-color: var(--bg-color-highlight);
+      a {
+        text-shadow: var(--text-base) 1px 0 4px;
+      }
+    }
+    #topbarTitle {
+      gap: 0.25rem;
+      border-right: 1px solid var(--bg-color-highlight);
+    }
+    #topbarCopyrightPortfolio {
+      border-right: 1px solid var(--bg-color-highlight);
+    }
+    #topbarGithub {
+      border-right: 1px solid var(--bg-color-highlight);
+    }
+    #topbarSettings {
+      border-left: 1px solid var(--bg-color-highlight);
+    }
+  }
 }
+
 #game {
   position: relative;
   height: calc(100% - var(--topbar-height));
@@ -39,8 +94,9 @@
 }
 #langBox {
   position: fixed;
-  top: 42%;
-  left: 42%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: none;
   align-items: center;
   flex-direction: column;

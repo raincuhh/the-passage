@@ -15,22 +15,50 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
     <!-- basic -->
     <link rel="stylesheet" href="../src/layout.css" />
     <script>
-      var VERSION = 1.001;
+      let VERSION = 1.002;
     </script>
   </head>
   <body>
     <div id="root">
-      <div id="topbar"></div>
+      <div id="topbar">
+        <div class="topbarLeft">
+          <article class="box" id="topbarTitle">
+            <button id="refreshB">space explorer</button>
+          </article>
+          <article class="box" id="topbarCopyrightPortfolio">
+            <a href="https://raincuhh.github.io/portfolio/">
+              <div><span>©</span>filipryan.dev</div>
+            </a>
+          </article>
+          <article class="box" id="topbarGithub">
+            <a href="https://github.com/raincuhh">
+              <div class="name">github</div>
+              <i class="bx bxl-github"></i>
+            </a>
+          </article>
+        </div>
+        <div class="topbarRight">
+          <div class="box" id="topbarSettings">
+            <button id="settingsB">
+              <i class="bx bx-cog" id="settingsIcon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
       <div id="game">
         <div id="versionNumber"></div>
-        <script>
-          let currentVersion = document.getElementById("versionNumber");
-          currentVersion.innerHTML = "V " + VERSION;
-        </script>
-        <div id="langBox">
+        <article id="langBox">
           <header class="langHeader">Choose your language</header>
           <div class="langWrapper">
             <div class="langButton" id="langEnglish">
@@ -43,10 +71,18 @@
               <span>svenska</span>
             </div>
           </div>
+        </article>
+        <div id="intro">
+          <div class="container"></div>
         </div>
-        <div id="shipName"></div>
+        <section id="leftColumn"></section>
+        <section id="middleColumn"></section>
+        <section id="rightColumn"></section>
       </div>
     </div>
+    <!-- external scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- script -->
     <script src="../src/main.js"></script>
   </body>
 </html>
