@@ -1,36 +1,26 @@
-let topbarFunctions = function () {
-  let refreshB = document.getElementById("refreshB");
-  refreshB.addEventListener("click", () => {
-    window.location.reload();
+let Navbar = {};
+
+Navbar.init = function () {
+  let navbarSettings = document.getElementById("navbarSettings");
+  navbarSettings.addEventListener("click", () => {
+    Game.showSettings();
   });
-  let topbarSettings = document.getElementById("topbarSettings");
-  let settingsB = topbarSettings.querySelector("#settingsB");
-  topbarSettings.addEventListener("click", (e) => {
-    if (e.target == settingsB) {
-      Game.showSettings();
-    }
-  });
-  let settingsIcon = topbarSettings.querySelector("#settingsIcon");
-  topbarSettings.addEventListener("mouseover", () => {
-    if (settingsIcon.classList.contains("bx-cog")) {
-      settingsIcon.classList.remove("bx-cog");
-      settingsIcon.classList.add("bxs-cog");
-    }
-  });
-  topbarSettings.addEventListener("mouseleave", () => {
-    if (settingsIcon.classList.contains("bxs-cog")) {
-      settingsIcon.classList.remove("bxs-cog");
-      settingsIcon.classList.add("bx-cog");
-    }
+  let navbarAchievements = document.getElementById("navbarAchievements");
+  navbarAchievements.addEventListener("click", () => {
+    Game.showAchievements();
   });
 };
-topbarFunctions();
 
 // future notes
 //
 // rememeber using this vid as baseline for saving and loading with localstorage:
 // https://www.youtube.com/watch?v=ePHfRUIvbbg
 //
+//in Game.Init > if (firstlaunch)
+//sets firstlaunch to false if firstlaunch,
+//this can be done after introsequence so that if u refresh;
+//while still in introsequence then it is still firstlaunch
+
 // make exploration locked until you get your first colonized planet, planets give resources
 
 /*=====================================================================================
@@ -40,6 +30,9 @@ let Game = {};
 
 Game.showSettings = function () {
   console.log("settings");
+};
+Game.showAchievements = function () {
+  console.log("achievements");
 };
 
 Game.showLangChoices = function () {
@@ -77,11 +70,10 @@ Game.showLangChoices = function () {
   });
 };
 
-Game.Launch = function () {
+Game.launch = function () {
   let currentVersion = document.getElementById("versionNumber");
-  currentVersion.innerHTML = "V " + VERSION;
+  //currentVersion.innerHTML = "v " + VERSION;
   Game.Version = VERSION;
-  //console.log("V: " + Game.Version);
 
   /*=====================================================================================
   patchnotes
@@ -97,31 +89,25 @@ Game.Launch = function () {
       ""
     );
   };
-  Game.VersionPatchNotes();
+  //Game.VersionPatchNotes();
 
   Game.ready = 0;
 };
 
-Game.Init = function () {
+Game.init = function () {
   Game.ready = 1;
-  // stuff to initialize
   let firstLaunch = JSON.parse(localStorage.getItem("firstLaunch"));
-  console.log("firstlaunch check at init :" + firstLaunch);
+  //console.log("firstlaunch check at init :" + firstLaunch);
   if (firstLaunch) {
-    //sets firstlaunch to false if firstlaunch,
-    //this can be done after introsequence so that if u refresh;
-    //while still in introsequence then it is still firstlaunch
     localStorage.setItem("firstLaunch", JSON.stringify(false));
-    console.log(JSON.parse(localStorage.getItem("firstLaunch")));
-    Game.StartIntroSequence();
-    //console.log("ship name is: " + Game.shipName);
+    //console.log(JSON.parse(localStorage.getItem("firstLaunch")));
+    Game.introSequence();
   }
 
   Game.lang = localStorage.getItem("spaceExplorerLang");
   Game.config = [];
   Game.defaultConfig = function () {
-    Game.config.autosave = 1; //every min or so
-    Game.config.textShadow = 1; //just removes textshadow
+    Game.config.autoSave = 1; //every min or so
     Game.config.fullScreen = 0; //makes game fullscreen
   };
   Game.defaultConfig();
@@ -189,7 +175,7 @@ Game.Init = function () {
       "Stargazer",
       "Skyward",
     ];
-    // chooses a random index number from both of the arrays, then makes shipname array[randomindex]
+    // randomindex number from the arrays, then returns shipname array[randomindex]
     let firstNamesIndex = Math.floor(Math.random() * firstNames.length);
     let lastNamesIndex = Math.floor(Math.random() * lastNames.length);
 
@@ -199,12 +185,12 @@ Game.Init = function () {
     return shipName;
   };
 };
-Game.StartIntroSequence = function () {
+Game.introSequence = function () {
   console.log("starting intro sequence");
 };
 
 /*=====================================================================================
-onload
+onload/unload
 =======================================================================================*/
 
 window.onload = function () {
@@ -214,24 +200,24 @@ window.onload = function () {
     // checking localstorage to check if first time launching game
     let checkForFirstLaunch = function () {
       let first = localStorage.getItem("firstLaunch");
-      console.log("firstlaunch check at cFFL: " + first);
+      //console.log("firstlaunch check at cFFL: " + first);
       if (first === null) {
         // if firstlaunch === null then set firstlaunch to true, if opposite then parse the firstlaunch from localstorage, and then return result
         localStorage.setItem("firstLaunch", JSON.stringify(true));
         return true;
       } else {
-        console.log(JSON.parse(first));
+        //console.log(JSON.parse(first));
         return JSON.parse(first);
       }
     };
     let firstLaunch = checkForFirstLaunch();
     //let firstLaunch = localStorage.setItem("firstLaunch", JSON.stringify(true)); //debug stuff
-    console.log(
+    /*console.log(
       "firstlaunch check at onload:" +
         JSON.parse(localStorage.getItem("firstLaunch"))
-    );
+    );*/
     let launch = function () {
-      Game.Launch();
+      Game.launch();
       let root = document.getElementById("root");
       if (!root || !root.parentElement) {
         console.log("error");
@@ -240,7 +226,8 @@ window.onload = function () {
           "[=== Hello, myself here, dont cheat in any resources will you. ʕ•ᴥ•ʔ",
           "The game has sucessfully loaded. ===]"
         );
-        Game.Init();
+        Game.init();
+        Navbar.init();
         if (firstLaunch) {
           Game.showLangChoices();
         }

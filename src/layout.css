@@ -9,88 +9,47 @@
 }
 
 :root {
-  --bg-color-base: #121212;
+  --bg-color-base: #181818;
   --bg-color-highlight: #232323;
-  --bg-linear-gradient: linear-gradient(
-    0deg,
-    var(--bg-color-base),
-    var(--bg-color-highlight) 90%
-  );
-  --text-base: #ffffff;
+  --text-base: rgb(var(--text-base-r), var(--text-base-g), var(--text-base-b));
 
-  --default-font: "roboto", sans-serif;
+  --text-base-r: 55;
+  --text-base-g: 55;
+  --text-base-b: 55;
 
-  --topbar-height: 32px;
+  --game-height: 100%;
+  --padding-base: clamp(1rem, 2.4vw, 8rem);
 }
 #root {
   height: 100dvh;
+  background-color: var(--bg-color-base);
 }
-/*topbar*/
-#topbar {
-  height: var(--topbar-height);
-  background: var(--bg-linear-gradient);
+#navbar {
+  position: fixed;
+  bottom: clamp(0.75rem, 2.4vw, 1rem);
+  padding: 0 clamp(1rem, 4.4vw, 3rem);
+  width: 100%;
   display: flex;
+  flex-direction: row-reverse;
   justify-content: space-between;
-  .topbarLeft,
-  .topbarRight {
-    display: flex;
-    .box {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      color: var(--text-base);
-      padding: 0 0.5rem;
-      font-size: 0.875rem;
-      font-family: "roboto", sans-serif;
-      a {
-        height: 100%;
-        text-decoration: none;
-        display: flex;
-        gap: 0.25rem;
-        align-items: center;
-        color: var(--text-base);
-        span {
-          font-size: 0.75rem;
-        }
-        i {
-          font-size: 0.9rem;
-        }
-      }
-      button {
-        color: var(--text-base);
-        font-size: 0.875rem;
-      }
-    }
-    .box:hover {
-      background-color: var(--bg-color-highlight);
-      a {
-        text-shadow: var(--text-base) 1px 0 4px;
-      }
-    }
-    #topbarTitle {
-      gap: 0.25rem;
-      border-right: 1px solid var(--bg-color-highlight);
-    }
-    #topbarCopyrightPortfolio {
-      border-right: 1px solid var(--bg-color-highlight);
-    }
-    #topbarGithub {
-      border-right: 1px solid var(--bg-color-highlight);
-    }
-    #topbarSettings {
-      border-left: 1px solid var(--bg-color-highlight);
-    }
+  font-size: clamp(0.85rem, 2.4vw, 1rem);
+}
+#navbarLinks {
+  display: flex;
+  gap: clamp(0.5rem, 2.4vw, 1.5rem);
+  .link,
+  .link > * {
+    text-decoration: none;
+  }
+  .link:hover,
+  .link:hover > * {
+    text-decoration: underline;
+    cursor: pointer;
   }
 }
-
-#game {
-  position: relative;
-  height: calc(100% - var(--topbar-height));
-}
-#versionNumber {
-  position: fixed;
-  bottom: 0.5rem;
-  left: 0.5rem;
+#navbar > *,
+#navbarLinks .link > * {
+  color: var(--text-base);
 }
 #langBox {
   position: fixed;
@@ -104,4 +63,32 @@
   background-color: var(--bg-color-base);
   color: var(--text-base);
   font-family: var(--default-font);
+}
+#container {
+  margin: 0 auto;
+  padding: 1rem var(--padding-base) 0;
+  width: 100%;
+  max-width: 110rem;
+  display: flex;
+}
+#container > * {
+  font-size: clamp(0.95rem, 2.4vw, 1rem);
+  color: var(--text-base);
+}
+#notifications {
+  min-width: 200px;
+  width: clamp(100px, 2.4vw, 250px);
+}
+#notifications .notification {
+  margin-bottom: 10px;
+}
+
+@media (min-width: 786px) {
+  #navbar {
+    #navbarLinks {
+      #navbarOpenClose {
+        display: none;
+      }
+    }
+  }
 }
