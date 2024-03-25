@@ -18,7 +18,12 @@
   --text-base-b: 55;
 
   --game-height: 100%;
-  --padding-base: clamp(1rem, 2.4vw, 8rem);
+  --padding-base: max(
+    1rem,
+    min(
+      clamp(6vw, 30vw, 18vw) - clamp(1.05rem, 12vw, clamp(3.5rem, 12vw, 3rem))
+    )
+  );
 }
 #root {
   height: 100dvh;
@@ -36,19 +41,29 @@
 }
 #navbarLinks {
   display: flex;
-  gap: clamp(0.5rem, 2.4vw, 1.5rem);
   .link,
   .link > * {
     text-decoration: none;
+    margin-left: clamp(0.5rem, 2.4vw, 1.5rem);
   }
   .link:hover,
-  .link:hover > * {
+  .link:hover > *,
+  .linkOpenClose:hover {
     text-decoration: underline;
     cursor: pointer;
   }
 }
 #navbar > *,
 #navbarLinks .link > * {
+  color: var(--text-base);
+}
+#main {
+  height: 100%;
+}
+#saved {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
   color: var(--text-base);
 }
 #langBox {
@@ -75,20 +90,15 @@
   font-size: clamp(0.95rem, 2.4vw, 1rem);
   color: var(--text-base);
 }
-#notifications {
+#pings {
   min-width: 200px;
   width: clamp(100px, 2.4vw, 250px);
+  display: flex;
+  flex-direction: column-reverse;
 }
-#notifications .notification {
-  margin-bottom: 10px;
+#pings .ping {
+  margin-bottom: 7.5px;
 }
 
 @media (min-width: 786px) {
-  #navbar {
-    #navbarLinks {
-      #navbarOpenClose {
-        display: none;
-      }
-    }
-  }
 }

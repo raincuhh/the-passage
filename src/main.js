@@ -1,38 +1,165 @@
-let Navbar = {};
+/**
+ * views
+ */
 
-Navbar.init = function () {
-  let navbarSettings = document.getElementById("navbarSettings");
-  navbarSettings.addEventListener("click", () => {
-    Game.showSettings();
-  });
-  let navbarAchievements = document.getElementById("navbarAchievements");
-  navbarAchievements.addEventListener("click", () => {
-    Game.showAchievements();
-  });
+/**
+ * desolus (Starter planet)
+ */
+
+let Desolus = {};
+
+/**
+ * ping stuff
+ */
+
+let Pings = {
+  init: function () {
+    //making the pingWrapper
+    let elem = document.createElement("div");
+    elem.id = "pings";
+
+    let container = document.getElementById("container");
+    container.appendChild(elem);
+  },
+  ping: function (text) {
+    if (typeof text == "undefined") {
+      return;
+    }
+    if (text.slice(-1) != ".") {
+      text += ".";
+    }
+    //checks if firstchar is upper or lower, if lower, change it to upper
+    let firstChar = text.charAt(0);
+    if (firstChar !== firstChar.toUpperCase()) {
+      text = text.charAt(0).toUpperCase() + text.slice(1);
+    }
+    Pings.message(text);
+  },
+  message: function (e) {
+    let ping = document.createElement("div");
+    ping.className = "ping";
+    ping.textContent = e;
+    let pings = document.getElementById("pings");
+    pings.appendChild(ping);
+  },
 };
 
-// future notes
-//
-// rememeber using this vid as baseline for saving and loading with localstorage:
-// https://www.youtube.com/watch?v=ePHfRUIvbbg
-//
-//in Game.Init > if (firstlaunch)
-//sets firstlaunch to false if firstlaunch,
-//this can be done after introsequence so that if u refresh;
-//while still in introsequence then it is still firstlaunch
+/**
+ * event stuff
+ */
 
-// make exploration locked until you get your first colonized planet, planets give resources
+/**
+ * Notes
+ *
+ * rememeber using this vid as baseline for saving and loading with localstorage:
+ * https://www.youtube.com/watch?v=ePHfRUIvbbg
+ *
+ * in Game.Init > if (firstlaunch)
+ * sets firstlaunch to false if firstlaunch,
+ * this can be done after introsequence so that if u refresh;
+ * while still in introsequence then it is still firstlaunch
+ * make exploration locked until you get your first colonized planet, planets give resources
+ */
 
-/*=====================================================================================
-Game Functions
-========================================================================================*/
-let Game = {};
+/**
+ * game stuff
+ */
 
-Game.showSettings = function () {
-  console.log("settings");
-};
-Game.showAchievements = function () {
-  console.log("achievements");
+let Game = {
+  launch: function () {
+    let currentVersion = document.getElementById("versionNumber");
+    //currentVersion.innerHTML = "v " + VERSION;
+    Game.version = VERSION;
+    Game.beta = 1;
+    Game.lang = localStorage.getItem("spaceExplorerLang");
+    Game.prefs = {}; //default preferences
+    Game.defaultPrefs = function () {
+      Game.prefs.autoSave = 1; //every min or so
+      Game.prefs.fullScreen = 0; //makes game fullscreen
+    };
+    Game.defaultPrefs();
+    Game.VersionPatchNotes = function () {
+      console.log(
+        "patchnotes V 1.001: ",
+        "fixing initial first launch stuff,",
+        "languagechoosing,",
+        "",
+        "patchnotes V 1.002: ",
+        ""
+      );
+    };
+    //Game.VersionPatchNotes();
+
+    Game.ready = 0;
+  },
+
+  init: function () {
+    Game.ready = 1;
+
+    function makeNavbar() {
+      let createLinks = function (id, text) {
+        let link = document.createElement("span");
+        link.id = id;
+        link.className = "link";
+        link.textContent = text;
+        return link;
+      };
+
+      let navbarInfo = [
+        { id: "navbarGithub", text: "github." },
+        { id: "navbarPortfolio", text: "portfolio." },
+        { id: "navbarAchievements", text: "achievements." },
+        { id: "navbarSettings", text: "settings." },
+      ];
+
+      let navbar = document.createElement("div");
+      navbar.id = "navbar";
+
+      let root = document.getElementById("root");
+      root.appendChild(navbar);
+
+      let navbarLinks = document.createElement("div");
+      navbarLinks.id = "navbarLinks";
+      navbar.appendChild(navbarLinks);
+
+      //makes a link for each of the navbarInfo[indexes]
+      navbarInfo.forEach((e) => {
+        let link = createLinks(e.id, e.text);
+        navbarLinks.appendChild(link);
+      });
+
+      let navbarLinkGithub = document.getElementById("navbarGithub");
+      navbarLinkGithub.addEventListener("click", () => {
+        window.location = "https://github.com/raincuhh";
+      });
+      let navbarlinkPortfolio = document.getElementById("navbarPortfolio");
+      navbarlinkPortfolio.addEventListener("click", () => {
+        window.location = "https://raincuhh.github.io/portfolio/";
+      });
+      let navbarlinkAchievement = document.getElementById("navbarAchievements");
+      navbarlinkAchievement.addEventListener("click", () => {
+        console.log("achievements");
+      });
+      let navbarlinkSettings = document.getElementById("navbarSettings");
+      navbarlinkSettings.addEventListener("click", () => {
+        console.log("settings");
+      });
+    }
+    makeNavbar();
+
+    Pings.init();
+
+    let firstLaunch = JSON.parse(localStorage.getItem("firstLaunch"));
+    if (firstLaunch) {
+      Game.intro();
+      //localStorage.setItem("firstLaunch", JSON.stringify(false));
+      //console.log(JSON.parse(localStorage.getItem("firstLaunch")));
+    }
+  },
+
+  intro: function () {
+    Pings.ping("wake up.");
+  },
 };
 
 Game.showLangChoices = function () {
@@ -70,137 +197,15 @@ Game.showLangChoices = function () {
   });
 };
 
-Game.launch = function () {
-  let currentVersion = document.getElementById("versionNumber");
-  //currentVersion.innerHTML = "v " + VERSION;
-  Game.Version = VERSION;
-
-  /*=====================================================================================
-  patchnotes
-  =======================================================================================*/
-
-  Game.VersionPatchNotes = function () {
-    console.log(
-      "patchnotes V 1.001: ",
-      "fixing initial first launch stuff,",
-      "languagechoosing,",
-      "",
-      "patchnotes V 1.002: ",
-      ""
-    );
-  };
-  //Game.VersionPatchNotes();
-
-  Game.ready = 0;
-};
-
-Game.init = function () {
-  Game.ready = 1;
-  let firstLaunch = JSON.parse(localStorage.getItem("firstLaunch"));
-  //console.log("firstlaunch check at init :" + firstLaunch);
-  if (firstLaunch) {
-    localStorage.setItem("firstLaunch", JSON.stringify(false));
-    //console.log(JSON.parse(localStorage.getItem("firstLaunch")));
-    Game.introSequence();
-  }
-
-  Game.lang = localStorage.getItem("spaceExplorerLang");
-  Game.config = [];
-  Game.defaultConfig = function () {
-    Game.config.autoSave = 1; //every min or so
-    Game.config.fullScreen = 0; //makes game fullscreen
-  };
-  Game.defaultConfig();
-
-  Game.randomizedShipName = function () {
-    let firstNames = [
-      "Stellar",
-      "Cosmo",
-      "Galactic",
-      "Celestial",
-      "Nebula",
-      "Astrum",
-      "Astro",
-      "Lunar",
-      "Orbital",
-      "Interstellar",
-      "Solar",
-      "Vortex",
-      "Infinity",
-      "Quasar",
-      "Cosmic",
-      "Supernova",
-      "Starlight",
-      "Ultraviolet",
-      "Spectra",
-      "Constellation",
-      "Deep Space",
-      "Radiant",
-      "Eclipse",
-      "Comet",
-      "Milky Way",
-      "Gravity",
-      "Nucleus",
-      "Orion",
-      "Aurora",
-    ];
-    let lastNames = [
-      "Explorer",
-      "Voyager",
-      "Pioneer",
-      "Navigator",
-      "Adventurer",
-      "Pathfinder",
-      "Discoverer",
-      "Traveller",
-      "Wayfarer",
-      "Odyssey",
-      "Nomad",
-      "Wanderer",
-      "Seeker",
-      "Journeyman",
-      "Roamer",
-      "Dreamer",
-      "Astrolabe",
-      "Quest",
-      "Galaxy",
-      "Fleet",
-      "Starship",
-      "Cosmos",
-      "Cosmonaut",
-      "Astrolander",
-      "Spacefarer",
-      "Skywalker",
-      "Starborn",
-      "Stargazer",
-      "Skyward",
-    ];
-    // randomindex number from the arrays, then returns shipname array[randomindex]
-    let firstNamesIndex = Math.floor(Math.random() * firstNames.length);
-    let lastNamesIndex = Math.floor(Math.random() * lastNames.length);
-
-    let shipName =
-      firstNames[firstNamesIndex] + " " + lastNames[lastNamesIndex];
-    //localStorage.setItem("shipName", shipName);
-    return shipName;
-  };
-};
-Game.introSequence = function () {
-  console.log("starting intro sequence");
-};
-
-/*=====================================================================================
-onload/unload
-=======================================================================================*/
+/**
+ * onload stuff
+ */
 
 window.onload = function () {
-  //lang = localStorage.getItem("spaceExplorerLang");
-  //console.log("lang chosen is: " + lang);
   if (!Game.ready) {
-    // checking localstorage to check if first time launching game
     let checkForFirstLaunch = function () {
       let first = localStorage.getItem("firstLaunch");
-      //console.log("firstlaunch check at cFFL: " + first);
+
       if (first === null) {
         // if firstlaunch === null then set firstlaunch to true, if opposite then parse the firstlaunch from localstorage, and then return result
         localStorage.setItem("firstLaunch", JSON.stringify(true));
@@ -212,10 +217,6 @@ window.onload = function () {
     };
     let firstLaunch = checkForFirstLaunch();
     //let firstLaunch = localStorage.setItem("firstLaunch", JSON.stringify(true)); //debug stuff
-    /*console.log(
-      "firstlaunch check at onload:" +
-        JSON.parse(localStorage.getItem("firstLaunch"))
-    );*/
     let launch = function () {
       Game.launch();
       let root = document.getElementById("root");
@@ -227,9 +228,9 @@ window.onload = function () {
           "The game has sucessfully loaded. ===]"
         );
         Game.init();
-        Navbar.init();
+
         if (firstLaunch) {
-          Game.showLangChoices();
+          Game.lang = localStorage.setItem("spaceExplorerLang", "EN");
         }
       }
     };
