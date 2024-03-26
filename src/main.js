@@ -9,6 +9,73 @@
 let Desolus = {};
 
 /**
+ * all stuff to do with locations
+ * chapters are the locations. arcs are like arcs; containing chapters.
+ */
+
+let Header = {
+  init: function () {
+    let elem = document.createElement("div");
+    elem.id = "header";
+
+    let mainView = document.getElementById("mainView");
+    mainView.appendChild(elem);
+  },
+  addAct: function (containerId, nameId, text, innerWrapperId) {
+    //creates current actContainer (outside)
+    let actContainer = document.createElement("div");
+    actContainer.id = containerId;
+    actContainer.className = "actContainer";
+    //appends actContainer to header
+    let header = document.getElementById("header");
+    header.appendChild(actContainer);
+    //creates actName and appends to actContainer (name)
+    let actName = document.createElement("span");
+    actName.id = nameId;
+    actName.className = "actTitle";
+    actName.textContent = text;
+    actContainer.appendChild(actName);
+    //creates actInnerWrapper (beside actName) and appends to actContainer
+    let actInnerWrapper = document.createElement("div");
+    actInnerWrapper.id = innerWrapperId;
+    actInnerWrapper.className = "actInnerWrapper";
+    actContainer.appendChild(actInnerWrapper);
+  },
+  canTravel: function (actInnerWrapperId) {
+    //checks if a actWrapper has more then one chapters, if so, lets your travel. (returns true)
+    let actWrapper = document.getElementById(actInnerWrapperId);
+    let chapters = actWrapper.getElementsByClassName("chapter");
+    return chapters.length > 1;
+  },
+
+  createChapter: function (text, id, actInnerWrapperId) {
+    //reminder: add location back to function param after testing
+
+    //creates chapter
+    let chapter = document.createElement("span");
+    chapter.className = "chapter";
+    chapter.id = id;
+    chapter.textContent = text;
+    chapter.addEventListener("click", () => {
+      if (canTravel(actInnerWrapperId)) {
+        console.log("traveling");
+        //Game.changeView(location);
+      } else {
+        console.log("chapters in currentAct not over 1");
+      }
+    });
+    let actWrapper = document.getElementById(actInnerWrapperId);
+    actWrapper.appendChild(chapter);
+  },
+};
+
+/**
+ * acts
+ */
+
+let actOne = {};
+
+/**
  * ping stuff
  */
 
@@ -42,11 +109,14 @@ let Pings = {
     let pings = document.getElementById("pings");
     pings.appendChild(ping);
   },
+  delete: function () {},
 };
 
 /**
  * event stuff
  */
+
+let Events = {};
 
 /**
  * Notes
@@ -58,6 +128,7 @@ let Pings = {
  * sets firstlaunch to false if firstlaunch,
  * this can be done after introsequence so that if u refresh;
  * while still in introsequence then it is still firstlaunch
+ *
  * make exploration locked until you get your first colonized planet, planets give resources
  */
 
@@ -81,11 +152,10 @@ let Game = {
     Game.VersionPatchNotes = function () {
       console.log(
         "patchnotes V 1.001: ",
-        "fixing initial first launch stuff,",
-        "languagechoosing,",
+        "fixed: initial first launch stuff, languagechoosing,",
         "",
         "patchnotes V 1.002: ",
-        ""
+        "fixed: navbar, bugs,"
       );
     };
     //Game.VersionPatchNotes();
@@ -96,7 +166,19 @@ let Game = {
   init: function () {
     Game.ready = 1;
 
-    function makeNavbar() {
+    let root = document.documentElement;
+    setInterval(() => {
+      gsap.to(root, {
+        duration: 1,
+        ease: "power4.inout",
+
+        "--text-base-r": 85,
+        "--text-base-g": 85,
+        "--text-base-b": 85,
+      });
+    }, 2000);
+
+    function initNavbar() {
       let createLinks = function (id, text) {
         let link = document.createElement("span");
         link.id = id;
@@ -145,9 +227,25 @@ let Game = {
         console.log("settings");
       });
     }
-    makeNavbar();
+    //component inital
 
-    Pings.init();
+    initNavbar();
+    Pings.init(); // creates pings div.
+    let initMainView = function () {
+      let mainView = document.createElement("div"); //creates mainview beside pingsdiv
+      mainView.id = "mainView";
+      let container = document.getElementById("container");
+      container.appendChild(mainView);
+    };
+    initMainView();
+    Header.init(); // creates header div inside mainView
+
+    Header.addAct(
+      "testContainer",
+      "testName",
+      "a wreckage",
+      "testInnerWrapper"
+    );
 
     let firstLaunch = JSON.parse(localStorage.getItem("firstLaunch"));
     if (firstLaunch) {
@@ -156,9 +254,17 @@ let Game = {
       //console.log(JSON.parse(localStorage.getItem("firstLaunch")));
     }
   },
+  currentLocation: null,
+
+  changeLocation: function (location) {
+    //check if currentLocation is the same as the chapterButton you click, if so, return
+    if (location == Game.currentLocation) {
+      return;
+    }
+  },
 
   intro: function () {
-    Pings.ping("wake up.");
+    Pings.ping("the wind is whistling");
   },
 };
 

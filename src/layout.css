@@ -17,6 +17,16 @@
   --text-base-g: 55;
   --text-base-b: 55;
 
+  --text-darker: rgb(
+    var(--text-darker-r),
+    var(--text-darker-g),
+    var(--text-darkerb)
+  );
+
+  --text-darker-r: 25;
+  --text-darker-g: 25;
+  --text-darker-b: 25;
+
   --game-height: 100%;
   --padding-base: max(
     1rem,
@@ -28,6 +38,7 @@
 #root {
   height: 100dvh;
   background-color: var(--bg-color-base);
+  overflow: hidden;
 }
 #navbar {
   position: fixed;
@@ -41,7 +52,7 @@
 }
 #navbarLinks {
   display: flex;
-  .link,
+  .link:not(:nth-child(1)),
   .link > * {
     text-decoration: none;
     margin-left: clamp(0.5rem, 2.4vw, 1.5rem);
@@ -62,8 +73,8 @@
 }
 #saved {
   position: fixed;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 1rem;
+  right: 3rem;
   color: var(--text-base);
 }
 #langBox {
@@ -94,11 +105,33 @@
   min-width: 200px;
   width: clamp(100px, 2.4vw, 250px);
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
 }
 #pings .ping {
   margin-bottom: 7.5px;
 }
-
-@media (min-width: 786px) {
+#mainView {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+#header {
+  margin-bottom: 1rem;
+  display: flex;
+}
+#header .actContainer {
+  margin-right: clamp(0.5rem, 2.4vw, 1.5rem);
+  display: flex;
+}
+#header .actContainer .actName {
+  font-size: clamp(0.85rem, 2.4vw, 0.9rem);
+}
+#header .actContainer .actInnerWrapper {
+  display: flex;
+}
+#header .actContainer .actInnerWrapper .chapter {
+  text-decoration: none;
+}
+#header .actContainer .actInnerWrapper .chapter:hover {
+  text-decoration: underline;
 }
