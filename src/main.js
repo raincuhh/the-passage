@@ -1,18 +1,4 @@
-/**
- * views
- */
-
-/**
- * desolus (Starter planet)
- */
-
-let Desolus = {};
-
-/**
- * all stuff to do with locations
- * chapters are the locations. arcs are like arcs; containing chapters.
- */
-
+/*
 let Header = {
   init: function () {
     let elem = document.createElement("div");
@@ -59,7 +45,7 @@ let Header = {
     chapter.addEventListener("click", () => {
       if (canTravel(actInnerWrapperId)) {
         console.log("traveling");
-        //Game.changeView(location);
+        //Main.changeView(location);
       } else {
         console.log("chapters in currentAct not over 1");
       }
@@ -68,20 +54,15 @@ let Header = {
     actWrapper.appendChild(chapter);
   },
 };
+*/
 
 /**
- * acts
+ * pings object
+ * handles all ping(s) related functions. messaging, pinging, deleting.
  */
-
-let actOne = {};
-
-/**
- * ping stuff
- */
-
 let Pings = {
   init: function () {
-    //making the pingWrapper
+    //making the pingsParent/wrapper
     let elem = document.createElement("div");
     elem.id = "pings";
 
@@ -89,13 +70,13 @@ let Pings = {
     container.appendChild(elem);
   },
   ping: function (text) {
+    // takes the string/(text) and makes it go through a few checks
     if (typeof text == "undefined") {
       return;
     }
     if (text.slice(-1) != ".") {
       text += ".";
     }
-    //checks if firstchar is upper or lower, if lower, change it to upper
     let firstChar = text.charAt(0);
     if (firstChar !== firstChar.toUpperCase()) {
       text = text.charAt(0).toUpperCase() + text.slice(1);
@@ -103,85 +84,212 @@ let Pings = {
     Pings.message(text);
   },
   message: function (e) {
+    // outputs the finalized message to the pings(parent)node
     let ping = document.createElement("div");
     ping.className = "ping";
     ping.textContent = e;
     let pings = document.getElementById("pings");
-    pings.appendChild(ping);
+    pings.insertBefore(ping, pings.firstChild);
+    Pings.delete();
   },
-  delete: function () {},
+  delete: function () {
+    // checking if there are any overflowing ping(s) to delete
+    // cause it can cause memoryleak if there arent any methods of removing overflowing pings
+    let pings = document.getElementById("pings");
+    let viewportHeight = window.innerHeight;
+    let pingList = pings.getElementsByClassName("ping");
+
+    for (let i = 0; i < pingList.length; i++) {
+      let ping = pingList[i];
+      let pingRect = ping.getBoundingClientRect();
+
+      if (pingRect.bottom < 0 || pingRect.top > viewportHeight) {
+        pings.removeChild(ping);
+      }
+    }
+  },
 };
 
 /**
- * event stuff
+ * event object
+ * handles events, randomevents, battles, comment
  */
 
 let Events = {};
 
 /**
- * Notes
- *
- * rememeber using this vid as baseline for saving and loading with localstorage:
- * https://www.youtube.com/watch?v=ePHfRUIvbbg
- *
- * in Game.Init > if (firstlaunch)
- * sets firstlaunch to false if firstlaunch,
- * this can be done after introsequence so that if u refresh;
- * while still in introsequence then it is still firstlaunch
- *
- * make exploration locked until you get your first colonized planet, planets give resources
+ * Purgatory object - location
+ * handles resetting run if player dies, ??? gives snarky remark regarding how your run went.
  */
+
+let Purgatory = {
+  init: function () {},
+
+  setTitle: function () {},
+};
 
 /**
- * game stuff
+ * button object
+ * handles the creation of buttons catoring to different situations
+ *
+ * example new button
+ * new Button.button({
+ *  id: string,
+ *  text: placeholder,
+ *  click: function,
+ *  width: num,
+ * })
  */
 
-let Game = {
+let Button = {
+  button: function (param) {
+    let el = document.createElement("div");
+    el.setAttribute(
+      "id",
+      typeof param.id !== "undefined" ? param.id : "BTN_" + Main.createGuid()
+    );
+    el.className = "button";
+    el.textContent = typeof param.text !== "undefined" ? param.text : "button";
+
+    //el.classList.toggle("disabled", typeof param.cd !== "undefined");
+
+    if (typeof param.click === "function") {
+      if (!el.classList.contains("disabled")) {
+        el.addEventListener("click", function (event) {
+          param.click(event);
+        });
+      }
+    }
+    return el;
+  },
+  setCd: function (btn, cd) {},
+
+  disabled: function () {},
+};
+
+/**
+ * stateManager
+ * handles most if not all values ingame; sets and gets values.
+ *
+ * link(s):
+ * https://playcode.io/javascript/object (great source)
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects
+ *
+ * syntax examples
+ * get("object"),
+ * getMultiple(["object.object", "object", "object"]),
+ * set("candlesLit", value),
+ * setMultiple({object: {example: num, example: boolean}})
+ *
+ */
+
+let StateManager = {
+  maxValue: 99999999,
+  components: {},
+  init: function () {
+    let categories = [
+      "features", //locations, unlocked locations, characters etc.
+      "game", // more specific stuff. candles in purgatory lit, etc.
+      "character", // boons, flaws, perks, health, etc, different characters
+      "inventory", // inventory handling,
+      "prefs", // preferences on stuff like exitWarning, lightmode, autosave, etc.
+      "meta", //metaProgression
+    ];
+
+    for (let category of categories) {
+      if (!this.get(category)) {
+        this.set(category, {});
+      }
+    }
+  },
+  // gets a single value
+  get: function (stateName) {
+    let currentState = this.components;
+    const parts = stateName.split(".");
+    // splits stateName called if it has nested properties
+    for (let thing of parts) {
+      if (currentState && currentState.hasOwnProperty(thing)) {
+        currentState = currentState[thing];
+      } else {
+        currentState = undefined;
+        break;
+      }
+    }
+    return currentState;
+  },
+  // gets multiple values if needed
+  getMultiple: function (stateNames) {
+    let values = {};
+    for (let stateName of stateNames) {
+      values[stateName] = this.get(stateName);
+    }
+    return values;
+  },
+  // sets a single state value
+  set: function (stateName, value) {
+    if (typeof value === "number" && value > StateManager.maxValue) {
+      value = StateManager.maxValue;
+    }
+    //this.components[stateName] = value;
+    let currentState = this.components;
+    const parts = stateName.split(".");
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (!currentState.hasOwnProperty(parts[i])) {
+        currentState[parts[i]] = {};
+      }
+      currentState = currentState[parts[i]];
+    }
+    currentState[parts[parts.length - 1]] = value;
+  },
+  // sets multiple values if needed. fexample getting prefs and stuff.
+  setMultiple: function (valuesObject) {
+    for (let stateName in valuesObject) {
+      let value = valuesObject[stateName];
+      if (typeof value === "number" && value > StateManager.maxValue) {
+        value = StateManager.maxValue;
+      }
+      this.set(stateName, value);
+    }
+  },
+};
+let SM = StateManager;
+
+/**
+ * game component, handles the creation of the different ui,
+ */
+
+let Main = {
+  version: VERSION,
+  beta: true,
+
   launch: function () {
     let currentVersion = document.getElementById("versionNumber");
-    //currentVersion.innerHTML = "v " + VERSION;
-    Game.version = VERSION;
-    Game.beta = 1;
-    Game.lang = localStorage.getItem("spaceExplorerLang");
-    Game.prefs = {}; //default preferences
-    Game.defaultPrefs = function () {
-      Game.prefs.autoSave = 1; //every min or so
-      Game.prefs.fullScreen = 0; //makes game fullscreen
+    currentVersion.innerHTML = "v" + this.version;
+    Main.prefs = {}; //default preferences
+    Main.defaultPrefs = function () {
+      Main.prefs.autoSave = 1; //every min or so
+      Main.prefs.fullScreen = 0; //makes game fullscreen
+      Main.prefs.exitWarning = 1; //warns before unload
+      Main.prefs.lightSwitch = 1; //1 = darkmode, 0 = lightmode, default = 1.
     };
-    Game.defaultPrefs();
-    Game.VersionPatchNotes = function () {
-      console.log(
-        "patchnotes V 1.001: ",
-        "fixed: initial first launch stuff, languagechoosing,",
-        "",
-        "patchnotes V 1.002: ",
-        "fixed: navbar, bugs,"
-      );
-    };
-    //Game.VersionPatchNotes();
+    Main.defaultPrefs();
 
-    Game.ready = 0;
+    window.BeforeUnloadEvent = function (event) {
+      if (Main.prefs && Main.prefs.exitWarning) {
+        event.returnValue = "are you sure you want to leave?";
+      }
+    };
+    Main.ready = 0;
   },
 
   init: function () {
-    Game.ready = 1;
+    Main.ready = 1;
 
-    let root = document.documentElement;
-    setInterval(() => {
-      gsap.to(root, {
-        duration: 1,
-        ease: "power4.inout",
-
-        "--text-base-r": 85,
-        "--text-base-g": 85,
-        "--text-base-b": 85,
-      });
-    }, 2000);
-
+    // navbar
     function initNavbar() {
       let createLinks = function (id, text) {
         let link = document.createElement("span");
-        link.id = id;
+        link.setAttribute("id", id);
         link.className = "link";
         link.textContent = text;
         return link;
@@ -224,51 +332,50 @@ let Game = {
       });
       let navbarlinkSettings = document.getElementById("navbarSettings");
       navbarlinkSettings.addEventListener("click", () => {
-        console.log("settings");
+        let settings = document.getElementById("settings");
+        gsap.to(settings, {
+          duration: 0.5,
+          translateY: 1,
+        });
       });
     }
-    //component inital
-
-    initNavbar();
-    Pings.init(); // creates pings div.
+    // mainview
     let initMainView = function () {
-      let mainView = document.createElement("div"); //creates mainview beside pingsdiv
-      mainView.id = "mainView";
+      let view = document.createElement("div");
+      view.id = "view";
       let container = document.getElementById("container");
-      container.appendChild(mainView);
+      container.appendChild(view);
     };
-    initMainView();
-    Header.init(); // creates header div inside mainView
 
-    Header.addAct(
-      "testContainer",
-      "testName",
-      "a wreckage",
-      "testInnerWrapper"
-    );
-
-    let firstLaunch = JSON.parse(localStorage.getItem("firstLaunch"));
-    if (firstLaunch) {
-      Game.intro();
-      //localStorage.setItem("firstLaunch", JSON.stringify(false));
-      //console.log(JSON.parse(localStorage.getItem("firstLaunch")));
-    }
-  },
-  currentLocation: null,
-
-  changeLocation: function (location) {
-    //check if currentLocation is the same as the chapterButton you click, if so, return
-    if (location == Game.currentLocation) {
-      return;
-    }
+    initNavbar(); // initiates navbar and its links
+    StateManager.init(); // initiates statemanager
+    Pings.init(); // initiates pings container and utilities
+    initMainView(); // initiates mainview
   },
 
-  intro: function () {
-    Pings.ping("the wind is whistling");
+  createGuid: function () {
+    var pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+    var result = "";
+    for (var i = 0; i < pattern.length; i++) {
+      var c = pattern[i];
+      if (c === "x" || c === "y") {
+        var r = Math.floor(Math.random() * 16);
+        var v = c === "x" ? r : (r & 0x3) | 0x8;
+        result += v.toString(16);
+      } else {
+        result += c;
+      }
+    }
+    return result;
+  },
+
+  error: function () {
+    console.log("error");
   },
 };
 
-Game.showLangChoices = function () {
+/* legacy language changing system
+Main.showLangChoices = function () {
   let langBox = document.getElementById("langBox");
   langBox.style.display = "flex";
   //console.log("choose your language");
@@ -302,13 +409,14 @@ Game.showLangChoices = function () {
     });
   });
 };
+*/
 
 /**
  * onload stuff
  */
 
 window.onload = function () {
-  if (!Game.ready) {
+  if (!Main.ready) {
     let checkForFirstLaunch = function () {
       let first = localStorage.getItem("firstLaunch");
 
@@ -324,22 +432,45 @@ window.onload = function () {
     let firstLaunch = checkForFirstLaunch();
     //let firstLaunch = localStorage.setItem("firstLaunch", JSON.stringify(true)); //debug stuff
     let launch = function () {
-      Game.launch();
+      Main.launch();
       let root = document.getElementById("root");
       if (!root || !root.parentElement) {
-        console.log("error");
+        Main.error();
       } else {
         console.log(
           "[=== Hello, myself here, dont cheat in any resources will you. ʕ•ᴥ•ʔ",
           "The game has sucessfully loaded. ===]"
         );
-        Game.init();
+        Main.init();
 
         if (firstLaunch) {
-          Game.lang = localStorage.setItem("spaceExplorerLang", "EN");
+          Main.lang = localStorage.setItem("gameLang", "EN");
+          console.log("set loc to " + localStorage.getItem("gameLang"));
         }
       }
     };
     launch();
   }
 };
+
+/**
+ * Notes
+ *
+ * rememeber using this vid as baseline for saving and loading with localstorage:
+ * https://www.youtube.com/watch?v=ePHfRUIvbbg
+ *
+ * modulate/component(isize) stuff
+ * https://medium.com/@crohacz_86666/basics-of-modular-javascript-2395c82dd93a
+ * remember thisshit
+ *
+ *
+ * the encounter system has a kind of pokemon(turnbased) esque battlesystem.
+ * take inspo from roguelineage permadeath.
+ *
+ * Pings.ping(
+ * "you find yourself in a dimly lit chamber, disoriented and unsure of where you are"
+ * );
+ * Pings.ping(
+ * "shadows cling to the walls like specters, and the faint flicker of candles offers little solace in this unfamiliar enviornment"
+ * );
+ */
