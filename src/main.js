@@ -1,3 +1,134 @@
+/**
+ * main
+ * handles general things, like initiating the different objects
+ * and their methods
+ */
+let Main = {
+  version: VERSION,
+  beta: true,
+  saveDelay: 60000,
+  init: function () {
+    Main.ready = 1;
+
+    this.createNavbar(); // makes navbar
+    this.createView(); // makes view
+    StateManager.init(); // starts statemanager
+    Pings.init(); // starts pings
+    this.setDefaultPrefs(); // sets game default prefs
+    this.saveGame();
+
+    //autosave
+    setInterval(() => {
+      this.saveGame();
+    }, this.saveDelay);
+    World.init(); // starts world
+  },
+  saveGame: function () {
+    let saveDiv = document.getElementById("saved");
+    saveDiv.textContent = "saved";
+    tl = gsap.timeline();
+    tl.to(saveDiv, {
+      duration: 0.1,
+      opacity: 1,
+    });
+    tl.to(saveDiv, {
+      duration: 1,
+      opacity: 0,
+    });
+
+    let stateString = JSON.stringify(StateManager.components);
+    localStorage.setItem("gameState", stateString);
+    console.log("Game state saved.");
+  },
+
+  createGuid: function () {
+    var pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+    var result = "";
+    for (var i = 0; i < pattern.length; i++) {
+      var c = pattern[i];
+      if (c === "x" || c === "y") {
+        var r = Math.floor(Math.random() * 16);
+        var v = c === "x" ? r : (r & 0x3) | 0x8;
+        result += v.toString(16);
+      } else {
+        result += c;
+      }
+    }
+    return result;
+  },
+  createNavbar: function () {
+    let createLinks = function (id, text) {
+      let link = document.createElement("span");
+      link.setAttribute("id", id);
+      link.className = "link";
+      link.textContent = text;
+      return link;
+    };
+
+    let navbarInfo = [
+      { id: "navbarGithub", text: "github." },
+      { id: "navbarPortfolio", text: "portfolio." },
+      { id: "navbarAchievements", text: "achievements." },
+      { id: "navbarSettings", text: "settings." },
+    ];
+
+    let navbar = document.createElement("div");
+    navbar.id = "navbar";
+
+    let root = document.getElementById("root");
+    root.appendChild(navbar);
+
+    let navbarLinks = document.createElement("div");
+    navbarLinks.id = "navbarLinks";
+    navbar.appendChild(navbarLinks);
+
+    //makes a link for each of the navbarInfo[indexes]
+    navbarInfo.forEach((e) => {
+      let link = createLinks(e.id, e.text);
+      navbarLinks.appendChild(link);
+    });
+
+    let navbarLinkGithub = document.getElementById("navbarGithub");
+    navbarLinkGithub.addEventListener("click", () => {
+      window.open("https://github.com/raincuhh");
+    });
+    let navbarlinkPortfolio = document.getElementById("navbarPortfolio");
+    navbarlinkPortfolio.addEventListener("click", () => {
+      window.open("https://raincuhh.github.io/portfolio/");
+    });
+    let navbarlinkAchievement = document.getElementById("navbarAchievements");
+    navbarlinkAchievement.addEventListener("click", () => {
+      console.log("achievements");
+    });
+    let navbarlinkSettings = document.getElementById("navbarSettings");
+    navbarlinkSettings.addEventListener("click", () => {
+      let settings = document.getElementById("settings");
+      gsap.to(settings, {
+        duration: 0.5,
+        translateY: 1,
+      });
+    });
+  },
+  createView: function () {
+    let view = document.createElement("div");
+    view.id = "view";
+    let container = document.getElementById("container");
+    container.appendChild(view);
+  },
+  error: function () {
+    console.log("error");
+  },
+  setDefaultPrefs: function () {
+    SM.setMany({
+      prefs: {
+        autosave: true,
+        fullScreen: false,
+        exitWarning: false,
+        lightSwitch: false,
+      },
+    });
+  },
+};
 /*
 let Header = {
   init: function () {
@@ -58,19 +189,20 @@ let Header = {
 
 /**
  * pings object
- * handles all ping(s) related functions. messaging, pinging, deleting.
+ * handles all ping(s) related methods. messaging, pinging, deleting.
  */
 let Pings = {
   init: function () {
-    //making the pingsParent/wrapper
+    // making wrapper
     let elem = document.createElement("div");
     elem.id = "pings";
 
     let container = document.getElementById("container");
-    container.appendChild(elem);
+    let view = document.getElementById("view");
+    container.insertBefore(elem, container.firstChild);
   },
   ping: function (text) {
-    // takes the string/(text) and makes it go through a few checks
+    // the check
     if (typeof text == "undefined") {
       return;
     }
@@ -93,8 +225,7 @@ let Pings = {
     Pings.delete();
   },
   delete: function () {
-    // checking if there are any overflowing ping(s) to delete
-    // cause it can cause memoryleak if there arent any methods of removing overflowing pings
+    // checking if there are any overflowing ping(s) to delete, cause memoryleak
     let pings = document.getElementById("pings");
     let viewportHeight = window.innerHeight;
     let pingList = pings.getElementsByClassName("ping");
@@ -112,10 +243,12 @@ let Pings = {
 
 /**
  * event object
- * handles events, randomevents, battles, comment
+ * handles randomevents, fightEncounters, ui for entering a respite, etc, etc.
  */
 
-let Events = {};
+let Events = {
+  init: function () {},
+};
 
 /**
  * Purgatory object - location
@@ -172,30 +305,23 @@ let Button = {
  * handles most if not all values ingame; sets and gets values.
  *
  * link(s):
- * https://playcode.io/javascript/object (great source)
+ * https://playcode.io/javascript/object,
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects
  *
- * syntax examples
- * get("object"),
- * getMultiple(["object.object", "object", "object"]),
- * set("candlesLit", value),
- * setMultiple({object: {example: num, example: boolean}})
- *
  */
-
 let StateManager = {
   maxValue: 99999999,
   components: {},
   init: function () {
     let categories = [
-      "features", //locations, unlocked locations, characters etc.
+      "features", //locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
       "character", // boons, flaws, perks, health, etc, different characters
       "inventory", // inventory handling,
       "prefs", // preferences on stuff like exitWarning, lightmode, autosave, etc.
       "meta", //metaProgression
+      "cooldown", //button cooldowns, whatever stuff to do with cd
     ];
-
     for (let category of categories) {
       if (!this.get(category)) {
         this.set(category, {});
@@ -206,7 +332,7 @@ let StateManager = {
   get: function (stateName) {
     let currentState = this.components;
     const parts = stateName.split(".");
-    // splits stateName called if it has nested properties
+    // checks for nesteds
     for (let thing of parts) {
       if (currentState && currentState.hasOwnProperty(thing)) {
         currentState = currentState[thing];
@@ -218,21 +344,32 @@ let StateManager = {
     return currentState;
   },
   // gets multiple values if needed
-  getMultiple: function (stateNames) {
+  getMany: function (stateNames) {
     let values = {};
     for (let stateName of stateNames) {
       values[stateName] = this.get(stateName);
     }
     return values;
   },
+
   // sets a single state value
   set: function (stateName, value) {
-    if (typeof value === "number" && value > StateManager.maxValue) {
-      value = StateManager.maxValue;
+    if (typeof value === "number" && value > this.maxValue) {
+      value = this.maxValue;
     }
-    //this.components[stateName] = value;
+
     let currentState = this.components;
-    const parts = stateName.split(".");
+    //const parts = stateName.split(".");
+    const parts = stateName.split(/[.\[\]'"]+/);
+    //console.log(parts);
+    /*
+    let stateExists = this.get(stateName) !== undefined;
+    if (!stateExists) {
+      this.make(stateName, currentState[parts[0]]);
+    }
+    currentState = this.components;
+    */
+
     for (let i = 0; i < parts.length - 1; i++) {
       if (!currentState.hasOwnProperty(parts[i])) {
         currentState[parts[i]] = {};
@@ -241,215 +378,89 @@ let StateManager = {
     }
     currentState[parts[parts.length - 1]] = value;
   },
-  // sets multiple values if needed. fexample getting prefs and stuff.
-  setMultiple: function (valuesObject) {
-    for (let stateName in valuesObject) {
-      let value = valuesObject[stateName];
-      if (typeof value === "number" && value > StateManager.maxValue) {
-        value = StateManager.maxValue;
+  // sets multiple values if needed. for example setting prefs
+  setMany: function (list) {
+    for (let stateName in list) {
+      let value = list[stateName];
+      if (typeof value === "number" && value > this.maxValue) {
+        value = this.maxValue;
       }
       this.set(stateName, value);
     }
   },
+
+  addBoon: function (boon) {
+    SM.set("character.boons." + boon, true);
+  },
+  removeBoon: function (boon) {
+    SM.set("character.boons." + boon, false);
+  },
+  updateStates: function () {
+    let vers = Main.version;
+
+    if (vers == 1.1) {
+      console.log("version 1.1");
+    }
+  },
 };
+
+/**
+ * syntax
+ * get("object"),
+ * getMany(["object.object.value", "object.value", "object"]),
+ * set("candlesLit", value),
+ * setMany(
+ *  {object: {example: value, example: value}
+ *  {object2: {example2: value, example2: value}
+ * )
+ *
+ * categories: features, game, character, inventory, prefs, meta
+ */
 let SM = StateManager;
 
 /**
- * game component, handles the creation of the different ui,
+ * world
  */
 
-let Main = {
-  version: VERSION,
-  beta: true,
-
-  launch: function () {
-    let currentVersion = document.getElementById("versionNumber");
-    currentVersion.innerHTML = "v" + this.version;
-    Main.prefs = {}; //default preferences
-    Main.defaultPrefs = function () {
-      Main.prefs.autoSave = 1; //every min or so
-      Main.prefs.fullScreen = 0; //makes game fullscreen
-      Main.prefs.exitWarning = 1; //warns before unload
-      Main.prefs.lightSwitch = 1; //1 = darkmode, 0 = lightmode, default = 1.
-    };
-    Main.defaultPrefs();
-
-    window.BeforeUnloadEvent = function (event) {
-      if (Main.prefs && Main.prefs.exitWarning) {
-        event.returnValue = "are you sure you want to leave?";
-      }
-    };
-    Main.ready = 0;
-  },
-
-  init: function () {
-    Main.ready = 1;
-
-    // navbar
-    function initNavbar() {
-      let createLinks = function (id, text) {
-        let link = document.createElement("span");
-        link.setAttribute("id", id);
-        link.className = "link";
-        link.textContent = text;
-        return link;
-      };
-
-      let navbarInfo = [
-        { id: "navbarGithub", text: "github." },
-        { id: "navbarPortfolio", text: "portfolio." },
-        { id: "navbarAchievements", text: "achievements." },
-        { id: "navbarSettings", text: "settings." },
-      ];
-
-      let navbar = document.createElement("div");
-      navbar.id = "navbar";
-
-      let root = document.getElementById("root");
-      root.appendChild(navbar);
-
-      let navbarLinks = document.createElement("div");
-      navbarLinks.id = "navbarLinks";
-      navbar.appendChild(navbarLinks);
-
-      //makes a link for each of the navbarInfo[indexes]
-      navbarInfo.forEach((e) => {
-        let link = createLinks(e.id, e.text);
-        navbarLinks.appendChild(link);
-      });
-
-      let navbarLinkGithub = document.getElementById("navbarGithub");
-      navbarLinkGithub.addEventListener("click", () => {
-        window.location = "https://github.com/raincuhh";
-      });
-      let navbarlinkPortfolio = document.getElementById("navbarPortfolio");
-      navbarlinkPortfolio.addEventListener("click", () => {
-        window.location = "https://raincuhh.github.io/portfolio/";
-      });
-      let navbarlinkAchievement = document.getElementById("navbarAchievements");
-      navbarlinkAchievement.addEventListener("click", () => {
-        console.log("achievements");
-      });
-      let navbarlinkSettings = document.getElementById("navbarSettings");
-      navbarlinkSettings.addEventListener("click", () => {
-        let settings = document.getElementById("settings");
-        gsap.to(settings, {
-          duration: 0.5,
-          translateY: 1,
-        });
-      });
-    }
-    // mainview
-    let initMainView = function () {
-      let view = document.createElement("div");
-      view.id = "view";
-      let container = document.getElementById("container");
-      container.appendChild(view);
-    };
-
-    initNavbar(); // initiates navbar and its links
-    StateManager.init(); // initiates statemanager
-    Pings.init(); // initiates pings container and utilities
-    initMainView(); // initiates mainview
-  },
-
-  createGuid: function () {
-    var pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
-    var result = "";
-    for (var i = 0; i < pattern.length; i++) {
-      var c = pattern[i];
-      if (c === "x" || c === "y") {
-        var r = Math.floor(Math.random() * 16);
-        var v = c === "x" ? r : (r & 0x3) | 0x8;
-        result += v.toString(16);
-      } else {
-        result += c;
-      }
-    }
-    return result;
-  },
-
-  error: function () {
-    console.log("error");
-  },
+let World = {
+  init: function () {},
 };
-
-/* legacy language changing system
-Main.showLangChoices = function () {
-  let langBox = document.getElementById("langBox");
-  langBox.style.display = "flex";
-  //console.log("choose your language");
-  let langButtons = document.querySelectorAll(".langButton");
-  // makes a eventlistener on click and changes localstorage lang
-  // for future use if i got time
-  langButtons.forEach(function (e) {
-    e.addEventListener("click", () => {
-      buttonLanguageId = e.id;
-
-      switch (buttonLanguageId) {
-        case "langEnglish":
-          localStorage.setItem("spaceExplorerLang", buttonLanguageId);
-          lang = localStorage.getItem("spaceExplorerLang");
-          langBox.style.display = "none";
-          break;
-        case "langNorwegian":
-          localStorage.setItem("spaceExplorerLang", buttonLanguageId);
-          lang = localStorage.getItem("spaceExplorerLang");
-          langBox.style.display = "none";
-          break;
-        case "langSwedish":
-          localStorage.setItem("spaceExplorerLang", buttonLanguageId);
-          lang = localStorage.getItem("spaceExplorerLang");
-          langBox.style.display = "none";
-          break;
-        default:
-          localStorage.setItem("spaceExplorerLang", "langEnglish");
-          console.log("unknown lang chosen, ", "set EN as default");
-      }
-    });
-  });
-};
-*/
 
 /**
- * onload stuff
+ * character
+ */
+
+/**
+ * onload
  */
 
 window.onload = function () {
   if (!Main.ready) {
+    /*
     let checkForFirstLaunch = function () {
       let first = localStorage.getItem("firstLaunch");
-
-      if (first === null) {
-        // if firstlaunch === null then set firstlaunch to true, if opposite then parse the firstlaunch from localstorage, and then return result
-        localStorage.setItem("firstLaunch", JSON.stringify(true));
-        return true;
-      } else {
-        //console.log(JSON.parse(first));
-        return JSON.parse(first);
-      }
+      return first === null
+        ? localStorage.setItem("firstLaunch", JSON.stringify(true))
+        : JSON.parse(first);
     };
     let firstLaunch = checkForFirstLaunch();
-    //let firstLaunch = localStorage.setItem("firstLaunch", JSON.stringify(true)); //debug stuff
-    let launch = function () {
-      Main.launch();
-      let root = document.getElementById("root");
-      if (!root || !root.parentElement) {
-        Main.error();
-      } else {
-        console.log(
-          "[=== Hello, myself here, dont cheat in any resources will you. ʕ•ᴥ•ʔ",
-          "The game has sucessfully loaded. ===]"
-        );
-        Main.init();
-
-        if (firstLaunch) {
-          Main.lang = localStorage.setItem("gameLang", "EN");
-          console.log("set loc to " + localStorage.getItem("gameLang"));
-        }
+    */
+    let root = document.getElementById("root");
+    if (!root || !root.parentElement) {
+      Main.error();
+    } else {
+      console.log(
+        "[=== Hello, myself here, dont change the gamestate will you ʕ•ᴥ•ʔ",
+        "The game has sucessfully loaded. ===]"
+      );
+      Main.init();
+      /*
+      if (firstLaunch) {
+        Main.lang = localStorage.setItem("gameLang", "EN");
+        console.log("set loc to " + localStorage.getItem("gameLang"));
       }
-    };
-    launch();
+      */
+    }
   }
 };
 
