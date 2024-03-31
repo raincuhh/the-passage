@@ -158,13 +158,16 @@ let Main = {
       console.log("no saved gamestate found");
     }
   },
-  exporting: function () {
+  deleteGame: function () {
+    localStorage.clear();
+  },
+  export: function () {
     let state = StateManager.components;
     let jsonEncodedState = JSON.stringify(state);
     let base64EncodedState = btoa(jsonEncodedState);
     console.log(base64EncodedState);
   },
-  importing: function () {
+  import: function () {
     let importDiv = document.getElementById("placeholderDiv");
     let state = importDiv.innerHTML;
     let base64decodedState = atob(state);
