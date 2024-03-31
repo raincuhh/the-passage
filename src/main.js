@@ -12,33 +12,29 @@ let Main = {
 
     this.createNavbar(); // makes navbar
     this.createView(); // makes view
-    StateManager.init(); // starts statemanager
-    Pings.init(); // starts pings
+    StateManager.init(); // starts the statemanager
+    Pings.init(); // starts the pings
     this.setDefaultPrefs(); // sets game default prefs
-    this.saveGame();
 
-    //autosave
-    setInterval(() => {
-      this.saveGame();
-    }, this.saveDelay);
+    // checks if first time loading game,
+    // if so then its gonna do stuff and some other stuff
+    // havent added check yet, needs game on newlaunch often anyways
+    // + gonna have this check elsewhere in the world object
+    SM.set("game.newLaunch", true);
+
+    this.loadGame(); // loads if there is anything to load, should update defaultprefs
+    this.saveGame(); // saves the gamestate right after.
+
+    // autosave every 60 seconds, can turn off in settings
+    if (SM.get("prefs.autosave")) {
+      setInterval(() => {
+        this.saveGame();
+      }, this.saveDelay);
+    } else {
+      console.log("autosave is off");
+    }
+
     World.init(); // starts world
-  },
-  saveGame: function () {
-    let saveDiv = document.getElementById("saved");
-    saveDiv.textContent = "saved";
-    tl = gsap.timeline();
-    tl.to(saveDiv, {
-      duration: 0.1,
-      opacity: 1,
-    });
-    tl.to(saveDiv, {
-      duration: 1,
-      opacity: 0,
-    });
-
-    let stateString = JSON.stringify(StateManager.components);
-    localStorage.setItem("gameState", stateString);
-    console.log("Game state saved.");
   },
 
   createGuid: function () {
@@ -82,7 +78,7 @@ let Main = {
     navbarLinks.id = "navbarLinks";
     navbar.appendChild(navbarLinks);
 
-    //makes a link for each of the navbarInfo[indexes]
+    // makes a link for each of the navbarInfo[indexes]
     navbarInfo.forEach((e) => {
       let link = createLinks(e.id, e.text);
       navbarLinks.appendChild(link);
@@ -128,7 +124,55 @@ let Main = {
       },
     });
   },
+  saveGame: function () {
+    let saveDiv = document.getElementById("saved");
+    saveDiv.textContent = "saved";
+    tl = gsap.timeline();
+    tl.to(saveDiv, {
+      duration: 0,
+      opacity: 1,
+    });
+    tl.to(saveDiv, {
+      duration: 1,
+      opacity: 0,
+    });
+
+    try {
+      let state = JSON.stringify(StateManager.components);
+      localStorage.setItem("gameState", state);
+    } catch (error) {
+      console.error("error occured: ", error);
+    }
+  },
+  loadGame: function () {
+    let state = localStorage.getItem("gameState");
+    if (state) {
+      try {
+        let gameState = JSON.parse(state);
+        StateManager.components = gameState;
+        console.log("gamestate loaded");
+      } catch (error) {
+        console.error("error occured: ", error);
+      }
+    } else {
+      console.log("no saved gamestate found");
+    }
+  },
+  exporting: function () {
+    let state = StateManager.components;
+    let jsonEncodedState = JSON.stringify(state);
+    let base64EncodedState = btoa(jsonEncodedState);
+    console.log(base64EncodedState);
+  },
+  importing: function () {
+    let importDiv = document.getElementById("placeholderDiv");
+    let state = importDiv.innerHTML;
+    let base64decodedState = atob(state);
+    let jsonDecodedState = JSON.parse(base64decodedState);
+    localStorage.setItem("gameState", jsonDecodedState);
+  },
 };
+
 /*
 let Header = {
   init: function () {
@@ -198,7 +242,6 @@ let Pings = {
     elem.id = "pings";
 
     let container = document.getElementById("container");
-    let view = document.getElementById("view");
     container.insertBefore(elem, container.firstChild);
   },
   ping: function (text) {
@@ -248,6 +291,8 @@ let Pings = {
 
 let Events = {
   init: function () {},
+
+  startEvent: function () {},
 };
 
 /**
@@ -263,7 +308,7 @@ let Purgatory = {
 
 /**
  * button object
- * handles the creation of buttons catoring to different situations
+ * handles the creation of buttons for different situations
  *
  * example new button
  * new Button.button({
@@ -273,7 +318,6 @@ let Purgatory = {
  *  width: num,
  * })
  */
-
 let Button = {
   button: function (param) {
     let el = document.createElement("div");
@@ -284,7 +328,7 @@ let Button = {
     el.className = "button";
     el.textContent = typeof param.text !== "undefined" ? param.text : "button";
 
-    //el.classList.toggle("disabled", typeof param.cd !== "undefined");
+    // el.classList.toggle("disabled", typeof param.cd !== "undefined");
 
     if (typeof param.click === "function") {
       if (!el.classList.contains("disabled")) {
@@ -314,12 +358,12 @@ let StateManager = {
   components: {},
   init: function () {
     let categories = [
-      "features", //locations, etc.
+      "features", // locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
       "character", // boons, flaws, perks, health, etc, different characters
       "inventory", // inventory handling,
       "prefs", // preferences on stuff like exitWarning, lightmode, autosave, etc.
-      "meta", //metaProgression
+      "meta", // metaProgression
       "cooldown", //button cooldowns, whatever stuff to do with cd
     ];
     for (let category of categories) {
@@ -351,7 +395,6 @@ let StateManager = {
     }
     return values;
   },
-
   // sets a single state value
   set: function (stateName, value) {
     if (typeof value === "number" && value > this.maxValue) {
@@ -359,17 +402,8 @@ let StateManager = {
     }
 
     let currentState = this.components;
-    //const parts = stateName.split(".");
+    // regular expression to check for ".", "[", "]", """, and ', then removes if match
     const parts = stateName.split(/[.\[\]'"]+/);
-    //console.log(parts);
-    /*
-    let stateExists = this.get(stateName) !== undefined;
-    if (!stateExists) {
-      this.make(stateName, currentState[parts[0]]);
-    }
-    currentState = this.components;
-    */
-
     for (let i = 0; i < parts.length - 1; i++) {
       if (!currentState.hasOwnProperty(parts[i])) {
         currentState[parts[i]] = {};
@@ -377,6 +411,8 @@ let StateManager = {
       currentState = currentState[parts[i]];
     }
     currentState[parts[parts.length - 1]] = value;
+
+    Main.saveGame();
   },
   // sets multiple values if needed. for example setting prefs
   setMany: function (list) {
@@ -388,22 +424,22 @@ let StateManager = {
       this.set(stateName, value);
     }
   },
-
-  addBoon: function (boon) {
-    SM.set("character.boons." + boon, true);
-  },
-  removeBoon: function (boon) {
-    SM.set("character.boons." + boon, false);
-  },
-  updateStates: function () {
+  /*
+  updateOldVers: function () {
     let vers = Main.version;
 
     if (vers == 1.1) {
       console.log("version 1.1");
     }
   },
+  */
+  addBoon: function (boon) {
+    SM.set("character.boons." + boon, true);
+  },
+  removeBoon: function (boon) {
+    SM.set("character.boons." + boon, false);
+  },
 };
-
 /**
  * syntax
  * get("object"),
@@ -454,12 +490,12 @@ window.onload = function () {
         "The game has sucessfully loaded. ===]"
       );
       Main.init();
-      /*
-      if (firstLaunch) {
-        Main.lang = localStorage.setItem("gameLang", "EN");
-        console.log("set loc to " + localStorage.getItem("gameLang"));
+      // checks for firstlaunch to set gameLang to default(EN).
+      // changeable in settings
+      if (SM.get("game.newLaunch")) {
+        SM.set("game.lang", "EN");
+        console.log("set loc to " + SM.get("game.lang"));
       }
-      */
     }
   }
 };
@@ -470,10 +506,9 @@ window.onload = function () {
  * rememeber using this vid as baseline for saving and loading with localstorage:
  * https://www.youtube.com/watch?v=ePHfRUIvbbg
  *
- * modulate/component(isize) stuff
+ * note to self, modulate shit cuh
  * https://medium.com/@crohacz_86666/basics-of-modular-javascript-2395c82dd93a
  * remember thisshit
- *
  *
  * the encounter system has a kind of pokemon(turnbased) esque battlesystem.
  * take inspo from roguelineage permadeath.
