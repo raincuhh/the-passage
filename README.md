@@ -1,7 +1,5 @@
-space explorer
+the passage
 
-"You find yourself lost in a desolate corner of the universe."
+roguelike, textbased-rpg, with permadeath mechanics and metaprogression
 
-roguelike, textbased-rpg, with elements of different incremental, and adventure games.
-
-this game has no handholding, you have three lives; lose them all, only death awaits you.
+this game has no handholding, you have 4 people, a squad; lose them all, and only death awaits you.
