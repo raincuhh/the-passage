@@ -15,13 +15,7 @@
   --text-subdued: rgb(55, 55, 55);
 
   --game-height: 100%;
-  --padding-base: max(
-    1rem,
-    min(
-      clamp(6vw, 30vw, 18vw) - clamp(1.05rem, 12vw, clamp(3.5rem, 12vw, 3rem))
-    )
-  );
-  --pings-width: clamp(30%, 82.5vw, 34%);
+  --pings-width: clamp(30%, 82.5vw, 33%);
   --view-width: calc(100% - var(--pings-width));
 
   /* z-index */
@@ -147,4 +141,14 @@
 }
 .button:hover {
   text-decoration: underline;
+}
+
+/* mediaqueries */
+
+@media (max-width: 576px) {
+  #settings {
+    width: 100%;
+    right: 0;
+    height: 80%;
+  }
 }

@@ -1,3 +1,6 @@
+function getID(id) {
+  return document.getElementById(id);
+}
 /**
  * main
  * handles general things, like initiating the different objects
@@ -6,33 +9,53 @@
 let Main = {
   version: VERSION,
   beta: true,
-  saveDelay: 60000,
+  autoSaveDelay: 60000,
   init: function () {
-    Main.ready = 1;
+    Main.ready = true;
 
     this.createNavbar(); // makes navbar
     this.createView(); // makes view
-    StateManager.init(); // starts the statemanager
+    SM.init(); // starts the statemanager
     Pings.init(); // starts the pings
     this.setDefaultPrefs(); // sets game default prefs
-
-    // checks if first time loading game,
-    // if so then its gonna do stuff and some other stuff
-    // havent added check yet, needs game on newlaunch often anyways
-    // + gonna have this check elsewhere in the world object
-    SM.set("game.newLaunch", true);
-
     this.loadGame(); // loads if there is anything to load, should update defaultprefs
-    this.saveGame(); // saves the gamestate right after.
 
-    // autosave every 60 seconds, can turn off in settings
+    // not fixed
+    if (SM.get("game.new")) {
+      SM.set("game.lang", "EN");
+      console.log("set loc to " + SM.get("game.lang"));
+    }
+    // autosave check
     if (SM.get("prefs.autosave")) {
+      console.log("autosave is on");
       setInterval(() => {
         this.saveGame();
-      }, this.saveDelay);
+      }, this.autoSaveDelay);
     } else {
       console.log("autosave is off");
+      Pings.ping(
+        "autosave is off, remember to save your progress manually through settings, or turn on autosave"
+      );
     }
+    // fullscreen check can only be done with user gesture ig..
+    // il get back to it when i got a event module ready
+    // to gesture fs if option is there
+    /*
+    if (SM.get("prefs.fullScreen")) {
+      let elem = getID("root");
+      if (!document.fullscreenElement) {
+        // Enter fullscreen mode
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        }
+      } else {
+        // Exit fullscreen mode
+        if (document.exitFullscreen) {
+          document.exitFullscreen(); // Corrected typo here
+        }
+      }
+    }
+    */
 
     World.init(); // starts world
   },
@@ -70,14 +93,11 @@ let Main = {
 
     let navbar = document.createElement("div");
     navbar.id = "navbar";
-
-    let root = document.getElementById("root");
+    let root = getID("root");
     root.appendChild(navbar);
-
     let navbarLinks = document.createElement("div");
     navbarLinks.id = "navbarLinks";
     navbar.appendChild(navbarLinks);
-
     // makes a link for each of the navbarInfo[indexes]
     navbarInfo.forEach((e) => {
       let link = createLinks(e.id, e.text);
@@ -115,17 +135,19 @@ let Main = {
     console.log("error");
   },
   setDefaultPrefs: function () {
+    // sets first time default prefs, will get overrided on this.loadGame()
     SM.setMany({
       prefs: {
-        autosave: true,
-        fullScreen: false,
-        exitWarning: false,
-        lightSwitch: false,
+        autosave: true, // if you wanna have game autosave every 60s
+        fullScreen: true, // fullscreen.. yes or no
+        exitWarning: false, // warns on exit, cause it can cause bugs maybe
+        lightSwitch: false, // darkmode or lightmode for now
+        showBackupWarning: false, // shows "backup save" ping
       },
     });
   },
-  saveGame: function () {
-    let saveDiv = document.getElementById("saved");
+  saveNotif: function () {
+    let saveDiv = getID("saved");
     saveDiv.textContent = "saved";
     tl = gsap.timeline();
     tl.to(saveDiv, {
@@ -136,43 +158,66 @@ let Main = {
       duration: 1,
       opacity: 0,
     });
-
+  },
+  saveGame: function () {
     try {
-      let state = JSON.stringify(StateManager.components);
-      localStorage.setItem("gameState", state);
+      let string = JSON.stringify(SM.components);
+      localStorage.setItem("save", string);
+      this.saveNotif();
     } catch (error) {
       console.error("error occured: ", error);
+      alert("tried to save, attempt failed, view error in console");
     }
   },
   loadGame: function () {
-    let state = localStorage.getItem("gameState");
-    if (state) {
+    let string = localStorage.getItem("save");
+    if (string) {
       try {
-        let gameState = JSON.parse(state);
-        StateManager.components = gameState;
-        console.log("gamestate loaded");
+        let save = JSON.parse(string);
+        SM.components = save;
+        console.log("save loaded");
+        this.saveGame();
       } catch (error) {
         console.error("error occured: ", error);
+        alert("tried to load save, attempt failed, view error in console");
       }
     } else {
-      console.log("no saved gamestate found");
+      console.log("no save found");
     }
   },
-  deleteGame: function () {
+  deleteGame: function (reload) {
     localStorage.clear();
+    this.saveGame();
+    if (reload) {
+      location.reload();
+    }
   },
   export: function () {
-    let state = StateManager.components;
-    let jsonEncodedState = JSON.stringify(state);
-    let base64EncodedState = btoa(jsonEncodedState);
-    console.log(base64EncodedState);
+    this.saveGame();
+    let string = this.genExport64();
+    // gives export in console.log if game isnt loading // bruteforce
+    console.log("copy save: " + string);
+    return string;
+  },
+  genExport64: function () {
+    let save = StateManager.components;
+    save = JSON.stringify(save);
+    save = btoa(save);
+    return save;
   },
   import: function () {
-    let importDiv = document.getElementById("placeholderDiv");
-    let state = importDiv.innerHTML;
-    let base64decodedState = atob(state);
-    let jsonDecodedState = JSON.parse(base64decodedState);
-    localStorage.setItem("gameState", jsonDecodedState);
+    let importDiv = getID("view");
+    let string = importDiv.textContent;
+    try {
+      let save = atob(string);
+      save = JSON.parse(save);
+      localStorage.setItem("save", save);
+      this.saveGame(); // saves the new 'save'
+      this.loadGame(); // then loads it to SM.components
+      console.log("save imported");
+    } catch (error) {
+      console.error(error);
+    }
   },
 };
 
@@ -244,7 +289,7 @@ let Pings = {
     let elem = document.createElement("div");
     elem.id = "pings";
 
-    let container = document.getElementById("container");
+    let container = getID("container");
     container.insertBefore(elem, container.firstChild);
   },
   ping: function (text) {
@@ -259,27 +304,25 @@ let Pings = {
     if (firstChar !== firstChar.toUpperCase()) {
       text = text.charAt(0).toUpperCase() + text.slice(1);
     }
-    Pings.message(text);
+    Pings.send(text);
   },
-  message: function (e) {
+  send: function (e) {
     // outputs the finalized message to the pings(parent)node
     let ping = document.createElement("div");
     ping.className = "ping";
     ping.textContent = e;
-    let pings = document.getElementById("pings");
+    let pings = getID("pings");
     pings.insertBefore(ping, pings.firstChild);
     Pings.delete();
   },
   delete: function () {
     // checking if there are any overflowing ping(s) to delete, cause memoryleak
-    let pings = document.getElementById("pings");
+    let pings = getID("pings");
     let viewportHeight = window.innerHeight;
     let pingList = pings.getElementsByClassName("ping");
-
     for (let i = 0; i < pingList.length; i++) {
       let ping = pingList[i];
       let pingRect = ping.getBoundingClientRect();
-
       if (pingRect.bottom < 0 || pingRect.top > viewportHeight) {
         pings.removeChild(ping);
       }
@@ -289,7 +332,7 @@ let Pings = {
 
 /**
  * event object
- * handles randomevents, fightEncounters, ui for entering a respite, etc, etc.
+ * handles ui + nodeEvents, pathEvents, randomEvents,
  */
 
 let Events = {
@@ -299,19 +342,15 @@ let Events = {
 };
 
 /**
- * Purgatory object - location
- * handles resetting run if player dies, ??? gives snarky remark regarding how your run went.
+ * world
  */
 
-let Purgatory = {
+let World = {
   init: function () {},
-
-  setTitle: function () {},
 };
 
 /**
  * button object
- * handles the creation of buttons for different situations
  *
  * example new button
  * new Button.button({
@@ -360,14 +399,16 @@ let StateManager = {
   maxValue: 99999999,
   components: {},
   init: function () {
+    this.set("ver", Main.version);
+
     let categories = [
       "features", // locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
-      "character", // boons, flaws, perks, health, etc, different characters
+      "entities", // pathfinders, generated enemies, boons, flaws, perks, health, shield, etc, different characters
       "inventory", // inventory handling,
       "prefs", // preferences on stuff like exitWarning, lightmode, autosave, etc.
       "meta", // metaProgression
-      "cooldown", //button cooldowns, whatever stuff to do with cd
+      "cooldown", // cd handling
     ];
     for (let category of categories) {
       if (!this.get(category)) {
@@ -418,17 +459,19 @@ let StateManager = {
     Main.saveGame();
   },
   // sets multiple values if needed. for example setting prefs
-  setMany: function (list) {
-    for (let stateName in list) {
-      let value = list[stateName];
+  setMany: function (listObjects) {
+    for (let stateName in listObjects) {
+      let value = listObjects[stateName];
       if (typeof value === "number" && value > this.maxValue) {
         value = this.maxValue;
       }
       this.set(stateName, value);
     }
   },
+
+  // just updates the gamesave if needed during an "update"
   /*
-  updateOldVers: function () {
+  update: function () {
     let vers = Main.version;
 
     if (vers == 1.1) {
@@ -458,47 +501,20 @@ let StateManager = {
 let SM = StateManager;
 
 /**
- * world
- */
-
-let World = {
-  init: function () {},
-};
-
-/**
- * character
- */
-
-/**
  * onload
  */
 
 window.onload = function () {
   if (!Main.ready) {
-    /*
-    let checkForFirstLaunch = function () {
-      let first = localStorage.getItem("firstLaunch");
-      return first === null
-        ? localStorage.setItem("firstLaunch", JSON.stringify(true))
-        : JSON.parse(first);
-    };
-    let firstLaunch = checkForFirstLaunch();
-    */
     let root = document.getElementById("root");
     if (!root || !root.parentElement) {
       Main.error();
     } else {
       console.log(
-        "[=== Hello, myself here, dont change the gamestate will you ʕ•ᴥ•ʔ",
-        "The game has sucessfully loaded. ===]"
+        "[=== " + "Hello, myself here, dont change the save will you ʕ•ᴥ•ʔ",
+        ", the game has loaded." + " ===]"
       );
       Main.init();
-      // checks for firstlaunch to set gameLang to default(EN).
-      // changeable in settings
-      if (SM.get("game.newLaunch")) {
-        SM.set("game.lang", "EN");
-        console.log("set loc to " + SM.get("game.lang"));
-      }
     }
   }
 };
