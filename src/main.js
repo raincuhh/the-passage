@@ -141,7 +141,7 @@ let Main = {
         autosave: true, // if you wanna have game autosave every 60s
         fullScreen: true, // fullscreen.. yes or no
         exitWarning: false, // warns on exit, cause it can cause bugs maybe
-        lightSwitch: false, // darkmode or lightmode for now
+        light: false, // darkmode or lightmode
         showBackupWarning: false, // shows "backup save" ping
       },
     });
@@ -194,12 +194,12 @@ let Main = {
   },
   export: function () {
     this.saveGame();
-    let string = this.genExport64();
+    let string = this.gen64();
     // gives export in console.log if game isnt loading // bruteforce
     console.log("copy save: " + string);
     return string;
   },
-  genExport64: function () {
+  gen64: function () {
     let save = StateManager.components;
     save = JSON.stringify(save);
     save = btoa(save);
@@ -217,8 +217,17 @@ let Main = {
       console.log("save imported");
     } catch (error) {
       console.error(error);
+      alert("error: please try re-importing");
     }
   },
+};
+
+/**
+ * world
+ */
+
+let World = {
+  init: function () {},
 };
 
 /*
@@ -288,7 +297,6 @@ let Pings = {
     // making wrapper
     let elem = document.createElement("div");
     elem.id = "pings";
-
     let container = getID("container");
     container.insertBefore(elem, container.firstChild);
   },
@@ -335,25 +343,11 @@ let Pings = {
  * handles ui + nodeEvents, pathEvents, randomEvents,
  */
 
-let Events = {
-  init: function () {},
-
-  startEvent: function () {},
-};
-
-/**
- * world
- */
-
-let World = {
-  init: function () {},
-};
-
 /**
  * button object
  *
  * example new button
- * new Button.button({
+ * new Button.customButton({
  *  id: string,
  *  text: placeholder,
  *  click: function,
@@ -361,7 +355,7 @@ let World = {
  * })
  */
 let Button = {
-  button: function (param) {
+  custom: function (param) {
     let el = document.createElement("div");
     el.setAttribute(
       "id",
@@ -369,9 +363,7 @@ let Button = {
     );
     el.className = "button";
     el.textContent = typeof param.text !== "undefined" ? param.text : "button";
-
     // el.classList.toggle("disabled", typeof param.cd !== "undefined");
-
     if (typeof param.click === "function") {
       if (!el.classList.contains("disabled")) {
         el.addEventListener("click", function (event) {
@@ -381,15 +373,17 @@ let Button = {
     }
     return el;
   },
-  setCd: function (btn, cd) {},
-
-  disabled: function () {},
+  disabled: function (btn, param) {
+    // i will do later
+  },
+  onCooldown: function (btn, cd) {},
 };
 
 /**
- * stateManager
+ * sm
  * handles most if not all values ingame; sets and gets values.
- *
+ * also used for saving and loading the game state.
+ * components object gets saved then loaded onload
  * link(s):
  * https://playcode.io/javascript/object,
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects
@@ -404,12 +398,14 @@ let StateManager = {
     let categories = [
       "features", // locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
-      "entities", // pathfinders, generated enemies, boons, flaws, perks, health, shield, etc, different characters
+      "entities", // generated enemies will be instantiated inside the entities category
+      "character", // pathfinders, boons, flaws, perks, health, stats and such.
       "inventory", // inventory handling,
       "prefs", // preferences on stuff like exitWarning, lightmode, autosave, etc.
-      "meta", // metaProgression
-      "cooldown", // cd handling
+      "meta", // meta-progression
+      "cooldown", // cooldown on different situations handling
     ];
+    // checks through iterating over values, and creates a category if category undefined
     for (let category of categories) {
       if (!this.get(category)) {
         this.set(category, {});
@@ -444,7 +440,6 @@ let StateManager = {
     if (typeof value === "number" && value > this.maxValue) {
       value = this.maxValue;
     }
-
     let currentState = this.components;
     // regular expression to check for ".", "[", "]", """, and ', then removes if match
     const parts = stateName.split(/[.\[\]'"]+/);
@@ -479,13 +474,16 @@ let StateManager = {
     }
   },
   */
-  addBoon: function (boon) {
-    SM.set("character.boons." + boon, true);
+  // boon refers to both positive and negatives unless explicitly said,
+  // though i might change this to a boons and flaws system to specify between them
+  addBoon: function (char, boon) {
+    SM.set("character." + char + "." + boon, true);
   },
-  removeBoon: function (boon) {
-    SM.set("character.boons." + boon, false);
+  removeBoon: function (char, boon) {
+    SM.set("character." + char + "." + boon, false);
   },
 };
+
 /**
  * syntax
  * get("object"),
