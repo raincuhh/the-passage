@@ -1,5 +1,9 @@
+// just shortens process
 function getID(id) {
   return document.getElementById(id);
+}
+function createEl(elem) {
+  return document.createElement(elem);
 }
 /**
  * main
@@ -10,6 +14,37 @@ let Main = {
   version: VERSION,
   beta: true,
   autoSaveDelay: 60000,
+
+  boons: {
+    lucky: {
+      name: "lucky",
+      message: "bask in luck's glow, for blessings overflow.",
+      // you have a higher chance of getting good pathEvents or nodeEvents
+    },
+    hoarder: {
+      name: "hoarder",
+      message: "you somehow find ways to carry more",
+      // increases inventory space by a small amount
+    },
+  },
+  flaws: {
+    restless: {
+      name: "restless",
+      message: "you find it harder to rest properly",
+      // you will heal slightly less with potions
+    },
+    delirius: {
+      name: "delirious",
+      message: "the voices speak to you",
+      // higher chance of becoming insane // corruption stuff
+    },
+    unlucky: {
+      name: "unlucky",
+      message: "fortune frowns, your luck goes down",
+      // you have a higher chance of getting bad pathEvents or nodeEvents
+    },
+  },
+
   init: function () {
     Main.ready = true;
 
@@ -18,7 +53,7 @@ let Main = {
     SM.init(); // starts the statemanager
     Pings.init(); // starts the pings
     this.setDefaultPrefs(); // sets game default prefs
-    this.loadGame(); // loads if there is anything to load, should update defaultprefs
+    this.loadGame(); // load, should update defaultprefs
 
     // not fixed
     if (SM.get("game.new")) {
@@ -77,7 +112,7 @@ let Main = {
   },
   createNavbar: function () {
     let createLinks = function (id, text) {
-      let link = document.createElement("span");
+      let link = createEl("span");
       link.setAttribute("id", id);
       link.className = "link";
       link.textContent = text;
@@ -91,11 +126,11 @@ let Main = {
       { id: "navbarSettings", text: "settings." },
     ];
 
-    let navbar = document.createElement("div");
+    let navbar = createEl("div");
     navbar.id = "navbar";
     let root = getID("root");
     root.appendChild(navbar);
-    let navbarLinks = document.createElement("div");
+    let navbarLinks = createEl("div");
     navbarLinks.id = "navbarLinks";
     navbar.appendChild(navbarLinks);
     // makes a link for each of the navbarInfo[indexes]
@@ -104,21 +139,21 @@ let Main = {
       navbarLinks.appendChild(link);
     });
 
-    let navbarLinkGithub = document.getElementById("navbarGithub");
+    let navbarLinkGithub = getID("navbarGithub");
     navbarLinkGithub.addEventListener("click", () => {
       window.open("https://github.com/raincuhh");
     });
-    let navbarlinkPortfolio = document.getElementById("navbarPortfolio");
+    let navbarlinkPortfolio = getID("navbarPortfolio");
     navbarlinkPortfolio.addEventListener("click", () => {
       window.open("https://raincuhh.github.io/portfolio/");
     });
-    let navbarlinkAchievement = document.getElementById("navbarAchievements");
+    let navbarlinkAchievement = getID("navbarAchievements");
     navbarlinkAchievement.addEventListener("click", () => {
       console.log("achievements");
     });
-    let navbarlinkSettings = document.getElementById("navbarSettings");
+    let navbarlinkSettings = getID("navbarSettings");
     navbarlinkSettings.addEventListener("click", () => {
-      let settings = document.getElementById("settings");
+      let settings = getID("settings");
       gsap.to(settings, {
         duration: 0.5,
         translateY: 1,
@@ -126,9 +161,9 @@ let Main = {
     });
   },
   createView: function () {
-    let view = document.createElement("div");
+    let view = createEl("div");
     view.id = "view";
-    let container = document.getElementById("container");
+    let container = getID("container");
     container.appendChild(view);
   },
   error: function () {
@@ -155,7 +190,7 @@ let Main = {
       opacity: 1,
     });
     tl.to(saveDiv, {
-      duration: 1,
+      duration: 1.5,
       opacity: 0,
     });
   },
@@ -233,7 +268,7 @@ let World = {
 /*
 let Header = {
   init: function () {
-    let elem = document.createElement("div");
+    let elem = createEl("div");
     elem.id = "header";
 
     let mainView = document.getElementById("mainView");
@@ -241,20 +276,20 @@ let Header = {
   },
   addAct: function (containerId, nameId, text, innerWrapperId) {
     //creates current actContainer (outside)
-    let actContainer = document.createElement("div");
+    let actContainer = createEl("div");
     actContainer.id = containerId;
     actContainer.className = "actContainer";
     //appends actContainer to header
     let header = document.getElementById("header");
     header.appendChild(actContainer);
     //creates actName and appends to actContainer (name)
-    let actName = document.createElement("span");
+    let actName = createEl("span");
     actName.id = nameId;
     actName.className = "actTitle";
     actName.textContent = text;
     actContainer.appendChild(actName);
     //creates actInnerWrapper (beside actName) and appends to actContainer
-    let actInnerWrapper = document.createElement("div");
+    let actInnerWrapper = createEl("div");
     actInnerWrapper.id = innerWrapperId;
     actInnerWrapper.className = "actInnerWrapper";
     actContainer.appendChild(actInnerWrapper);
@@ -270,7 +305,7 @@ let Header = {
     //reminder: add location back to function param after testing
 
     //creates chapter
-    let chapter = document.createElement("span");
+    let chapter = createEl("span");
     chapter.className = "chapter";
     chapter.id = id;
     chapter.textContent = text;
@@ -294,16 +329,14 @@ let Header = {
  */
 let Pings = {
   init: function () {
-    // making wrapper
-    let elem = document.createElement("div");
+    let elem = createEl("div");
     elem.id = "pings";
     let container = getID("container");
     container.insertBefore(elem, container.firstChild);
   },
   ping: function (text) {
-    // the check
     if (typeof text == "undefined") {
-      return;
+      return; // if no text then dont do stuff
     }
     if (text.slice(-1) != ".") {
       text += ".";
@@ -316,7 +349,7 @@ let Pings = {
   },
   send: function (e) {
     // outputs the finalized message to the pings(parent)node
-    let ping = document.createElement("div");
+    let ping = createEl("div");
     ping.className = "ping";
     ping.textContent = e;
     let pings = getID("pings");
@@ -343,6 +376,27 @@ let Pings = {
  * handles ui + nodeEvents, pathEvents, randomEvents,
  */
 
+let Events = {
+  eventStack: [],
+  init: function () {},
+
+  newEvent: function (param /*event*/) {
+    let elem = createEl("event");
+    elem.setAttribute(
+      "id",
+      typeof param.id !== "undefined" ? param.id : "EVENT_" + Main.createGuid()
+    );
+    elem.className = "event";
+    // eventtype
+    let eventType;
+    if (typeof param.type !== "undefined") eventType = param.type;
+    console.log(eventType);
+
+    let main = getID("main");
+    main.appendChild(elem);
+  },
+};
+
 /**
  * button object
  *
@@ -356,22 +410,23 @@ let Pings = {
  */
 let Button = {
   custom: function (param) {
-    let el = document.createElement("div");
-    el.setAttribute(
+    let elem = createEl("div");
+    elem.setAttribute(
       "id",
       typeof param.id !== "undefined" ? param.id : "BTN_" + Main.createGuid()
     );
-    el.className = "button";
-    el.textContent = typeof param.text !== "undefined" ? param.text : "button";
+    elem.className = "button";
+    elem.textContent =
+      typeof param.text !== "undefined" ? param.text : "button";
     // el.classList.toggle("disabled", typeof param.cd !== "undefined");
     if (typeof param.click === "function") {
-      if (!el.classList.contains("disabled")) {
-        el.addEventListener("click", function (event) {
+      if (!elem.classList.contains("disabled")) {
+        elem.addEventListener("click", function (event) {
           param.click(event);
         });
       }
     }
-    return el;
+    return elem;
   },
   disabled: function (btn, param) {
     // i will do later
@@ -380,28 +435,30 @@ let Button = {
 };
 
 /**
- * sm
  * handles most if not all values ingame; sets and gets values.
- * also used for saving and loading the game state.
- * components object gets saved then loaded onload
- * link(s):
- * https://playcode.io/javascript/object,
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects
- *
+ * also used for saving and loading the game state,
+ * components object gets saved then loaded.
+ * get("object"),
+ * getMany(["object.object.value", "object.value", "object"]),
+ * set("candlesLit", value),
+ * setMany(
+ *  {object: {example: value, example: value}
+ *  {object2: {example2: value, example2: value}
+ * )
+ * categories: features, game, character, inventory, prefs, meta
  */
-let StateManager = {
+let SM = {
   maxValue: 99999999,
   components: {},
   init: function () {
     this.set("ver", Main.version);
-
     let categories = [
       "features", // locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
       "entities", // generated enemies will be instantiated inside the entities category
       "character", // pathfinders, boons, flaws, perks, health, stats and such.
       "inventory", // inventory handling,
-      "prefs", // preferences on stuff like exitWarning, lightmode, autosave, etc.
+      "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression
       "cooldown", // cooldown on different situations handling
     ];
@@ -414,6 +471,7 @@ let StateManager = {
   },
   // gets a single value
   get: function (stateName) {
+    // checks the component object (all categories are instantiated there)
     let currentState = this.components;
     const parts = stateName.split(".");
     // checks for nesteds
@@ -463,40 +521,22 @@ let StateManager = {
       this.set(stateName, value);
     }
   },
-
-  // just updates the gamesave if needed during an "update"
-  /*
-  update: function () {
-    let vers = Main.version;
-
-    if (vers == 1.1) {
-      console.log("version 1.1");
-    }
-  },
-  */
   // boon refers to both positive and negatives unless explicitly said,
   // though i might change this to a boons and flaws system to specify between them
   addBoon: function (char, boon) {
     SM.set("character." + char + "." + boon, true);
+    //Pings.ping(Main)
   },
-  removeBoon: function (char, boon) {
-    SM.set("character." + char + "." + boon, false);
+  addFlaw: function (char, flaw) {
+    SM.set("character." + char + "." + flaw, true);
+  },
+  removePerk: function (char, perk) {
+    SM.set("character." + char + "." + perk, false);
+  },
+  getPerk: function (char, perk) {
+    return this.get("character." + char + "." + perk);
   },
 };
-
-/**
- * syntax
- * get("object"),
- * getMany(["object.object.value", "object.value", "object"]),
- * set("candlesLit", value),
- * setMany(
- *  {object: {example: value, example: value}
- *  {object2: {example2: value, example2: value}
- * )
- *
- * categories: features, game, character, inventory, prefs, meta
- */
-let SM = StateManager;
 
 /**
  * onload
@@ -504,7 +544,7 @@ let SM = StateManager;
 
 window.onload = function () {
   if (!Main.ready) {
-    let root = document.getElementById("root");
+    let root = getID("root");
     if (!root || !root.parentElement) {
       Main.error();
     } else {
@@ -527,13 +567,19 @@ window.onload = function () {
  * https://medium.com/@crohacz_86666/basics-of-modular-javascript-2395c82dd93a
  * remember thisshit
  *
- * the encounter system has a kind of pokemon(turnbased) esque battlesystem.
+ * the encounter system has a kind of pokemon/darkestdungeon(turnbased) esque battlesystem.
  * take inspo from roguelineage permadeath.
  *
+ * // first time in purgatory text, for later
  * Pings.ping(
  * "you find yourself in a dimly lit chamber, disoriented and unsure of where you are"
  * );
  * Pings.ping(
  * "shadows cling to the walls like specters, and the faint flicker of candles offers little solace in this unfamiliar enviornment"
  * );
+ *
+ * source(s):
+ * https://playcode.io/javascript/object,
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects
+ *
  */
