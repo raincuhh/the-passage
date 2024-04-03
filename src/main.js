@@ -18,42 +18,48 @@ let Main = {
   boons: {
     lucky: {
       name: "lucky",
-      message: "bask in luck's glow, for blessings overflow.",
+      desc: "bask in luck's glow, for blessings' overflow.",
       // you have a higher chance of getting good pathEvents or nodeEvents
     },
     hoarder: {
       name: "hoarder",
-      message: "you somehow find ways to carry more",
+      desc: "you somehow find ways to carry more",
       // increases inventory space by a small amount
     },
-  },
-  flaws: {
+    // start of bad boons
     restless: {
       name: "restless",
-      message: "you find it harder to rest properly",
+      desc: "you find it harder to rest properly",
       // you will heal slightly less with potions
     },
     delirius: {
       name: "delirious",
-      message: "the voices speak to you",
+      desc: "the voices speak to you",
       // higher chance of becoming insane // corruption stuff
     },
     unlucky: {
       name: "unlucky",
-      message: "fortune frowns, your luck goes down",
+      desc: "fortune frowns, your luck goes down",
       // you have a higher chance of getting bad pathEvents or nodeEvents
+    },
+
+    // non starter
+    abysssGrasp: {
+      name: "Abyss's Grasp",
+      desc: "the Abyss has taken its hold, be wary now",
+      // you gain insanity at a higher base rate
     },
   },
 
   init: function () {
     Main.ready = true;
-
+    this.loadGame(); // load, should update defaultprefs
     this.createNavbar(); // makes navbar
     this.createView(); // makes view
     SM.init(); // starts the statemanager
     Pings.init(); // starts the pings
     this.setDefaultPrefs(); // sets game default prefs
-    this.loadGame(); // load, should update defaultprefs
+    //this.loadGame(); // load, should update defaultprefs
 
     // not fixed
     if (SM.get("game.new")) {
@@ -72,6 +78,7 @@ let Main = {
         "autosave is off, remember to save your progress manually through settings, or turn on autosave"
       );
     }
+
     // fullscreen check can only be done with user gesture ig..
     // il get back to it when i got a event module ready
     // to gesture fs if option is there
@@ -93,6 +100,16 @@ let Main = {
     */
 
     World.init(); // starts world
+    new Button.custom({
+      id: "unlockBoon",
+      text: "unlock the lucky boon",
+      click: this.unlockBoons,
+      width: 100,
+      append: view,
+    });
+  },
+  unlockBoons: function () {
+    SM.addBoon("pathfinder", "lucky");
   },
 
   createGuid: function () {
@@ -196,8 +213,20 @@ let Main = {
   },
   saveGame: function () {
     try {
+      /*
+      for (let stateName in SM.components) {
+        if (SM.components.hasOwnProperty(stateName) && stateName !== "") {
+          localStorage.setItem(
+            stateName,
+            JSON.stringify(SM.components[stateName])
+          );
+        }
+      }
+      */
       let string = JSON.stringify(SM.components);
+      console.log(string);
       localStorage.setItem("save", string);
+
       this.saveNotif();
     } catch (error) {
       console.error("error occured: ", error);
@@ -209,9 +238,11 @@ let Main = {
     if (string) {
       try {
         let save = JSON.parse(string);
+        //Object.assign(SM.components, save);
         SM.components = save;
+        // Alternatively, you can use spread syntax:
+        //SM.components = { ...SM.components, ...save };
         console.log("save loaded");
-        this.saveGame();
       } catch (error) {
         console.error("error occured: ", error);
         alert("tried to load save, attempt failed, view error in console");
@@ -426,6 +457,9 @@ let Button = {
         });
       }
     }
+
+    let view = getID("view");
+    view.appendChild(elem);
     return elem;
   },
   disabled: function (btn, param) {
@@ -508,8 +542,8 @@ let SM = {
       currentState = currentState[parts[i]];
     }
     currentState[parts[parts.length - 1]] = value;
-
-    Main.saveGame();
+    Main.saveGame(); // saves the game every time a state created so when SM gets
+    // initiated it would replace the localstorage with each SM.set() call
   },
   // sets multiple values if needed. for example setting prefs
   setMany: function (listObjects) {
@@ -522,21 +556,23 @@ let SM = {
     }
   },
   // boon refers to both positive and negatives unless explicitly said,
-  // though i might change this to a boons and flaws system to specify between them
+  // thogh i might change this to a boons and flaws system to specify between them
   addBoon: function (char, boon) {
-    SM.set("character." + char + "." + boon, true);
-    //Pings.ping(Main)
+    this.set("character[" + char + "]." + "boons[" + "." + boon + "]", true);
+    Pings.ping(Main.boons[boon].message);
   },
-  addFlaw: function (char, flaw) {
-    SM.set("character." + char + "." + flaw, true);
+  removeBoon: function (char, boon) {
+    this.set("character." + char + "." + "boons" + "." + boon, false);
   },
-  removePerk: function (char, perk) {
-    SM.set("character." + char + "." + perk, false);
-  },
-  getPerk: function (char, perk) {
+  getBoon: function (char, perk) {
     return this.get("character." + char + "." + perk);
   },
 };
+
+// a copy of the SM.components which will be saved to localstorage,
+// this is because if we save SM.components to localstorage,
+// it gets replaced instantly when the game loads
+let lsSave = {};
 
 /**
  * onload
