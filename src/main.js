@@ -53,15 +53,12 @@ let Main = {
 
   init: function () {
     Main.ready = true;
-    this.loadGame(); // load, should update defaultprefs
     this.createNavbar(); // makes navbar
     this.createView(); // makes view
+    this.loadGame(); // load, should update defaultprefs
     SM.init(); // starts the statemanager
     Pings.init(); // starts the pings
     this.setDefaultPrefs(); // sets game default prefs
-    //this.loadGame(); // load, should update defaultprefs
-
-    // not fixed
     if (SM.get("game.new")) {
       SM.set("game.lang", "EN");
       console.log("set loc to " + SM.get("game.lang"));
@@ -79,9 +76,6 @@ let Main = {
       );
     }
 
-    // fullscreen check can only be done with user gesture ig..
-    // il get back to it when i got a event module ready
-    // to gesture fs if option is there
     /*
     if (SM.get("prefs.fullScreen")) {
       let elem = getID("root");
@@ -100,16 +94,6 @@ let Main = {
     */
 
     World.init(); // starts world
-    new Button.custom({
-      id: "unlockBoon",
-      text: "unlock the lucky boon",
-      click: this.unlockBoons,
-      width: 100,
-      append: view,
-    });
-  },
-  unlockBoons: function () {
-    SM.addBoon("pathfinder", "lucky");
   },
 
   createGuid: function () {
@@ -213,20 +197,9 @@ let Main = {
   },
   saveGame: function () {
     try {
-      /*
-      for (let stateName in SM.components) {
-        if (SM.components.hasOwnProperty(stateName) && stateName !== "") {
-          localStorage.setItem(
-            stateName,
-            JSON.stringify(SM.components[stateName])
-          );
-        }
-      }
-      */
       let string = JSON.stringify(SM.components);
-      console.log(string);
+      //console.log(string);
       localStorage.setItem("save", string);
-
       this.saveNotif();
     } catch (error) {
       console.error("error occured: ", error);
@@ -240,7 +213,6 @@ let Main = {
         let save = JSON.parse(string);
         //Object.assign(SM.components, save);
         SM.components = save;
-        // Alternatively, you can use spread syntax:
         //SM.components = { ...SM.components, ...save };
         console.log("save loaded");
       } catch (error) {
@@ -251,12 +223,14 @@ let Main = {
       console.log("no save found");
     }
   },
-  deleteGame: function (reload) {
+  deleteGame: function (/*reload*/) {
     localStorage.clear();
-    this.saveGame();
+    location.reload();
+    /*
     if (reload) {
       location.reload();
     }
+    */
   },
   export: function () {
     this.saveGame();
@@ -266,13 +240,13 @@ let Main = {
     return string;
   },
   gen64: function () {
-    let save = StateManager.components;
+    let save = SM.components;
     save = JSON.stringify(save);
     save = btoa(save);
     return save;
   },
   import: function () {
-    let importDiv = getID("view");
+    let importDiv = getID("changethiswhenyoumaketheimportDiv");
     let string = importDiv.textContent;
     try {
       let save = atob(string);
@@ -485,7 +459,7 @@ let SM = {
   maxValue: 99999999,
   components: {},
   init: function () {
-    this.set("ver", Main.version);
+    //this.set("ver", Main.version);
     let categories = [
       "features", // locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
@@ -542,37 +516,27 @@ let SM = {
       currentState = currentState[parts[i]];
     }
     currentState[parts[parts.length - 1]] = value;
-    Main.saveGame(); // saves the game every time a state created so when SM gets
-    // initiated it would replace the localstorage with each SM.set() call
+    Main.saveGame();
   },
   // sets multiple values if needed. for example setting prefs
   setMany: function (listObjects) {
     for (let stateName in listObjects) {
       let value = listObjects[stateName];
-      if (typeof value === "number" && value > this.maxValue) {
-        value = this.maxValue;
-      }
       this.set(stateName, value);
     }
   },
-  // boon refers to both positive and negatives unless explicitly said,
-  // thogh i might change this to a boons and flaws system to specify between them
+  // boon refers to both positive and negative ones
   addBoon: function (char, boon) {
-    this.set("character[" + char + "]." + "boons[" + "." + boon + "]", true);
-    Pings.ping(Main.boons[boon].message);
+    this.set("character." + char + "." + "boons." + boon, true);
+    Pings.ping(Main.boons[boon].desc);
   },
   removeBoon: function (char, boon) {
     this.set("character." + char + "." + "boons" + "." + boon, false);
   },
-  getBoon: function (char, perk) {
-    return this.get("character." + char + "." + perk);
+  getBoon: function (char, boon) {
+    return this.get("character." + char + "." + "boons" + "." + boon);
   },
 };
-
-// a copy of the SM.components which will be saved to localstorage,
-// this is because if we save SM.components to localstorage,
-// it gets replaced instantly when the game loads
-let lsSave = {};
 
 /**
  * onload

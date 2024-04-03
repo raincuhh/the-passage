@@ -122,6 +122,7 @@
   margin-bottom: 7.5px;
 }
 #view {
+  padding-left: 1rem;
   width: var(--view-width);
   display: flex;
   flex-direction: column;
