@@ -67,14 +67,13 @@
 #settings {
   position: fixed;
   z-index: var(--z-index-settings);
-  bottom: 0;
-  right: clamp(3rem, 4.4vw, 6rem);
+  top: 0;
+  right: 0;
+
   height: 90%;
   width: 350px;
-  background: none repeat scroll 0 0 white;
-  border: 2px solid black;
-  box-shadow: 5px 5px 5px white;
-  transform: translateY(100%);
+  background: rgb(41, 41, 41);
+  display: none;
 }
 #settings .container {
   padding: 1.5rem 1rem 0;
@@ -90,7 +89,6 @@
     font-size: 1.5rem;
   }
 }
-
 /* main */
 #main {
   height: 100%;

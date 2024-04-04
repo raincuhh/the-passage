@@ -5,95 +5,31 @@ function getID(id) {
 function createEl(elem) {
   return document.createElement(elem);
 }
+function random(thing) {
+  return Math.floor(Math.random() * thing);
+}
 /**
  * main
  * handles general things, like initiating the different objects
  * and their methods
  */
 let Main = {
-  version: VERSION,
+  version: 1.0,
   beta: true,
-  autoSaveDelay: 60000,
-
-  boons: {
-    lucky: {
-      name: "lucky",
-      desc: "bask in luck's glow, for blessings' overflow.",
-      // you have a higher chance of getting good pathEvents or nodeEvents
-    },
-    hoarder: {
-      name: "hoarder",
-      desc: "you somehow find ways to carry more",
-      // increases inventory space by a small amount
-    },
-    // start of bad boons
-    restless: {
-      name: "restless",
-      desc: "you find it harder to rest properly",
-      // you will heal slightly less with potions
-    },
-    delirius: {
-      name: "delirious",
-      desc: "the voices speak to you",
-      // higher chance of becoming insane // corruption stuff
-    },
-    unlucky: {
-      name: "unlucky",
-      desc: "fortune frowns, your luck goes down",
-      // you have a higher chance of getting bad pathEvents or nodeEvents
-    },
-
-    // non starter
-    abysssGrasp: {
-      name: "Abyss's Grasp",
-      desc: "the Abyss has taken its hold, be wary now",
-      // you gain insanity at a higher base rate
-    },
-  },
 
   init: function () {
     Main.ready = true;
     this.createNavbar(); // makes navbar
+    this.createSaved(); // making the saved div
     this.createView(); // makes view
     this.loadGame(); // load, should update defaultprefs
-    SM.init(); // starts the statemanager
     Pings.init(); // starts the pings
-    this.setDefaultPrefs(); // sets game default prefs
-    if (SM.get("game.new")) {
-      SM.set("game.lang", "EN");
-      console.log("set loc to " + SM.get("game.lang"));
-    }
-    // autosave check
-    if (SM.get("prefs.autosave")) {
-      console.log("autosave is on");
-      setInterval(() => {
-        this.saveGame();
-      }, this.autoSaveDelay);
-    } else {
-      console.log("autosave is off");
-      Pings.ping(
-        "autosave is off, remember to save your progress manually through settings, or turn on autosave"
-      );
-    }
+    SM.init(); // starts the statemanager
 
-    /*
-    if (SM.get("prefs.fullScreen")) {
-      let elem = getID("root");
-      if (!document.fullscreenElement) {
-        // Enter fullscreen mode
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-        }
-      } else {
-        // Exit fullscreen mode
-        if (document.exitFullscreen) {
-          document.exitFullscreen(); // Corrected typo here
-        }
-      }
-    }
-    */
+    this.createSettings(); // makes the settings
+    this.createAchievements(); // makes the achievements
 
-    World.init(); // starts world
+    Journey.init();
   },
 
   createGuid: function () {
@@ -131,6 +67,7 @@ let Main = {
     navbar.id = "navbar";
     let root = getID("root");
     root.appendChild(navbar);
+
     let navbarLinks = createEl("div");
     navbarLinks.id = "navbarLinks";
     navbar.appendChild(navbarLinks);
@@ -153,13 +90,31 @@ let Main = {
       console.log("achievements");
     });
     let navbarlinkSettings = getID("navbarSettings");
+    let open = false;
     navbarlinkSettings.addEventListener("click", () => {
       let settings = getID("settings");
-      gsap.to(settings, {
-        duration: 0.5,
-        translateY: 1,
-      });
+      if (!open) {
+        settings.style.display = "block";
+        open = true;
+      } else {
+        settings.style.display = "none";
+        open = false;
+      }
     });
+  },
+  createSettings: function () {
+    let settings = createEl("div");
+    settings.setAttribute("id", "settings");
+
+    let main = getID("main");
+    main.insertAdjacentElement("afterend", settings);
+  },
+  createAchievements: function () {
+    let achievements = createEl("div");
+    achievements.setAttribute("id", "achievements");
+
+    let main = getID("main");
+    main.insertAdjacentElement("afterend", achievements);
   },
   createView: function () {
     let view = createEl("div");
@@ -170,21 +125,15 @@ let Main = {
   error: function () {
     console.log("error");
   },
-  setDefaultPrefs: function () {
-    // sets first time default prefs, will get overrided on this.loadGame()
-    SM.setMany({
-      prefs: {
-        autosave: true, // if you wanna have game autosave every 60s
-        fullScreen: true, // fullscreen.. yes or no
-        exitWarning: false, // warns on exit, cause it can cause bugs maybe
-        light: false, // darkmode or lightmode
-        showBackupWarning: false, // shows "backup save" ping
-      },
-    });
+  createSaved: function () {
+    let elem = createEl("div");
+    elem.setAttribute("id", "saved");
+    elem.textContent = "saved";
+    let main = getID("main");
+    main.insertBefore(elem, main.firstChild);
   },
   saveNotif: function () {
     let saveDiv = getID("saved");
-    saveDiv.textContent = "saved";
     tl = gsap.timeline();
     tl.to(saveDiv, {
       duration: 0,
@@ -211,10 +160,10 @@ let Main = {
     if (string) {
       try {
         let save = JSON.parse(string);
-        //Object.assign(SM.components, save);
+        console.log(save);
         SM.components = save;
-        //SM.components = { ...SM.components, ...save };
-        console.log("save loaded");
+        // SM.components = { ...SM.components, ...save };
+        //console.log("save loaded");
       } catch (error) {
         console.error("error occured: ", error);
         alert("tried to load save, attempt failed, view error in console");
@@ -224,19 +173,22 @@ let Main = {
     }
   },
   deleteGame: function (/*reload*/) {
+    // overkill but its sometimes buggy and doesnt delete gamestate
+    SM.components = {};
+    localStorage.setItem("save", {});
     localStorage.clear();
     location.reload();
-    /*
-    if (reload) {
-      location.reload();
-    }
-    */
   },
   export: function () {
     this.saveGame();
     let string = this.gen64();
-    // gives export in console.log if game isnt loading // bruteforce
-    console.log("copy save: " + string);
+    // gives export in console.log if game isnt loading / bruteforce
+    console.log(
+      "[=== " +
+        "this is you savefile, copy it to transfer to other devices" +
+        " ===]"
+    );
+    console.log(string);
     return string;
   },
   gen64: function () {
@@ -263,11 +215,89 @@ let Main = {
 };
 
 /**
- * world
+ *
  */
 
-let World = {
-  init: function () {},
+let Journey = {
+  init: function () {
+    Run.init(); // starting the selection
+  },
+};
+
+let Run = {
+  currentLocation: null,
+  init: function () {
+    PathfinderSelection.init();
+    if (PathfinderSelection.finished) {
+      metaProgression.init();
+    }
+  },
+
+  reset: function () {},
+};
+/**
+ * picks pathfinders
+ */
+let PathfinderSelection = {
+  finished: false,
+  selectedPathfinders: [],
+
+  init: function () {
+    if (SM.get("features.locations.pathfinderSelection") == undefined) {
+      SM.set("features.locations.pathfinderSelection", true);
+    }
+
+    // making the screen
+    let elem = createEl("div");
+    elem.setAttribute("id", "pathfinderSelection");
+    let view = getID("view");
+    view.appendChild(elem);
+
+    Run.currentLocation = "PathfinderSelection";
+    this.launch();
+  },
+  launch: function () {
+    this.setDocumentTitle();
+  },
+  setDocumentTitle: function () {
+    if (Run.currentLocation == "PathfinderSelection") {
+      document.title = "select your pathfinders";
+    }
+  },
+  createPathfinders: function () {
+    for (let pathfinder in this.selectedPathfinders) {
+      if (!SM.get(pathfinder)) {
+        SM.set("character. " + pathfinder);
+        console.log("creating pathfinder: " + pathfinder + " in character cat");
+        this.createPathfinderBoons(pathfinder);
+      }
+    }
+  },
+  createPathfinderBoons: function (pathfinder) {
+    for (let i = 0; i < 4; i++) {
+      let boon = Boons[random(Boons.length) + 1];
+      if (boon.condition()) {
+        SM.addBoon(pathfinder, boon.name);
+      }
+    }
+  },
+};
+
+/**
+ * shrine of abyss / metaprogression
+ */
+let metaProgression = {
+  init: function () {
+    Run.currentLocation = "metaProgression";
+  },
+  launch: function () {
+    this.setDocumentTitle();
+  },
+  setDocumentTitle: function () {
+    if (Run.currentLocation == "metaProgression") {
+      document.title = "Shrine of the Abyss";
+    }
+  },
 };
 
 /*
@@ -327,6 +357,82 @@ let Header = {
   },
 };
 */
+
+/**
+ * player
+ */
+let pathFinders = [
+  {
+    name: "The Pugilist",
+  },
+  {
+    name: "The Faceless",
+  },
+  {
+    name: "The Blatherer",
+  },
+  {
+    name: "The Occultist",
+  },
+  {
+    name: "The Knight",
+  },
+  {
+    name: "The Sovereign",
+  },
+  {
+    name: "The Paragon",
+  },
+];
+
+/**
+ * boons are small boosts or decreases in power that each pathfinder has 4 of,
+ * each pathfinder will get 2 positive and 2 negative boons that have a small
+ * effect on gameplay and the character, your character will display the
+ */
+let Boons = [
+  // positives
+  {
+    name: "lucky",
+    desc: "bask in luck's glow, for blessings' overflow.",
+    condition: function () {
+      return Run.currentLocation == "PathfinderSelection";
+    },
+    // you have a higher chance of getting good pathEvents or nodeEvents
+  },
+  {
+    name: "hoarder",
+    desc: "you somehow find ways to carry more",
+    condition: function () {
+      return Run.currentLocation == "PathfinderSelection";
+    },
+    // increases inventory space by a small amount
+  },
+  {
+    name: "individualist",
+    desc: "doing things alone yields greater experience",
+    condition: function () {
+      return Run.currentLocation == "PathfinderSelection";
+    },
+  },
+  // start of negatives
+  {
+    name: "restless",
+    desc: "you find it harder to rest properly",
+    condition: function () {
+      return Run.currentLocation == "PathfinderSelection";
+    },
+    // you will heal slightly less with potions
+  },
+  {
+    name: "blighted",
+    desc: "fortune frowns, your luck goes down",
+    condition: function () {
+      return Run.currentLocation == "PathfinderSelection";
+    },
+    // you have a higher chance of getting bad pathEvents or nodeEvents
+  },
+];
 
 /**
  * pings object
@@ -457,9 +563,10 @@ let Button = {
  */
 let SM = {
   maxValue: 99999999,
+  autoSaveDelay: 60000,
   components: {},
   init: function () {
-    //this.set("ver", Main.version);
+    this.set("ver", Main.version);
     let categories = [
       "features", // locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
@@ -474,14 +581,15 @@ let SM = {
     for (let category of categories) {
       if (!this.get(category)) {
         this.set(category, {});
+        console.log("category: " + category + " initialized");
       }
     }
+    this.updatePrefs();
   },
   // gets a single value
   get: function (stateName) {
-    // checks the component object (all categories are instantiated there)
     let currentState = this.components;
-    const parts = stateName.split(".");
+    const parts = stateName.split(/[.\[\]'"]+/);
     // checks for nesteds
     for (let thing of parts) {
       if (currentState && currentState.hasOwnProperty(thing)) {
@@ -507,7 +615,7 @@ let SM = {
       value = this.maxValue;
     }
     let currentState = this.components;
-    // regular expression to check for ".", "[", "]", """, and ', then removes if match
+    // regExp to check for ".", "[", "]", """, and ', then removes if match
     const parts = stateName.split(/[.\[\]'"]+/);
     for (let i = 0; i < parts.length - 1; i++) {
       if (!currentState.hasOwnProperty(parts[i])) {
@@ -525,16 +633,53 @@ let SM = {
       this.set(stateName, value);
     }
   },
+  delete: function (stateName) {
+    let currentState = this.components;
+    const parts = stateName.split(/[.\[\]'"]+/);
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (currentState && currentState.hasOwnProperty(parts[i])) {
+        currentState = currentState[parts[i]];
+      } else {
+        console.log("state not found");
+        return;
+      }
+    }
+    if (currentState && currentState.hasOwnProperty(parts[parts.length - 1])) {
+      delete currentState[parts[parts.length - 1]];
+      console.log("state deleted");
+    } else {
+      console.log("state not found");
+    }
+    Main.saveGame();
+  },
+  updatePrefs: function () {
+    // autosave check
+    if (this.get("prefs.autosave")) {
+      //console.log("autosave is on");
+      setInterval(() => {
+        Main.saveGame();
+      }, this.autoSaveDelay);
+    } else {
+      //console.log("autosave is off");
+      Pings.ping(
+        "autosave is off, remember to save your progress manually through settings, or turn on autosave"
+      );
+    }
+  },
   // boon refers to both positive and negative ones
   addBoon: function (char, boon) {
     this.set("character." + char + "." + "boons." + boon, true);
-    Pings.ping(Main.boons[boon].desc);
+    Pings.ping(Boons.find((boon) => boon.name === boonName).desc);
   },
   removeBoon: function (char, boon) {
     this.set("character." + char + "." + "boons" + "." + boon, false);
   },
   getBoon: function (char, boon) {
-    return this.get("character." + char + "." + "boons" + "." + boon);
+    try {
+      return this.get("character." + char + "." + "boons" + "." + boon);
+    } catch (error) {
+      console.error(error);
+    }
   },
 };
 
