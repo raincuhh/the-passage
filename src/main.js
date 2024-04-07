@@ -19,15 +19,12 @@ let Main = {
 
   init: function () {
     Main.ready = true;
-    this.createNavbar(); // makes navbar
+    this.createNavbar(); // makes navbar and its settings/achievements
     this.createSaved(); // making the saved div
     this.createView(); // makes view
-    this.loadGame(); // load, should update defaultprefs
+    this.loadGame(); // gets and loads localstorage save
     Pings.init(); // starts the pings
     SM.init(); // starts the statemanager
-
-    this.createSettings(); // makes the settings
-    this.createAchievements(); // makes the achievements
 
     Journey.init();
   },
@@ -65,7 +62,7 @@ let Main = {
 
     let navbar = createEl("div");
     navbar.id = "navbar";
-    let root = getID("root");
+    const root = getID("root");
     root.appendChild(navbar);
 
     let navbarLinks = createEl("div");
@@ -77,22 +74,22 @@ let Main = {
       navbarLinks.appendChild(link);
     });
 
-    let navbarLinkGithub = getID("navbarGithub");
+    const navbarLinkGithub = getID("navbarGithub");
     navbarLinkGithub.addEventListener("click", () => {
       window.open("https://github.com/raincuhh");
     });
-    let navbarlinkPortfolio = getID("navbarPortfolio");
+    const navbarlinkPortfolio = getID("navbarPortfolio");
     navbarlinkPortfolio.addEventListener("click", () => {
       window.open("https://raincuhh.github.io/portfolio/");
     });
-    let navbarlinkAchievement = getID("navbarAchievements");
+    const navbarlinkAchievement = getID("navbarAchievements");
     navbarlinkAchievement.addEventListener("click", () => {
       console.log("achievements");
     });
-    let navbarlinkSettings = getID("navbarSettings");
+    const navbarlinkSettings = getID("navbarSettings");
     let open = false;
     navbarlinkSettings.addEventListener("click", () => {
-      let settings = getID("settings");
+      const settings = getID("settings");
       if (!open) {
         settings.style.display = "block";
         open = true;
@@ -101,25 +98,28 @@ let Main = {
         open = false;
       }
     });
-  },
-  createSettings: function () {
-    let settings = createEl("div");
-    settings.setAttribute("id", "settings");
 
-    let main = getID("main");
-    main.insertAdjacentElement("afterend", settings);
-  },
-  createAchievements: function () {
-    let achievements = createEl("div");
-    achievements.setAttribute("id", "achievements");
+    function createSettings() {
+      let settings = createEl("div");
+      settings.setAttribute("id", "settings");
 
-    let main = getID("main");
-    main.insertAdjacentElement("afterend", achievements);
+      const main = getID("main");
+      main.insertAdjacentElement("afterend", settings);
+    }
+    createSettings();
+    function createAchievements() {
+      let achievements = createEl("div");
+      achievements.setAttribute("id", "achievements");
+
+      const main = getID("main");
+      main.insertAdjacentElement("afterend", achievements);
+    }
+    createAchievements();
   },
   createView: function () {
     let view = createEl("div");
     view.id = "view";
-    let container = getID("container");
+    const container = getID("container");
     container.appendChild(view);
   },
   error: function () {
@@ -129,11 +129,11 @@ let Main = {
     let elem = createEl("div");
     elem.setAttribute("id", "saved");
     elem.textContent = "saved";
-    let main = getID("main");
+    const main = getID("main");
     main.insertBefore(elem, main.firstChild);
   },
   saveNotif: function () {
-    let saveDiv = getID("saved");
+    const saveDiv = getID("saved");
     tl = gsap.timeline();
     tl.to(saveDiv, {
       duration: 0,
@@ -178,6 +178,11 @@ let Main = {
     localStorage.setItem("save", {});
     localStorage.clear();
     location.reload();
+    /*
+    if (reload){
+      location.reload()
+    }
+    */
   },
   export: function () {
     this.saveGame();
@@ -198,15 +203,16 @@ let Main = {
     return save;
   },
   import: function () {
-    let importDiv = getID("changethiswhenyoumaketheimportDiv");
+    const importDiv = getID("changethiswhenyoumaketheimportDiv");
     let string = importDiv.textContent;
     try {
       let save = atob(string);
       save = JSON.parse(save);
       localStorage.setItem("save", save);
       this.saveGame(); // saves the new 'save'
-      this.loadGame(); // then loads it to SM.components
       console.log("save imported");
+      this.loadGame(); // then loads it to SM.components
+      console.log("loaded complete");
     } catch (error) {
       console.error(error);
       alert("error: please try re-importing");
@@ -215,26 +221,29 @@ let Main = {
 };
 
 /**
- *
+ * handles starting runs and resetting runs
  */
 
 let Journey = {
   init: function () {
-    Run.init(); // starting the selection
+    Run.init();
   },
 };
 
 let Run = {
-  currentLocation: null,
+  activeLocation: null,
   init: function () {
     PathfinderSelection.init();
     if (PathfinderSelection.finished) {
       metaProgression.init();
     }
+    if (metaProgression.finished) {
+    }
   },
 
   reset: function () {},
 };
+
 /**
  * picks pathfinders
  */
@@ -246,22 +255,159 @@ let PathfinderSelection = {
     if (SM.get("features.locations.pathfinderSelection") == undefined) {
       SM.set("features.locations.pathfinderSelection", true);
     }
-
     // making the screen
-    let elem = createEl("div");
-    elem.setAttribute("id", "pathfinderSelection");
-    let view = getID("view");
-    view.appendChild(elem);
+    this.makeView();
 
-    Run.currentLocation = "PathfinderSelection";
+    Run.activeLocation = "PathfinderSelection";
     this.launch();
   },
   launch: function () {
     this.setDocumentTitle();
   },
+  makeView: function () {
+    // make elem
+    let pathfinderView = createEl("div");
+    pathfinderView.setAttribute("id", "pathfinderView");
+    // append to view
+    const view = getID("view");
+    view.appendChild(pathfinderView);
+    // make pathfinderList
+    let pathfinderList = createEl("div");
+    pathfinderList.setAttribute("id", "pathfinderList");
+    pathfinderView.appendChild(pathfinderList);
+    // make pathfinder container
+    let pathfinders = createEl("div");
+    pathfinders.setAttribute("id", "pathfinders");
+    pathfinderList.appendChild(pathfinders);
+    // make each pathfinder by iterating over pathfinder list
+    function makePathfinder(id, name, unlocked) {
+      let elem = createEl("span");
+      elem.setAttribute("id", id);
+      elem.setAttribute("class", "pathfinder");
+      elem.addEventListener("click", changeContent());
+
+      let isUnlocked = unlocked();
+      if (!isUnlocked) {
+        elem.classList.add("locked");
+      }
+      let nameC = createEl("div");
+      nameC.setAttribute("class", "name");
+      nameC.textContent = name;
+      elem.appendChild(nameC);
+
+      return elem;
+    }
+    function changeContent() {}
+    function checkLockedAndPlaceLast() {
+      const pathfindersC = getID("pathfinders");
+      let pathfinders = pathfindersC.getElementsByClassName("pathfinder");
+      let unlockedPathfinders = [];
+      let lockedPathfinders = [];
+
+      for (let i = 0; i < pathfinders.length; i++) {
+        let currentPathfinder = pathfinders[i];
+        if (currentPathfinder.classList.contains("locked")) {
+          lockedPathfinders.push(currentPathfinder);
+        } else {
+          unlockedPathfinders.push(currentPathfinder);
+        }
+      }
+      pathfindersC.innerHTML = "";
+      unlockedPathfinders.forEach((pathfinder) => {
+        pathfindersC.appendChild(pathfinder);
+      });
+      lockedPathfinders.forEach((pathfinder) => {
+        pathfindersC.appendChild(pathfinder);
+      });
+    }
+    pathFinders.forEach((e) => {
+      let pathfinder = makePathfinder(e.id, e.name, e.unlocked);
+      pathfinders.appendChild(pathfinder);
+    });
+    checkLockedAndPlaceLast();
+
+    function makePathfinderContent() {
+      let pathfinderContent = createEl("div");
+      pathfinderContent.setAttribute("id", "pathfinderContent");
+      pathfinderView.appendChild(pathfinderContent);
+
+      function header() {
+        let pathfinderHeader = createEl("header");
+        pathfinderHeader.setAttribute("id", "pathfinderHeader");
+        pathfinderContent.appendChild(pathfinderHeader);
+
+        let pathfinderTitle = createEl("span");
+        pathfinderTitle.setAttribute("id", "pathfinderTitle");
+        pathfinderTitle.textContent = "The Pugilist";
+        pathfinderHeader.appendChild(pathfinderTitle);
+
+        let pathfinderClassC = createEl("span");
+        pathfinderClassC.setAttribute("id", "pathfinderClassC");
+        pathfinderHeader.appendChild(pathfinderClassC);
+
+        let pathfinderClassText = createEl("span");
+        pathfinderClassText.setAttribute("id", "pathfinderClassText");
+
+        let pathfinderClassIcon = createEl("img");
+        pathfinderClassIcon;
+      }
+      function pathfinderPosPreview() {
+        // making pathfinder info
+        let posLayout = createEl("div");
+        posLayout.setAttribute("id", "pathfinderPosLayout");
+        pathfinderContent.appendChild(posLayout);
+
+        // making the layout container
+        let layoutContainer = createEl("div");
+        layoutContainer.setAttribute("class", "layoutContainer");
+        posLayout.appendChild(layoutContainer);
+
+        // making the recommended and target positions
+        let recPosC = createEl("div");
+        recPosC.setAttribute("id", "recPosC");
+        layoutContainer.appendChild(recPosC);
+        // making the text
+        let recPosTitle = createEl("span");
+        recPosTitle.setAttribute("class", "recPosTitle");
+        recPosTitle.textContent = "rcmd";
+        recPosC.appendChild(recPosTitle);
+
+        let reccTileNum = 1;
+        for (let i = 0; i < 4; i++) {
+          let reccTile = createEl("span");
+          reccTile.setAttribute("id", "reccTile_" + reccTileNum++);
+          reccTile.setAttribute("class", "reccTile");
+          reccTile.textContent = "#";
+          recPosC.appendChild(reccTile);
+        }
+
+        let targetC = createEl("div");
+        targetC.setAttribute("id", "targetPosC");
+        layoutContainer.appendChild(targetC);
+
+        let targetPosTitle = createEl("span");
+        targetPosTitle.setAttribute("class", "targetPosTitle");
+        targetPosTitle.textContent = "target";
+        targetC.appendChild(targetPosTitle);
+
+        let targetTileNum = 1;
+        for (let i = 0; i < 4; i++) {
+          let targetTile = createEl("span");
+          targetTile.setAttribute("id", "targetTile_" + targetTileNum++);
+          targetTile.setAttribute("class", "targetTile");
+          targetTile.textContent = "#";
+          targetC.appendChild(targetTile);
+        }
+      }
+
+      header(); // title and customName
+      pathfinderPosPreview(); // recommended and target layout preview
+    }
+    makePathfinderContent();
+  },
   setDocumentTitle: function () {
-    if (Run.currentLocation == "PathfinderSelection") {
-      document.title = "select your pathfinders";
+    if (Run.activeLocation == "PathfinderSelection") {
+      document.title = "choose your pathfinders";
     }
   },
   createPathfinders: function () {
@@ -269,15 +415,15 @@ let PathfinderSelection = {
       if (!SM.get(pathfinder)) {
         SM.set("character. " + pathfinder);
         console.log("creating pathfinder: " + pathfinder + " in character cat");
-        this.createPathfinderBoons(pathfinder);
+        this.createTraits(pathfinder);
       }
     }
   },
-  createPathfinderBoons: function (pathfinder) {
+  createTraits: function (pathfinder) {
     for (let i = 0; i < 4; i++) {
-      let boon = Boons[random(Boons.length) + 1];
-      if (boon.condition()) {
-        SM.addBoon(pathfinder, boon.name);
+      let trait = Traits[random(Traits.length) + 1];
+      if (trait.condition()) {
+        SM.addTrait(pathfinder, trait.name);
       }
     }
   },
@@ -288,13 +434,13 @@ let PathfinderSelection = {
  */
 let metaProgression = {
   init: function () {
-    Run.currentLocation = "metaProgression";
+    Run.activeLocation = "metaProgression";
   },
   launch: function () {
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {
-    if (Run.currentLocation == "metaProgression") {
+    if (Run.activeLocation == "metaProgression") {
       document.title = "Shrine of the Abyss";
     }
   },
@@ -359,52 +505,93 @@ let Header = {
 */
 
 /**
- * player
+ * pathfinder are the selectable characters you can choose 4 of
+ * before the start of the game
  */
 let pathFinders = [
   {
     name: "The Pugilist",
+    id: "thePugilist",
+    icon: "img/thePugilist.png",
+    unlocked: function () {
+      return true;
+    },
+    class: "light",
+    description: "fists",
   },
   {
     name: "The Faceless",
+    id: "theFaceless",
+    icon: "img/theFaceless.png",
+    unlocked: function () {
+      return true;
+    },
+    class: "light",
+    description: "daggers",
   },
   {
     name: "The Blatherer",
+    id: "theBlatherer",
+    icon: "img/theBlatherer.png",
+    unlocked: function () {
+      return true;
+    },
+    class: "heavy",
+    description: "greatsword",
   },
   {
     name: "The Occultist",
+    id: "theOccultist",
+    icon: "img/theOccultist.png",
+    unlocked: function () {
+      return false;
+    },
+    class: "light",
+
+    description: "sickles",
   },
   {
     name: "The Knight",
-  },
-  {
-    name: "The Sovereign",
+    id: "theKnight",
+    icon: "img/theKnight.png",
+    unlocked: function () {
+      return true;
+    },
+    class: "medium",
+    description: "sword",
   },
   {
     name: "The Paragon",
+    id: "theParagon",
+    icon: "img/theParagon.png",
+    unlocked: function () {
+      return false;
+    },
+    class: "heavy",
+    description: "shield",
   },
 ];
 
 /**
- * boons are small boosts or decreases in power that each pathfinder has 4 of,
+ * traits are small boosts or decreases in power that each pathfinder has 4 of,
  * each pathfinder will get 2 positive and 2 negative boons that have a small
  * effect on gameplay and the character, your character will display the
  */
-let Boons = [
+let Traits = [
   // positives
   {
     name: "lucky",
     desc: "bask in luck's glow, for blessings' overflow.",
     condition: function () {
-      return Run.currentLocation == "PathfinderSelection";
+      return Run.activeLocation == "PathfinderSelection";
     },
-    // you have a higher chance of getting good pathEvents or nodeEvents
+    // you have a slightly higher chance of getting good pathEvents or nodeEvents
   },
   {
     name: "hoarder",
     desc: "you somehow find ways to carry more",
     condition: function () {
-      return Run.currentLocation == "PathfinderSelection";
+      return Run.activeLocation == "PathfinderSelection";
     },
     // increases inventory space by a small amount
   },
@@ -412,7 +599,7 @@ let Boons = [
     name: "individualist",
     desc: "doing things alone yields greater experience",
     condition: function () {
-      return Run.currentLocation == "PathfinderSelection";
+      return Run.activeLocation == "PathfinderSelection";
     },
   },
   // start of negatives
@@ -420,7 +607,7 @@ let Boons = [
     name: "restless",
     desc: "you find it harder to rest properly",
     condition: function () {
-      return Run.currentLocation == "PathfinderSelection";
+      return Run.activeLocation == "PathfinderSelection";
     },
     // you will heal slightly less with potions
   },
@@ -428,7 +615,7 @@ let Boons = [
     name: "blighted",
     desc: "fortune frowns, your luck goes down",
     condition: function () {
-      return Run.currentLocation == "PathfinderSelection";
+      return Run.activeLocation == "PathfinderSelection";
     },
     // you have a higher chance of getting bad pathEvents or nodeEvents
   },
@@ -442,7 +629,7 @@ let Pings = {
   init: function () {
     let elem = createEl("div");
     elem.id = "pings";
-    let container = getID("container");
+    const container = getID("container");
     container.insertBefore(elem, container.firstChild);
   },
   ping: function (text) {
@@ -463,13 +650,13 @@ let Pings = {
     let ping = createEl("div");
     ping.className = "ping";
     ping.textContent = e;
-    let pings = getID("pings");
+    const pings = getID("pings");
     pings.insertBefore(ping, pings.firstChild);
     Pings.delete();
   },
   delete: function () {
     // checking if there are any overflowing ping(s) to delete, cause memoryleak
-    let pings = getID("pings");
+    const pings = getID("pings");
     let viewportHeight = window.innerHeight;
     let pingList = pings.getElementsByClassName("ping");
     for (let i = 0; i < pingList.length; i++) {
@@ -480,6 +667,15 @@ let Pings = {
       }
     }
   },
+  clear: function () {
+    const pings = getID("pings");
+    let pingList = pings.getElementsByClassName("ping");
+
+    let pingListArray = Array.from(pingList);
+    pingListArray.forEach((e) => {
+      pings.removeChild(e);
+    });
+  },
 };
 
 /**
@@ -488,7 +684,7 @@ let Pings = {
  */
 
 let Events = {
-  eventStack: [],
+  eventList: [],
   init: function () {},
 
   newEvent: function (param /*event*/) {
@@ -503,7 +699,7 @@ let Events = {
     if (typeof param.type !== "undefined") eventType = param.type;
     console.log(eventType);
 
-    let main = getID("main");
+    const main = getID("main");
     main.appendChild(elem);
   },
 };
@@ -511,7 +707,6 @@ let Events = {
 /**
  * button object
  *
- * example new button
  * new Button.customButton({
  *  id: string,
  *  text: placeholder,
@@ -538,7 +733,7 @@ let Button = {
       }
     }
 
-    let view = getID("view");
+    const view = getID("view");
     view.appendChild(elem);
     return elem;
   },
@@ -601,7 +796,7 @@ let SM = {
     }
     return currentState;
   },
-  // gets multiple values if needed
+  // gets multiple state values if needed
   getMany: function (stateNames) {
     let values = {};
     for (let stateName of stateNames) {
@@ -615,7 +810,7 @@ let SM = {
       value = this.maxValue;
     }
     let currentState = this.components;
-    // regExp to check for ".", "[", "]", """, and ', then removes if match
+    // regExp to check for ".", "[", "]", ", and '.
     const parts = stateName.split(/[.\[\]'"]+/);
     for (let i = 0; i < parts.length - 1; i++) {
       if (!currentState.hasOwnProperty(parts[i])) {
@@ -666,17 +861,23 @@ let SM = {
       );
     }
   },
-  // boon refers to both positive and negative ones
-  addBoon: function (char, boon) {
-    this.set("character." + char + "." + "boons." + boon, true);
-    Pings.ping(Boons.find((boon) => boon.name === boonName).desc);
+  // trait refers to both positive and negative ones
+  addTrait: function (char, trait) {
+    this.set("character." + char + "." + "traits." + trait, true);
+    // zzzz
+    const matchedTrait = Traits.find((e) => e.name === trait);
+    if (matchedTrait) {
+      Pings.ping(matchedTrait.desc);
+    } else {
+      console.error("Trait not found:", trait);
+    }
   },
-  removeBoon: function (char, boon) {
-    this.set("character." + char + "." + "boons" + "." + boon, false);
+  removeTrait: function (char, trait) {
+    this.set("character." + char + "." + "traits" + "." + trait, false);
   },
-  getBoon: function (char, boon) {
+  getTrait: function (char, trait) {
     try {
-      return this.get("character." + char + "." + "boons" + "." + boon);
+      return this.get("character." + char + "." + "traits" + "." + trait);
     } catch (error) {
       console.error(error);
     }
@@ -686,10 +887,9 @@ let SM = {
 /**
  * onload
  */
-
 window.onload = function () {
   if (!Main.ready) {
-    let root = getID("root");
+    const root = getID("root");
     if (!root || !root.parentElement) {
       Main.error();
     } else {

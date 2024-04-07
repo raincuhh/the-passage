@@ -12,6 +12,7 @@
   --bg-color-base: #181818;
   --bg-color-highlight: #232323;
   --text-base: rgb(95, 95, 95);
+  --text-highlight: rgb(125, 125, 125);
   --text-subdued: rgb(55, 55, 55);
 
   --game-height: 100%;
@@ -96,7 +97,8 @@
 #saved {
   position: fixed;
   top: 1rem;
-  right: 3rem;
+  right: 0rem;
+  padding: 0 clamp(1rem, 4.4vw, 3rem);
   color: var(--text-base);
 }
 #container {
@@ -124,6 +126,74 @@
   width: var(--view-width);
   display: flex;
   flex-direction: column;
+}
+#pathfinderView {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  #pathfinderList {
+    width: max-content;
+    #pathfinders {
+      display: flex;
+      flex-direction: column;
+      .pathfinder:not(:last-of-type) {
+        margin-bottom: 0.34rem;
+      }
+      .pathfinder {
+        color: var(--text-base);
+        cursor: pointer;
+        width: max-content;
+      }
+      .pathfinder:hover {
+        color: var(--text-highlight);
+      }
+      .pathfinder:active {
+        cursor: grab;
+      }
+      .locked {
+        color: var(--text-subdued);
+        /*text-decoration: line-through;*/
+        pointer-events: none;
+      }
+    }
+  }
+  #pathfinderContent {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    #pathfinderHeader {
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+      #pathfinderTitle {
+        font-size: 2.5rem;
+      }
+      #pathfinderName {
+        font-size: 1.25rem;
+      }
+    }
+    #pathfinderPosLayout {
+      padding-top: 0.24rem;
+      .layoutContainer {
+        display: flex;
+        justify-content: end;
+        gap: 1.5rem;
+        #recPosC,
+        #targetPosC {
+          display: flex;
+          gap: 0.15rem;
+          .recPosTitle,
+          .targetPosTitle {
+            padding-right: 0.25rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: end;
+          }
+        }
+      }
+    }
+  }
 }
 
 /* components */
