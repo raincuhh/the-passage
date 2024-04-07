@@ -57,11 +57,12 @@
   .linkOpenClose:hover {
     text-decoration: underline;
     cursor: pointer;
+    color: var(--text-highlight);
   }
 }
 #navbar > *,
 #navbarLinks .link > * {
-  color: var(--text-subdued);
+  color: var(--text-base);
 }
 
 /* settings */
@@ -97,7 +98,7 @@
 #saved {
   position: fixed;
   top: 1rem;
-  right: 0rem;
+  left: 0rem;
   padding: 0 clamp(1rem, 4.4vw, 3rem);
   color: var(--text-base);
 }
@@ -161,6 +162,11 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    .hr {
+      margin-top: 0.33rem;
+      height: 0.5px;
+      background-color: var(--text-base);
+    }
 
     #pathfinderHeader {
       display: flex;
@@ -169,28 +175,22 @@
       #pathfinderTitle {
         font-size: 2.5rem;
       }
-      #pathfinderName {
-        font-size: 1.25rem;
+      #pathfinderClassC {
+        image-rendering: pixelated;
+        display: flex;
+        align-items: center;
+        #pathfinderClassText {
+          margin-left: 0.43rem;
+          font-size: 1.2rem;
+        }
       }
     }
-    #pathfinderPosLayout {
+    #pathfinderLayoutPreview {
       padding-top: 0.24rem;
       .layoutContainer {
         display: flex;
+        flex-direction: column;
         justify-content: end;
-        gap: 1.5rem;
-        #recPosC,
-        #targetPosC {
-          display: flex;
-          gap: 0.15rem;
-          .recPosTitle,
-          .targetPosTitle {
-            padding-right: 0.25rem;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: end;
-          }
-        }
       }
     }
   }
@@ -198,6 +198,7 @@
 
 /* components */
 .button {
+  image-rendering: pixelated;
   position: relative;
   display: block;
   padding: 5px 10px;
