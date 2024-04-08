@@ -151,18 +151,15 @@ let Main = {
     main.insertBefore(elem, main.firstChild);
   },
   saveNotif: function () {
-    const saveDiv = getID("saved");
-    saveDiv.style.opacity = 1;
-
+    const elem = getID("saved");
+    elem.style.opacity = 1;
     setTimeout(function () {
-      console.log("making opacity 0");
-      saveDiv.style.transition = "opacity 1.5s";
-      saveDiv.style.opacity = 0;
+      elem.style.transition = "opacity 1.5s";
+      elem.style.opacity = 0;
     }, 10);
   },
   saveGame: function () {
     try {
-      console.log("statemanager states ========================0");
       console.log(SM.components);
       let string = JSON.stringify(SM.components);
       //console.log(string);
@@ -175,10 +172,14 @@ let Main = {
   },
   loadGame: function () {
     let string = localStorage.getItem("save");
+    console.log("statemanager components:");
+    console.log(SM.components);
+    console.log("localstorage savestring:");
+    console.log(string);
     if (string) {
       try {
         let save = JSON.parse(string);
-        console.log(save);
+        //console.log(save);
         SM.components = save;
         // SM.components = { ...SM.components, ...save };
         //console.log("save loaded");
@@ -253,7 +254,8 @@ let Run = {
 let Journey = {
   activeStage: null,
   init: function () {
-    invocationOfSin.init();
+    //invocationOfSin.init();
+    PathfinderSelection.init();
     if (PathfinderSelection.finished) {
       metaProgression.init();
     }
@@ -325,10 +327,10 @@ let PathfinderSelection = {
     pathfinderList.appendChild(pathfinders);
     // make each pathfinder by iterating over pathfinder list
     pathfinderPreview.forEach((e) => {
-      let pathfinder = makePathfinderPreview(e.id, e.name, e.unlocked);
-      pathfinders.appendChild(pathfinder);
+      let elem = makePathfinderPreview(e.id, e.name, e.unlocked);
+      pathfinders.appendChild(elem);
     });
-    checkPfList();
+    checkPathfinderPreview();
     makePathfinderContent();
 
     function makePathfinderPreview(id, name, unlocked) {
@@ -348,7 +350,7 @@ let PathfinderSelection = {
 
       return elem;
     }
-    function checkPfList() {
+    function checkPathfinderPreview() {
       const pathfindersC = getID("pathfinders");
       let pathfinders = pathfindersC.getElementsByClassName("pathfinder");
       let unlockedPathfinders = [];
@@ -372,89 +374,97 @@ let PathfinderSelection = {
     }
     function makePathfinderContent() {
       // pathfinder content
-      let pathfinderContent = createEl("div");
-      pathfinderContent.setAttribute("id", "pathfinderContent");
-      pathfinderView.appendChild(pathfinderContent);
-      // header
-      let pathfinderHeader = createEl("header");
-      pathfinderHeader.setAttribute("id", "pathfinderHeader");
-      pathfinderContent.appendChild(pathfinderHeader);
+      let pfContent = createEl("div");
+      pfContent.setAttribute("id", "pathfinderContent");
+      pathfinderView.appendChild(pfContent);
+
+      // pathfinder header
+      let pfHeader = createEl("div");
+      pfHeader.setAttribute("id", "pathfinderHeader");
+      pfContent.appendChild(pfHeader);
       // title
-      let pathfinderTitle = createEl("span");
-      pathfinderTitle.setAttribute("id", "pathfinderTitle");
-      pathfinderTitle.textContent = "The Pugilist"; // changeable
-      pathfinderHeader.appendChild(pathfinderTitle);
+      let pfTitle = createEl("span");
+      pfTitle.setAttribute("id", "pathfinderTitle");
+      pfTitle.textContent = "The Pugilist"; // changeable
+      pfHeader.appendChild(pfTitle);
       // class
-      let pathfinderClassC = createEl("span");
-      pathfinderClassC.setAttribute("id", "pathfinderClassC");
-      pathfinderHeader.appendChild(pathfinderClassC);
+      let pfClassC = createEl("div");
+      pfClassC.setAttribute("class", "container");
+      pfHeader.appendChild(pfClassC);
       // class icon
-      let pathfinderClassIcon = createEl("img");
-      pathfinderClassIcon.setAttribute("id", "pathfinderClassIcon");
-      pathfinderClassIcon.src = "img/thePugilist.png"; // changeable
-      pathfinderClassC.appendChild(pathfinderClassIcon);
+      let pfClassIcon = createEl("img");
+      pfClassIcon.setAttribute("id", "pathfinderClassIcon");
+      pfClassIcon.src = "img/thePugilist.png"; // changeable
+      pfClassC.appendChild(pfClassIcon);
       // class text
-      let pathfinderClassText = createEl("span");
-      pathfinderClassText.textContent = "fists"; // changeable
-      pathfinderClassText.setAttribute("id", "pathfinderClassText");
-      pathfinderClassC.appendChild(pathfinderClassText);
-      // recommended layout preview
-      let pathfinderLayoutPreview = createEl("div");
-      pathfinderLayoutPreview.setAttribute("id", "pathfinderLayoutPreview");
-      pathfinderContent.appendChild(pathfinderLayoutPreview);
+      let pfClassText = createEl("span");
+      pfClassText.textContent = "fists"; // changeable
+      pfClassText.setAttribute("id", "pathfinderClassText");
+      pfClassC.appendChild(pfClassText);
+
+      // pathfinder layout recommendation for ally and enemies
+      let pfEffPreview = createEl("div");
+      pfEffPreview.setAttribute("id", "pathfinderEffPreview");
+      pfContent.appendChild(pfEffPreview);
       // container
-      let layoutContainer = createEl("div");
-      layoutContainer.setAttribute("class", "layoutContainer");
-      pathfinderLayoutPreview.appendChild(layoutContainer);
-      // layout
-      let layout = createEl("div");
-      layout.setAttribute("class", "layout");
-      layoutContainer.appendChild(layout);
-      // layout hr
+      let pfEffPreviewC = createEl("div");
+      pfEffPreviewC.setAttribute("class", "container");
+      pfEffPreview.appendChild(pfEffPreviewC);
+      // making the 2 types
+      let effTypes = ["allyEffPreview", "enemyEffPreview"];
+      for (let i = 0; i < 2; i++) {
+        let elem = createEl("div");
+        elem.setAttribute("id", effTypes[i]);
+        elem.setAttribute("class", "effPreview");
+        pfEffPreviewC.appendChild(elem);
+      }
+      // making the headers
+      const allyEffPreview = getID("allyEffPreview");
+      const enemyEffPreview = getID("enemyEffPreview");
+
+      let previewHeaders = ["rcmdPfPosHeader", "enemyEffPosHeader"];
+      for (let i = 0; i < 2; i++) {
+        let elem = createEl("span");
+        elem.setAttribute("id", previewHeaders[i]);
+        elem.setAttribute("class", "effPreviewHeader");
+        if (i === 0) {
+          allyEffPreview.appendChild(elem);
+        } else {
+          enemyEffPreview.appendChild(elem);
+        }
+      }
+      const rcmdPfPosHeader = getID("rcmdPfPosHeader");
+      rcmdPfPosHeader.textContent = "rcmd";
+      const enemyEffPosHeader = getID("enemyEffPosHeader");
+      enemyEffPosHeader.textContent = "targets";
+
+      // making the recommendedPosition and targeteffectivenesstiles
+      let rcmdPfPosTile = 1;
+      for (let i = 0; i < 4; i++) {
+        let elem = createEl("span");
+        elem.setAttribute("id", "rcmdPfPosTile" + rcmdPfPosTile++);
+        elem.textContent = "#";
+        allyEffPreview.appendChild(elem);
+      }
+      let enemyEffPosTile = 1;
+      for (let i = 0; i < 4; i++) {
+        let elem = createEl("span");
+        elem.setAttribute("id", "enemyEffPosTile" + enemyEffPosTile++);
+        elem.textContent = "#";
+        enemyEffPreview.appendChild(elem);
+      }
+
+      /* layout hr
       let hr = createEl("hr");
       hr.setAttribute("class", "hr");
-      layoutContainer.appendChild(hr);
-      // recommended
-      let recPosC = createEl("div");
-      recPosC.setAttribute("id", "recPosC");
-      layout.appendChild(recPosC);
+      pfEffPreviewC.appendChild(hr);
+      */
 
-      let recTitle = createEl("span");
-      recTitle.setAttribute("class", "recTitle");
-      recTitle.textContent = "rcmd";
-      recPosC.appendChild(recTitle);
-
-      let reccTileNum = 1;
-      for (let i = 0; i < 4; i++) {
-        let reccTile = createEl("span");
-        reccTile.setAttribute("id", "reccTile_" + reccTileNum++);
-        reccTile.setAttribute("class", "reccTile");
-        reccTile.textContent = "#"; // changeable
-        recPosC.appendChild(reccTile);
-      }
-
-      let targetC = createEl("div");
-      targetC.setAttribute("id", "targetPosC");
-      layout.appendChild(targetC);
-
-      let targetTitle = createEl("span");
-      targetTitle.setAttribute("class", "targetTitle");
-      targetTitle.textContent = "target";
-      targetC.appendChild(targetTitle);
-
-      let targetTileNum = 1;
-      for (let i = 0; i < 4; i++) {
-        let targetTile = createEl("span");
-        targetTile.setAttribute("id", "targetTile_" + targetTileNum++);
-        targetTile.setAttribute("class", "targetTile");
-        targetTile.textContent = "#"; // changeable
-        targetC.appendChild(targetTile);
-      }
       // info
       // container
       let pathfinderInfo = createEl("div");
       pathfinderInfo.setAttribute("id", "pathfinderInfo");
-      pathfinderContent.appendChild(pathfinderInfo);
+      pfContent.appendChild(pathfinderInfo);
       // info container
       let infoC = createEl("div");
       infoC.setAttribute("id", "infoC");
@@ -471,7 +481,7 @@ let PathfinderSelection = {
       // container
       let pathfinderSkills = createEl("div");
       pathfinderSkills.setAttribute("id", "pathfinderSkills");
-      pathfinderContent.appendChild(pathfinderSkills);
+      pfContent.appendChild(pathfinderSkills);
       //skills container
       let skillsC = createEl("div");
       skillsC.setAttribute("id", "skillsC");
@@ -608,7 +618,8 @@ let pathfinderPreview = [
     id: "thePugilistPreview",
     icon: "img/thePugilist.png",
     class: "light",
-    description: "fists",
+    quote: '"fillThisInWithQuoteLater"',
+    description: "fillThisInWithDescLater",
     unlocked: function () {
       return true;
     },
@@ -650,7 +661,8 @@ let pathfinderPreview = [
     id: "theFacelessPreview",
     icon: "img/theFaceless.png",
     class: "light",
-    description: "daggers",
+    quote: '"fillThisInWithQuoteLater"',
+    description: "fillThisInWithDescLater",
     unlocked: function () {
       return true;
     },
@@ -692,9 +704,9 @@ let pathfinderPreview = [
     name: "The Blatherer",
     id: "theBlathererPreview",
     icon: "img/theBlatherer.png",
-
     class: "heavy",
-    description: "greatsword",
+    quote: '"fillThisInWithQuoteLater"',
+    description: "fillThisInWithDescLater",
     unlocked: function () {
       return true;
     },
@@ -735,7 +747,8 @@ let pathfinderPreview = [
     id: "theOccultistPreview",
     icon: "img/theOccultist.png",
     class: "light",
-    description: "sickles",
+    quote: '"fillThisInWithQuoteLater"',
+    description: "fillThisInWithDescLater",
     unlocked: function () {
       return false;
     },
@@ -771,7 +784,8 @@ let pathfinderPreview = [
     id: "theKnightPreview",
     icon: "img/theKnight.png",
     class: "medium",
-    description: "sword",
+    quote: '"fillThisInWithQuoteLater"',
+    description: "fillThisInWithDescLater",
     unlocked: function () {
       return true;
     },
@@ -793,8 +807,8 @@ let pathfinderPreview = [
         skillId: "hbPreview",
       },
       {
-        skillName: "",
-        skillId: "",
+        skillName: "Surge of Action",
+        skillId: "soaPreview",
       },
       {
         skillName: "crusade",
@@ -807,7 +821,8 @@ let pathfinderPreview = [
     id: "theParagonPreview",
     icon: "img/theParagon.png",
     class: "heavy",
-    description: "shield",
+    quote: '"fillThisInWithQuoteLater"',
+    description: "fillThisInWithDescLater",
     unlocked: function () {
       return false;
     },
@@ -1027,7 +1042,7 @@ let Button = {
  */
 let SM = {
   maxValue: 99999999,
-  autoSaveDelay: 10000,
+  autoSaveDelay: 60000,
   components: {},
   init: function () {
     this.set("ver", Main.version);
@@ -1048,7 +1063,7 @@ let SM = {
         console.log("category: " + category + " initialized");
       }
     }
-    //this.updatePrefs();
+    this.updatePrefs();
   },
   // gets a single value
   get: function (stateName) {
@@ -1118,16 +1133,14 @@ let SM = {
   },
   updatePrefs: function () {
     // autosave check
-    console.log("checking prefs");
-    console.log(SM.get("prefs.autosave"));
+    console.log("updating prefs");
     if (this.get("prefs.autosave")) {
-      console.log("fake autosave is on");
-
+      console.log("autosave is on");
       setInterval(() => {
         Main.saveGame();
       }, this.autoSaveDelay);
     } else {
-      //console.log("autosave is off");
+      console.log("autosave is off");
       Pings.ping(
         "autosave is off, remember to save your progress manually through settings, or turn on autosave"
       );
@@ -1180,7 +1193,7 @@ window.onload = function () {
  * rememeber using this vid as baseline for saving and loading with localstorage:
  * https://www.youtube.com/watch?v=ePHfRUIvbbg
  *
- * note to self, modulate shit cuh
+ * note to self, oop everything cuh
  * https://medium.com/@crohacz_86666/basics-of-modular-javascript-2395c82dd93a
  * remember thisshit
  *
@@ -1199,4 +1212,11 @@ window.onload = function () {
  * https://playcode.io/javascript/object,
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects
  *
+ *
+ * todo  4/9/2024
+ * finish pathfinder selection screen, meaning adding the changeContent method
+ * to change info of pathfinder depending on which pathfinder ur selected on.
+ *
+ * fix the unlocked return function on each pathfinder,
+ * make it like the SM.get("prefs.autosave"), maybe a tertiary?
  */

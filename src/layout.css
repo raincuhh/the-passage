@@ -175,7 +175,7 @@
       #pathfinderTitle {
         font-size: 2.5rem;
       }
-      #pathfinderClassC {
+      .container {
         image-rendering: pixelated;
         display: flex;
         align-items: center;
@@ -185,12 +185,12 @@
         }
       }
     }
-    #pathfinderLayoutPreview {
-      padding-top: 0.24rem;
-      .layoutContainer {
+    #pathfinderEffPreview {
+      display: flex;
+      justify-content: end;
+      .container {
         display: flex;
-        flex-direction: column;
-        justify-content: end;
+        gap: 1rem;
       }
     }
   }
