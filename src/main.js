@@ -2,6 +2,9 @@
 function getID(id) {
   return document.getElementById(id);
 }
+function getQuerySelector(what) {
+  return document.querySelector(what);
+}
 function createEl(elem) {
   return document.createElement(elem);
 }
@@ -373,119 +376,158 @@ let PathfinderSelection = {
       });
     }
     function makePathfinderContent() {
-      // pathfinder content
+      // root
       let pfContent = createEl("div");
       pfContent.setAttribute("id", "pathfinderContent");
       pathfinderView.appendChild(pfContent);
 
-      // pathfinder header
+      // header
       let pfHeader = createEl("div");
       pfHeader.setAttribute("id", "pathfinderHeader");
       pfContent.appendChild(pfHeader);
-      // title
-      let pfTitle = createEl("span");
-      pfTitle.setAttribute("id", "pathfinderTitle");
-      pfTitle.textContent = "The Pugilist"; // changeable
-      pfHeader.appendChild(pfTitle);
-      // class
-      let pfClassC = createEl("div");
-      pfClassC.setAttribute("class", "container");
-      pfHeader.appendChild(pfClassC);
+      // container
+      let headerContainer = createEl("div");
+      headerContainer.setAttribute("class", "container");
+      pfHeader.appendChild(headerContainer);
+      // title // the pugilist, the faceless, etc
+      let headerTitle = createEl("span");
+      headerTitle.setAttribute("id", "pathfinderTitle");
+      headerTitle.textContent = "The Pugilist"; // changeable
+      headerContainer.appendChild(headerTitle);
+      // wrapper
+      let pfClassWrapper = createEl("div");
+      pfClassWrapper.setAttribute("class", "wrapper");
+      headerContainer.appendChild(pfClassWrapper);
       // class icon
-      let pfClassIcon = createEl("img");
-      pfClassIcon.setAttribute("id", "pathfinderClassIcon");
-      pfClassIcon.src = "img/thePugilist.png"; // changeable
-      pfClassC.appendChild(pfClassIcon);
+      let headerClassIcon = createEl("img");
+      headerClassIcon.setAttribute("id", "pathfinderClassIcon");
+      headerClassIcon.src = "img/thePugilist.png"; // changeable
+      pfClassWrapper.appendChild(headerClassIcon);
       // class text
-      let pfClassText = createEl("span");
-      pfClassText.textContent = "fists"; // changeable
-      pfClassText.setAttribute("id", "pathfinderClassText");
-      pfClassC.appendChild(pfClassText);
+      let headerClassText = createEl("span");
+      headerClassText.textContent = "fists"; // changeable
+      headerClassText.setAttribute("id", "pathfinderClassText");
+      pfClassWrapper.appendChild(headerClassText);
 
-      // pathfinder layout recommendation for ally and enemies
+      // effectiveness preview
       let pfEffPreview = createEl("div");
-      pfEffPreview.setAttribute("id", "pathfinderEffPreview");
+      pfEffPreview.setAttribute("id", "pathfinderEffectivenessPreview");
       pfContent.appendChild(pfEffPreview);
       // container
-      let pfEffPreviewC = createEl("div");
-      pfEffPreviewC.setAttribute("class", "container");
-      pfEffPreview.appendChild(pfEffPreviewC);
+      let effPreviewContainer = createEl("div");
+      effPreviewContainer.setAttribute("class", "container");
+      pfEffPreview.appendChild(effPreviewContainer);
       // making the 2 types
       let effTypes = ["allyEffPreview", "enemyEffPreview"];
-      for (let i = 0; i < 2; i++) {
+      effTypes.forEach((type) => {
         let elem = createEl("div");
-        elem.setAttribute("id", effTypes[i]);
+        elem.setAttribute("id", type);
         elem.setAttribute("class", "effPreview");
-        pfEffPreviewC.appendChild(elem);
-      }
-      // making the headers
+        effPreviewContainer.appendChild(elem);
+      });
+
       const allyEffPreview = getID("allyEffPreview");
       const enemyEffPreview = getID("enemyEffPreview");
-
-      let previewHeaders = ["rcmdPfPosHeader", "enemyEffPosHeader"];
-      for (let i = 0; i < 2; i++) {
-        let elem = createEl("span");
-        elem.setAttribute("id", previewHeaders[i]);
-        elem.setAttribute("class", "effPreviewHeader");
-        if (i === 0) {
-          allyEffPreview.appendChild(elem);
+      // making the headers
+      let previewHeaders = ["allyEffPreviewHeader", "enemyEffPreviewHeader"];
+      previewHeaders.forEach((header, index) => {
+        let element = createEl("span");
+        element.setAttribute("id", header);
+        element.setAttribute("class", "effPreviewHeader");
+        if (index === 0) {
+          allyEffPreview.appendChild(element);
         } else {
-          enemyEffPreview.appendChild(elem);
+          enemyEffPreview.appendChild(element);
+        }
+      });
+
+      const allyEffPreviewHeader = getID("allyEffPreviewHeader");
+      const enemyEffPreviewHeader = getID("enemyEffPreviewHeader");
+      allyEffPreviewHeader.textContent = "recommended";
+      enemyEffPreviewHeader.textContent = "targets";
+
+      // making the layout effectiveness previews for ally/pathfinder and enemy.
+      createAllyEnemyTiles(allyEffPreview, "allyPreviewTile", 4);
+      createAllyEnemyTiles(enemyEffPreview, "enemyPreviewTile", 4);
+
+      function createAllyEnemyTiles(container, prefix, count) {
+        for (let i = 1; i <= count; i++) {
+          let elem = createEl("span");
+          elem.setAttribute("id", `${prefix}${i}`);
+          elem.setAttribute("class", "tile");
+          elem.textContent = "#";
+          container.appendChild(elem);
         }
       }
-      const rcmdPfPosHeader = getID("rcmdPfPosHeader");
-      rcmdPfPosHeader.textContent = "rcmd";
-      const enemyEffPosHeader = getID("enemyEffPosHeader");
-      enemyEffPosHeader.textContent = "targets";
-
-      // making the recommendedPosition and targeteffectivenesstiles
-      let rcmdPfPosTile = 1;
-      for (let i = 0; i < 4; i++) {
-        let elem = createEl("span");
-        elem.setAttribute("id", "rcmdPfPosTile" + rcmdPfPosTile++);
-        elem.textContent = "#";
-        allyEffPreview.appendChild(elem);
-      }
-      let enemyEffPosTile = 1;
-      for (let i = 0; i < 4; i++) {
-        let elem = createEl("span");
-        elem.setAttribute("id", "enemyEffPosTile" + enemyEffPosTile++);
-        elem.textContent = "#";
-        enemyEffPreview.appendChild(elem);
-      }
-
-      /* layout hr
-      let hr = createEl("hr");
-      hr.setAttribute("class", "hr");
-      pfEffPreviewC.appendChild(hr);
-      */
+      // adding hr line
+      const pathfinderEffectivenessPreview = getID(
+        "pathfinderEffectivenessPreview"
+      );
+      let pfEffPreviewHr = createEl("hr");
+      pfEffPreviewHr.setAttribute("class", "hr");
+      pathfinderEffectivenessPreview.appendChild(pfEffPreviewHr);
 
       // info
-      // container
       let pathfinderInfo = createEl("div");
       pathfinderInfo.setAttribute("id", "pathfinderInfo");
       pfContent.appendChild(pathfinderInfo);
-      // info container
-      let infoC = createEl("div");
-      infoC.setAttribute("id", "infoC");
-      pathfinderInfo.appendChild(infoC);
-      // quote
-      let quote = createEl("p");
-      quote.setAttribute("id", "pathfinderQuote");
-      infoC.appendChild(quote);
-      // description
-      let desc = createEl("p");
-      desc.setAttribute("id", "pathfinderDescription");
-      infoC.appendChild(desc);
-      // skills
       // container
+      let infoContainer = createEl("div");
+      infoContainer.setAttribute("class", "container");
+      pathfinderInfo.appendChild(infoContainer);
+      // quote
+      let infoQuote = createEl("p");
+      infoQuote.setAttribute("id", "pathfinderQuote");
+      infoContainer.appendChild(infoQuote);
+      // description
+      let infoDesc = createEl("p");
+      infoDesc.setAttribute("id", "pathfinderDescription");
+      infoContainer.appendChild(infoDesc);
+
+      // skills
       let pathfinderSkills = createEl("div");
       pathfinderSkills.setAttribute("id", "pathfinderSkills");
       pfContent.appendChild(pathfinderSkills);
-      //skills container
-      let skillsC = createEl("div");
-      skillsC.setAttribute("id", "skillsC");
-      pathfinderSkills.appendChild(skillsC);
+      // skills container
+      let skillsContainer = createEl("div");
+      skillsContainer.setAttribute("class", "container");
+      pathfinderSkills.appendChild(skillsContainer);
+
+      // battleformation layout
+      let pathfinderBfLayout = createEl("div");
+      pathfinderBfLayout.setAttribute("id", "pathfinderBfLayout");
+      pfContent.appendChild(pathfinderBfLayout);
+      // container
+      let bfLayoutContainer = createEl("div");
+      bfLayoutContainer.setAttribute("class", "container");
+      pathfinderBfLayout.appendChild(bfLayoutContainer);
+      // preview
+      let bfLayoutPreview = createEl("div");
+      bfLayoutPreview.setAttribute("id", "pathfinderBfLayoutPreview");
+      bfLayoutContainer.appendChild(bfLayoutPreview);
+      // preview wrapper
+      let bfLayoutPreviewWrapper = createEl("div");
+      bfLayoutPreviewWrapper.setAttribute("class", "wrapper");
+      bfLayoutPreview.appendChild(bfLayoutPreviewWrapper);
+
+      let layoutSlots = ["E", "E", "E", "E"];
+      layoutSlots.forEach((slot, index) => {
+        let elem = createEl("span");
+        elem.setAttribute("id", "previewSlot" + slot + index);
+        elem.setAttribute("class", "slot");
+        bfLayoutPreviewWrapper.appendChild(elem);
+
+        // making the inner where the icon will be changed dynamically
+        // depending on the pathfinder screen youre on. layoutslots will be dynamically changed aswell
+        let elemInner = createEl("span");
+        elemInner.setAttribute("class", "pathfinderSlotIcon");
+        elem.appendChild(elemInner);
+      });
+
+      // finalize
+      let bfLayoutFinalize = createEl("div");
+      bfLayoutFinalize.setAttribute("id", "pathfinderBfLayoutFinalize");
+      bfLayoutContainer.appendChild(bfLayoutFinalize);
 
       /*
         pathfinderPreview.skillsPreview.forEach((skill) => {
@@ -494,7 +536,7 @@ let PathfinderSelection = {
             skill.skillName,
             skill.unlocked
           );
-          skillsC.appendChild(elem);
+          skillsContainer.appendChild(elem);
         });
 
         function makeSkillPreview(id, name, unlocked) {
@@ -505,7 +547,24 @@ let PathfinderSelection = {
         }
         */
     }
-    function changeContent() {}
+    function changeContent() {
+      const pfHeaderTitle = getQuerySelector(
+        "#pathfinderHeader .container #pathfinderTitle"
+      );
+      const pfHeaderClassIcon = getQuerySelector(
+        "#pathfinderHeader .container .wrapper .pathfinderClassIcon"
+      );
+      const pfHeaderClassText = getQuerySelector(
+        "#pathfinderHeader .container .wrapper .pathfinderClassText"
+      );
+
+      // theoretically would fetch the info from an array about the heroes effectiveness
+      // on specific positions in the battleformation layout.
+      // weighing values on the 4 different slots a hero can be in,
+      // depending on what pathfinder it is, like for example the paragon
+      // should be more effective on the rightmost slot/ first slot because he is a tank.
+      // but he should also be slightly less effective on the 2nd slot.
+    }
   },
   setDocumentTitle: function () {
     if (Journey.activeStage == "PathfinderSelection") {
