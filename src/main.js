@@ -19,19 +19,29 @@ function random(thing) {
 let Main = {
   version: 1.0,
   beta: true,
+  autoSaveDelay: 60000,
 
   init: function () {
     Main.ready = true;
-    this.createNavbar(); // makes navbar and its settings/achievements
     this.createSaved(); // making the saved div
     this.createView(); // makes view
-    this.loadGame(); // gets and loads localstorage save
-    Pings.init(); // starts the pings
-    SM.init(); // starts the statemanager
+    this.loadGame(); // loads game by localstorage
+    Pings.init(); // starts the pings component
+    SM.init(); // starts the statemanager component
+    Run.init(); // starts the run component
 
-    Run.init();
+    if (SM.get("prefs.autosave")) {
+      console.log("autosave is on");
+      setInterval(() => {
+        Main.saveGame();
+      }, this.autoSaveDelay);
+    } else {
+      console.log("autosave is off");
+      Pings.ping(
+        "autosave is off, remember to save your progress manually through settings, or turn on autosave"
+      );
+    }
   },
-
   createGuid: function () {
     var pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
     var result = "";
@@ -141,6 +151,7 @@ let Main = {
     view.id = "view";
     const container = getID("container");
     container.appendChild(view);
+    this.createNavbar(); // makes navbar and its settings/achievements
   },
   error: function () {
     console.log("error");
@@ -247,7 +258,6 @@ let Main = {
 /**
  * handles starting runs and resetting runs
  */
-
 let Run = {
   init: function () {
     Journey.init();
@@ -255,7 +265,7 @@ let Run = {
 };
 
 let Journey = {
-  activeStage: null,
+  activeModule: null,
   init: function () {
     //invocationOfSin.init();
     PathfinderSelection.init();
@@ -264,9 +274,21 @@ let Journey = {
     }
     if (metaProgression.finished) {
     }
+
+    this.changeModule(PathfinderSelection);
   },
 
   reset: function () {},
+
+  changeModule: function (module) {
+    if (Journey.activeModule === module) {
+      return;
+    }
+    Journey.activeModule = module;
+    module.launch();
+    //console.log("active module is:");
+    //console.log(this.activeModule);
+  },
 };
 let invocationOfSin = {
   init: function () {
@@ -277,17 +299,14 @@ let invocationOfSin = {
     */
 
     this.makeView();
-    Journey.activeStage = "invocationOfSin";
-    this.launch();
   },
   launch: function () {
+    console.log("active module is: " + Journey.activeModule);
     this.setDocumentTitle();
   },
   makeView: function () {},
   setDocumentTitle: function () {
-    if (Journey.activeStage == "invocationOfSin") {
-      document.title = "invocation of sin";
-    }
+    document.title = "invocation of sin";
   },
 };
 
@@ -304,76 +323,80 @@ let PathfinderSelection = {
       SM.set("features.locations.pathfinderSelection", true);
     }
     */
-    // making the screen
-    this.makeView();
-
-    Journey.activeStage = "PathfinderSelection";
-    this.launch();
+    this.makeView(); // makes the view
   },
   launch: function () {
     this.setDocumentTitle();
   },
   makeView: function () {
-    // make elem
+    // make root
     let pathfinderView = createEl("div");
     pathfinderView.setAttribute("id", "pathfinderView");
     // append to view
     const view = getID("view");
     view.appendChild(pathfinderView);
-    // make pathfinderList
-    let pathfinderList = createEl("div");
-    pathfinderList.setAttribute("id", "pathfinderList");
-    pathfinderView.appendChild(pathfinderList);
-    // make pathfinder container
-    let pathfinders = createEl("div");
-    pathfinders.setAttribute("id", "pathfinders");
-    pathfinderList.appendChild(pathfinders);
-    // make each pathfinder by iterating over pathfinder list
-    pathfinderPreview.forEach((e) => {
-      let elem = makePathfinderPreview(e.id, e.name, e.unlocked);
-      pathfinders.appendChild(elem);
-    });
-    checkPathfinderPreview();
+
+    makePathfinderView();
     makePathfinderContent();
 
-    function makePathfinderPreview(id, name, unlocked) {
-      let elem = createEl("span");
-      elem.setAttribute("id", id);
-      elem.setAttribute("class", "pathfinder");
-      elem.addEventListener("click", changeContent());
+    function makePathfinderView() {
+      // make pathfinderList
+      let pathfinderList = createEl("div");
+      pathfinderList.setAttribute("id", "pathfinderList");
+      pathfinderView.appendChild(pathfinderList);
+      // make pathfinder container
+      let pathfinderContainer = createEl("div");
+      pathfinderContainer.setAttribute("class", "container");
+      pathfinderList.appendChild(pathfinderContainer);
+      // make each pathfinder by iterating over pathfinder list
+      pathfinders.forEach((e) => {
+        let elem = makePathfinderPreview(e.id, e.name, e.unlocked);
+        pathfinderContainer.appendChild(elem);
+      });
+      checkPathfinderPreview();
+      function makePathfinderPreview(id, name, unlocked) {
+        let elem = createEl("span");
+        elem.setAttribute("id", id);
+        elem.setAttribute("class", "pathfinder");
+        elem.addEventListener("click", changeActive());
 
-      let isUnlocked = unlocked();
-      if (!isUnlocked) {
-        elem.classList.add("locked");
-      }
-      let nameC = createEl("div");
-      nameC.setAttribute("class", "name");
-      nameC.textContent = name;
-      elem.appendChild(nameC);
-
-      return elem;
-    }
-    function checkPathfinderPreview() {
-      const pathfindersC = getID("pathfinders");
-      let pathfinders = pathfindersC.getElementsByClassName("pathfinder");
-      let unlockedPathfinders = [];
-      let lockedPathfinders = [];
-
-      for (let i = 0; i < pathfinders.length; i++) {
-        let currentPathfinder = pathfinders[i];
-        if (currentPathfinder.classList.contains("locked")) {
-          lockedPathfinders.push(currentPathfinder);
-        } else {
-          unlockedPathfinders.push(currentPathfinder);
+        let isUnlocked = unlocked();
+        if (!isUnlocked) {
+          elem.classList.add("locked");
         }
+        let nameC = createEl("div");
+        nameC.setAttribute("class", "name");
+        nameC.textContent = name;
+        elem.appendChild(nameC);
+
+        return elem;
       }
-      pathfindersC.innerHTML = "";
-      unlockedPathfinders.forEach((pathfinder) => {
-        pathfindersC.appendChild(pathfinder);
-      });
-      lockedPathfinders.forEach((pathfinder) => {
-        pathfindersC.appendChild(pathfinder);
-      });
+      function checkPathfinderPreview() {
+        const pathfinderContainer = getQuerySelector(
+          "#pathfinderList .container"
+        );
+        let pathfinders =
+          pathfinderContainer.getElementsByClassName("pathfinder");
+        let unlockedPathfinders = [];
+        let lockedPathfinders = [];
+
+        for (let i = 0; i < pathfinders.length; i++) {
+          let currentPathfinder = pathfinders[i];
+          if (currentPathfinder.classList.contains("locked")) {
+            // and get sm.get char.locked, so it is a && statement
+            lockedPathfinders.push(currentPathfinder);
+          } else {
+            unlockedPathfinders.push(currentPathfinder);
+          }
+        }
+        pathfinderContainer.innerHTML = "";
+        unlockedPathfinders.forEach((pathfinder) => {
+          pathfinderContainer.appendChild(pathfinder);
+        });
+        lockedPathfinders.forEach((pathfinder) => {
+          pathfinderContainer.appendChild(pathfinder);
+        });
+      }
     }
     function makePathfinderContent() {
       // root
@@ -431,13 +454,13 @@ let PathfinderSelection = {
       // making the headers
       let previewHeaders = ["allyEffPreviewHeader", "enemyEffPreviewHeader"];
       previewHeaders.forEach((header, index) => {
-        let element = createEl("span");
-        element.setAttribute("id", header);
-        element.setAttribute("class", "effPreviewHeader");
+        let elem = createEl("span");
+        elem.setAttribute("id", header);
+        elem.setAttribute("class", "effPreviewHeader");
         if (index === 0) {
-          allyEffPreview.appendChild(element);
+          allyEffPreview.appendChild(elem);
         } else {
-          enemyEffPreview.appendChild(element);
+          enemyEffPreview.appendChild(elem);
         }
       });
 
@@ -447,13 +470,13 @@ let PathfinderSelection = {
       enemyEffPreviewHeader.textContent = "targets";
 
       // making the layout effectiveness previews for ally/pathfinder and enemy.
-      createAllyEnemyTiles(allyEffPreview, "allyPreviewTile", 4);
-      createAllyEnemyTiles(enemyEffPreview, "enemyPreviewTile", 4);
+      createTiles(allyEffPreview, "allyPreviewTile", 4);
+      createTiles(enemyEffPreview, "enemyPreviewTile", 4);
 
-      function createAllyEnemyTiles(container, prefix, count) {
+      function createTiles(container, id, count) {
         for (let i = 1; i <= count; i++) {
           let elem = createEl("span");
-          elem.setAttribute("id", `${prefix}${i}`);
+          elem.setAttribute("id", `${id}${i}`);
           elem.setAttribute("class", "tile");
           elem.textContent = "#";
           container.appendChild(elem);
@@ -466,7 +489,6 @@ let PathfinderSelection = {
       let pfEffPreviewHr = createEl("hr");
       pfEffPreviewHr.setAttribute("class", "hr");
       pathfinderEffectivenessPreview.appendChild(pfEffPreviewHr);
-
       // info
       let pathfinderInfo = createEl("div");
       pathfinderInfo.setAttribute("id", "pathfinderInfo");
@@ -530,7 +552,13 @@ let PathfinderSelection = {
       bfLayoutContainer.appendChild(bfLayoutFinalize);
 
       /*
-        pathfinderPreview.skillsPreview.forEach((skill) => {
+      let finalizeButton = new Button.custom({
+        id: "pick",
+      });
+      */
+
+      /*
+        pathfinders.skills.forEach((skill) => {
           let elem = makeSkillPreview(
             skill.skillId,
             skill.skillName,
@@ -547,7 +575,8 @@ let PathfinderSelection = {
         }
         */
     }
-    function changeContent() {
+
+    function changeActive() {
       const pfHeaderTitle = getQuerySelector(
         "#pathfinderHeader .container #pathfinderTitle"
       );
@@ -567,9 +596,7 @@ let PathfinderSelection = {
     }
   },
   setDocumentTitle: function () {
-    if (Journey.activeStage == "PathfinderSelection") {
-      Journey.title = "choose your pathfinders";
-    }
+    document.title = "choose your pathfinders";
   },
   finalizeChosenPathfinders: function () {
     for (let pathfinder in this.selectedPathfinders) {
@@ -584,6 +611,7 @@ let PathfinderSelection = {
     for (let i = 0; i < 4; i++) {
       let trait = Traits[random(Traits.length) + 1];
       if (trait.condition()) {
+        // trait.condition() is just getting the condition from the object
         SM.addTrait(pathfinder, trait.name);
       }
     }
@@ -594,14 +622,12 @@ let PathfinderSelection = {
  * shrine of abyss / metaprogression
  */
 let metaProgression = {
-  init: function () {
-    Journey.activeStage = "metaProgression";
-  },
+  init: function () {},
   launch: function () {
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {
-    if (Journey.activeStage == "metaProgression") {
+    if (Journey.activeModule == "metaProgression") {
       document.title = "Shrine of the Abyss";
     }
   },
@@ -671,7 +697,7 @@ let Header = {
  * im gonna change the unlocked functions
  * to return a SM.get skill and unlocked value later
  */
-let pathfinderPreview = [
+let pathfinders = [
   {
     name: "The Pugilist",
     id: "thePugilistPreview",
@@ -682,22 +708,22 @@ let pathfinderPreview = [
     unlocked: function () {
       return true;
     },
-    skillsPreview: [
+    skills: [
       {
         skillName: "Leg Breaker",
         skillId: "lbPreview",
-        // 40% chance of disabling enemy for 1 turn
+        // 40% chance of disabling enemy for 1 turn + low-lowmedium dmg
       },
       {
         skillName: "Fire Fist",
         skillId: "ffPreview",
-        // hit enemy 1 time with a fire fist
+        // hit enemy 1 time with a fire fist, low-medium dmg
       },
       {
         skillName: "Crushing Uppercut",
         skillId: "cuPreview",
         // hit enemy 1 time with a uppercut,
-        // 20% chance of concussion which gives the "confused" buff on target
+        // 25% chance of concussion which gives the "confused" buff on target
       },
       {
         skillName: "Burst Combo",
@@ -707,6 +733,7 @@ let pathfinderPreview = [
       {
         skillName: "Meteor Strike",
         skillId: "msPreview",
+        // hits 1 time heavy damage
       },
       {
         skillName: "Demon Assault",
@@ -725,37 +752,37 @@ let pathfinderPreview = [
     unlocked: function () {
       return true;
     },
-    skillsPreview: [
+    skills: [
       {
         skillName: "Blade Flurry",
-        skillId: "bfPreview",
-        // hits an enemy 3-5 times
+        skillId: "bladeFlurry",
+        // hits an enemy 3-5 times, low dmg
       },
       {},
       {
         skillName: "Poison fan",
-        skillId: "pfPreview",
+        skillId: "poisonFan",
         // hits all 4 enemies with kunais', %chance of gaining "Poisoned"
       },
       {
         skillName: "Vanishing Strike",
-        skillId: "vsPreview",
+        skillId: "vanishingStrike",
         // you disappear for 1 round charging up and attacking in the 2nd round
       },
       {
         skillName: "Blinding dagger",
-        skillId: "bdPreview",
+        skillId: "blindingDagger",
         // 45% chance of target reciving the "blind" buff.
       },
       {
         skillName: "Mirage Step",
-        skillId: "msPreview",
+        skillId: "mirageStep",
         // makes you invunerable for 1 turn
       },
       {
         skillName: "Eviscerate",
-        skillId: "ePreview",
-        // strikes an enemy with a heavily damaging attack.
+        skillId: "eviscerate",
+        // strikes an enemy in the neck with a heavily damaging attack.
       },
     ],
   },
@@ -769,26 +796,26 @@ let pathfinderPreview = [
     unlocked: function () {
       return true;
     },
-    skillsPreview: [
+    skills: [
       {
         skillName: "Crushing Blows",
-        id: "cbPreview",
+        id: "crushingBlows",
         // hits 2 crushing blows on an enemy
       },
       {
         skillName: "Head Splitter",
-        id: "hsPreview",
+        id: "headSplitter",
         // hit 1 heavily damaging move on an enemy
       },
       {
         skillName: "War Cry",
-        id: "wcPreview",
+        id: "warCry",
         // increases dmg for 2 turns
       },
       {
         skillName: "Mighty Swing",
-        skillId: "msPreview",
-        // hit 1 mighty swing
+        skillId: "mightySwing",
+        // mighty swing
       },
       {
         skillName: "",
@@ -796,7 +823,7 @@ let pathfinderPreview = [
       },
       {
         skillName: "Earthquake",
-        skillId: "eqPreview",
+        skillId: "earthquake",
         // do damage to 3 the front 3 enemies
       },
     ],
@@ -811,30 +838,30 @@ let pathfinderPreview = [
     unlocked: function () {
       return false;
     },
-    skillsPreview: [
+    skills: [
       {
         skillName: "Soul Siphon",
-        skillId: "ssPreview",
+        skillId: "soulSiphon",
       },
       {
         skillName: "Essence Drain",
-        skillId: "edPreview",
+        skillId: "essenceDrain",
       },
       {
         skillName: "Curse of Darkness",
-        skillId: "codPreview",
+        skillId: "curseOfDarkness",
       },
       {
         skillName: "Forbidden Knowledge",
-        skillId: "fkPreview",
+        skillId: "forbiddenKnowledge",
       },
       {
         skillName: "Eldritch Shield",
-        skillId: "esPreview",
+        skillId: "eldritchShield",
       },
       {
         skillName: "Eldritch Reckoning",
-        skillId: "erPreview",
+        skillId: "eldritchReckoning",
       },
     ],
   },
@@ -848,30 +875,30 @@ let pathfinderPreview = [
     unlocked: function () {
       return true;
     },
-    skillsPreview: [
+    skills: [
       {
         skillName: "Valiant Strike",
-        skillId: "vsPreview",
+        skillId: "valiantStrike",
       },
       {
         skillName: "Holy Retribution",
-        skillId: "hrPreview",
+        skillId: "holyRetribution",
       },
       {
         skillName: "Pommel Strike",
-        skillId: "psPreview",
+        skillId: "pommelStrike",
       },
       {
         skillName: "Holy Blessing",
-        skillId: "hbPreview",
+        skillId: "holyBlessing",
       },
       {
         skillName: "Surge of Action",
-        skillId: "soaPreview",
+        skillId: "surgeOfAction",
       },
       {
         skillName: "crusade",
-        skillId: "cPreview",
+        skillId: "crusade",
       },
     ],
   },
@@ -885,30 +912,30 @@ let pathfinderPreview = [
     unlocked: function () {
       return false;
     },
-    skillsPreview: [
+    skills: [
       {
         skillName: "shield bash",
-        skillId: "sbPreview",
+        skillId: "shieldBash",
         // hits designated enemy with a shield
       },
       {
         skillName: "Bulwark Slam",
-        skillId: "bsPreview",
+        skillId: "bulkwarkSlam",
         // slams an enemy
       },
       {
         skillName: "Shield Wall",
-        skillId: "swPreview",
+        skillId: "shieldWall",
         // choose an ally to protect 1 attack from an enemy
       },
       {
         skillName: "Paragon's Resolve",
-        skillId: "prPreview",
+        skillId: "paragonsResolve",
         // buffs defence for the ally behind you and yourself
       },
       {
         skillName: "Titan's Fury",
-        skillId: "tfPreview",
+        skillId: "titansFury",
         // attack the enemy with a titan's fury, hitting 2-3 times.
       },
     ],
@@ -926,7 +953,7 @@ let Traits = [
     name: "lucky",
     desc: "bask in luck's glow, for blessings' overflow.",
     condition: function () {
-      return Journey.activeStage == "PathfinderSelection";
+      return Journey.activeModule == "PathfinderSelection";
     },
     // you have a slightly higher chance of getting good pathEvents or nodeEvents
   },
@@ -934,7 +961,7 @@ let Traits = [
     name: "hoarder",
     desc: "you somehow find ways to carry more",
     condition: function () {
-      return Journey.activeStage == "PathfinderSelection";
+      return Journey.activeModule == "PathfinderSelection";
     },
     // increases inventory space by a small amount
   },
@@ -942,7 +969,7 @@ let Traits = [
     name: "individualist",
     desc: "doing things alone yields greater experience",
     condition: function () {
-      return Journey.activeStage == "PathfinderSelection";
+      return Journey.activeModule == "PathfinderSelection";
     },
   },
   // start of negatives
@@ -950,7 +977,7 @@ let Traits = [
     name: "restless",
     desc: "you find it harder to rest properly",
     condition: function () {
-      return Journey.activeStage == "PathfinderSelection";
+      return Journey.activeModule == "PathfinderSelection";
     },
     // you will heal slightly less with potions
   },
@@ -958,7 +985,7 @@ let Traits = [
     name: "blighted",
     desc: "fortune frowns, your luck goes down",
     condition: function () {
-      return Journey.activeStage == "PathfinderSelection";
+      return Journey.activeModule == "PathfinderSelection";
     },
     // you have a higher chance of getting bad pathEvents or nodeEvents
   },
@@ -971,9 +998,13 @@ let Traits = [
 let Pings = {
   init: function () {
     let elem = createEl("div");
-    elem.id = "pings";
+    elem.setAttribute("id", "pings");
     const container = getID("container");
     container.insertBefore(elem, container.firstChild);
+
+    let fade = createEl("div");
+    fade.setAttribute("id", "fade");
+    elem.appendChild(fade);
   },
   ping: function (text) {
     if (typeof text == "undefined") {
@@ -1057,6 +1088,7 @@ let Events = {
  *  width: num,
  * })
  */
+
 let Button = {
   custom: function (param) {
     let elem = createEl("div");
@@ -1101,7 +1133,6 @@ let Button = {
  */
 let SM = {
   maxValue: 99999999,
-  autoSaveDelay: 60000,
   components: {},
   init: function () {
     this.set("ver", Main.version);
@@ -1112,7 +1143,7 @@ let SM = {
       "character", // pathfinders, boons, flaws, perks, health, stats and such.
       "inventory", // inventory handling,
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
-      "meta", // meta-progression
+      "meta", // meta-progression, kept between runs.
       "cooldown", // cooldown on different situations handling
     ];
     // checks through iterating over values, and creates a category if category undefined
@@ -1122,7 +1153,6 @@ let SM = {
         console.log("category: " + category + " initialized");
       }
     }
-    this.updatePrefs();
   },
   // gets a single value
   get: function (stateName) {
@@ -1190,25 +1220,9 @@ let SM = {
     }
     Main.saveGame();
   },
-  updatePrefs: function () {
-    // autosave check
-    console.log("updating prefs");
-    if (this.get("prefs.autosave")) {
-      console.log("autosave is on");
-      setInterval(() => {
-        Main.saveGame();
-      }, this.autoSaveDelay);
-    } else {
-      console.log("autosave is off");
-      Pings.ping(
-        "autosave is off, remember to save your progress manually through settings, or turn on autosave"
-      );
-    }
-  },
-  // trait refers to both positive and negative ones
+  // custom methods for adding specific things
   addTrait: function (char, trait) {
     this.set("character." + char + "." + "traits." + trait, true);
-    // zzzz
     const matchedTrait = Traits.find((e) => e.name === trait);
     if (matchedTrait) {
       Pings.ping(matchedTrait.desc);
@@ -1273,7 +1287,7 @@ window.onload = function () {
  *
  *
  * todo  4/9/2024
- * finish pathfinder selection screen, meaning adding the changeContent method
+ * finish pathfinder selection screen, meaning adding the changeActive method
  * to change info of pathfinder depending on which pathfinder ur selected on.
  *
  * fix the unlocked return function on each pathfinder,

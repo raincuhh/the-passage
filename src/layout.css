@@ -11,9 +11,11 @@
 :root {
   --bg-color-base: #181818;
   --bg-color-highlight: #232323;
+
+  --text-subdued: rgb(55, 55, 55);
   --text-base: rgb(95, 95, 95);
   --text-highlight: rgb(125, 125, 125);
-  --text-subdued: rgb(55, 55, 55);
+  --text-active: rgb(140, 140, 140);
 
   --game-height: 100%;
   --pings-width: clamp(30%, 82.5vw, 33%);
@@ -32,7 +34,6 @@
   background-color: var(--bg-color-base);
   overflow: hidden;
 }
-
 /* navbar */
 #navbar {
   position: fixed;
@@ -64,7 +65,6 @@
 #navbarLinks .link > * {
   color: var(--text-base);
 }
-
 /* settings */
 #settings {
   position: fixed;
@@ -115,12 +115,23 @@
   color: var(--text-base);
 }
 #pings {
+  position: relative;
   width: var(--pings-width);
   display: flex;
   flex-direction: column;
 }
 #pings .ping {
   margin-bottom: 7.5px;
+}
+#pings #fade {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(24, 24, 24, 0) 0%,
+    rgba(24, 24, 24, 1) 100%
+  );
 }
 #view {
   padding-left: 1rem;
@@ -134,7 +145,7 @@
   flex-direction: row;
   #pathfinderList {
     width: max-content;
-    #pathfinders {
+    .container {
       display: flex;
       flex-direction: column;
       .pathfinder:not(:last-of-type) {
@@ -156,6 +167,12 @@
         /*text-decoration: line-through;*/
         pointer-events: none;
       }
+      .selected {
+        color: var(--text-active);
+      }
+      .selected:hover {
+        color: var(--text-active);
+      }
     }
   }
   #pathfinderContent {
@@ -167,30 +184,54 @@
       height: 0.5px;
       background-color: var(--text-base);
     }
-
     #pathfinderHeader {
-      display: flex;
-      flex-direction: column;
-      align-items: end;
-      #pathfinderTitle {
-        font-size: 2.5rem;
-      }
-      .container {
-        image-rendering: pixelated;
-        display: flex;
-        align-items: center;
-        #pathfinderClassText {
-          margin-left: 0.43rem;
-          font-size: 1.2rem;
-        }
-      }
-    }
-    #pathfinderEffPreview {
       display: flex;
       justify-content: end;
       .container {
         display: flex;
+        flex-direction: column;
+        #pathfinderTitle {
+          font-size: 2.5rem;
+        }
+        .wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: end;
+          image-rendering: pixelated;
+
+          #pathfinderClassText {
+            margin-left: 0.43rem;
+            font-size: 1.25rem;
+          }
+        }
+      }
+    }
+    #pathfinderEffectivenessPreview {
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+      padding-top: 0.15rem;
+      .container {
+        display: flex;
+        justify-content: end;
         gap: 1rem;
+        .effPreview {
+          display: flex;
+          .effPreviewHeader {
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+            padding-right: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--text-subdued);
+          }
+          .tile:not(:last-child) {
+            margin-right: 0.25rem;
+          }
+        }
+      }
+      .hr {
+        margin-left: 13rem;
       }
     }
   }
