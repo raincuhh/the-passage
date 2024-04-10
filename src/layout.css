@@ -104,7 +104,7 @@
 }
 #container {
   margin: 0 auto;
-  padding: 1rem 1rem 0;
+  padding: 2rem 1rem 0;
   width: clamp(850px, 82.5vw, 1100px);
   height: 100%;
   max-width: 110rem;
@@ -233,6 +233,16 @@
       .hr {
         margin-left: 13rem;
       }
+    }
+    #pathfinderInfo {
+      display: flex;
+      justify-content: end;
+      padding-top: 0.5rem;
+    }
+    #pathfinderSkills {
+      display: flex;
+      justify-content: end;
+      padding-top: 0.5rem;
     }
   }
 }
