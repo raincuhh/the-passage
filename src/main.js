@@ -31,12 +31,12 @@ let Main = {
     Run.init(); // starts the run component
 
     if (SM.get("prefs.autosave")) {
-      console.log("autosave is on");
+      //console.log("autosave is on");
       setInterval(() => {
         Main.saveGame();
       }, this.autoSaveDelay);
     } else {
-      console.log("autosave is off");
+      //console.log("autosave is off");
       Pings.ping(
         "autosave is off, remember to save your progress manually through settings, or turn on autosave"
       );
@@ -45,8 +45,8 @@ let Main = {
   createView: function () {
     let view = createEl("div");
     view.id = "view";
-    const container = getID("container");
-    container.appendChild(view);
+    const CONTAINER = getID("container");
+    CONTAINER.appendChild(view);
 
     this.createNavbar();
     this.createSaved();
@@ -67,13 +67,13 @@ let Main = {
     return result;
   },
   createNavbar: function () {
-    let createLinks = function (id, text) {
+    function createLinks(id, text) {
       let link = createEl("span");
       link.setAttribute("id", id);
       link.className = "link";
       link.textContent = text;
       return link;
-    };
+    }
 
     let navbarInfo = [
       { id: "navbarDelete", text: "delete." },
@@ -88,8 +88,8 @@ let Main = {
 
     let navbar = createEl("div");
     navbar.id = "navbar";
-    const root = getID("root");
-    root.appendChild(navbar);
+    const ROOT = getID("root");
+    ROOT.appendChild(navbar);
 
     let navbarLinks = createEl("div");
     navbarLinks.id = "navbarLinks";
@@ -100,21 +100,21 @@ let Main = {
       navbarLinks.appendChild(link);
     });
 
-    const navbarLinkGithub = getID("navbarGithub");
-    navbarLinkGithub.addEventListener("click", () => {
+    const LINKGITHUB = getID("navbarGithub");
+    LINKGITHUB.addEventListener("click", () => {
       window.open("https://github.com/raincuhh");
     });
-    const navbarlinkPortfolio = getID("navbarPortfolio");
-    navbarlinkPortfolio.addEventListener("click", () => {
+    const LINKPORTFOLIO = getID("navbarPortfolio");
+    LINKPORTFOLIO.addEventListener("click", () => {
       window.open("https://raincuhh.github.io/portfolio/");
     });
-    const navbarlinkAchievement = getID("navbarAchievements");
-    navbarlinkAchievement.addEventListener("click", () => {
+    const LINKACHIEVEMENTS = getID("navbarAchievements");
+    LINKACHIEVEMENTS.addEventListener("click", () => {
       console.log("achievements");
     });
-    const navbarlinkSettings = getID("navbarSettings");
+    const LINKSETTINGS = getID("navbarSettings");
     let open = false;
-    navbarlinkSettings.addEventListener("click", () => {
+    LINKSETTINGS.addEventListener("click", () => {
       const settings = getID("settings");
       if (!open) {
         settings.style.display = "block";
@@ -125,16 +125,16 @@ let Main = {
       }
     });
 
-    const navbarDelete = getID("navbarDelete");
-    navbarDelete.addEventListener("click", () => {
+    const DELETE = getID("navbarDelete");
+    DELETE.addEventListener("click", () => {
       Main.deleteGame();
     });
-    const navbarLoad = getID("navbarLoad");
-    navbarLoad.addEventListener("click", () => {
+    const LOAD = getID("navbarLoad");
+    LOAD.addEventListener("click", () => {
       Main.loadGame();
     });
-    const navbarSave = getID("navbarSave");
-    navbarSave.addEventListener("click", () => {
+    const SAVE = getID("navbarSave");
+    SAVE.addEventListener("click", () => {
       Main.saveGame();
     });
 
@@ -142,20 +142,19 @@ let Main = {
       let settings = createEl("div");
       settings.setAttribute("id", "settings");
 
-      const main = getID("main");
-      main.insertAdjacentElement("afterend", settings);
+      const MAIN = getID("main");
+      MAIN.insertAdjacentElement("afterend", settings);
     }
     createSettings();
     function createAchievements() {
       let achievements = createEl("div");
       achievements.setAttribute("id", "achievements");
 
-      const main = getID("main");
-      main.insertAdjacentElement("afterend", achievements);
+      const MAIN = getID("main");
+      MAIN.insertAdjacentElement("afterend", achievements);
     }
     createAchievements();
   },
-
   error: function () {
     console.log("error");
   },
@@ -164,15 +163,15 @@ let Main = {
     elem.setAttribute("id", "saved");
     elem.textContent = "saved";
     elem.style.opacity = 0;
-    const main = getID("main");
-    main.insertBefore(elem, main.firstChild);
+    const MAIN = getID("main");
+    MAIN.insertBefore(elem, MAIN.firstChild);
   },
   saveNotif: function () {
-    const elem = getID("saved");
-    elem.style.opacity = 1;
+    const ELEM = getID("saved");
+    ELEM.style.opacity = 1;
     setTimeout(function () {
-      elem.style.transition = "opacity 1.5s";
-      elem.style.opacity = 0;
+      ELEM.style.transition = "opacity 1.5s";
+      ELEM.style.opacity = 0;
     }, 10);
   },
   saveGame: function () {
@@ -188,7 +187,7 @@ let Main = {
   },
   loadGame: function () {
     let string = localStorage.getItem("save");
-    console.log("statemanager components:");
+    //console.log("statemanager components:");
     console.log(SM.components);
     if (string) {
       try {
@@ -238,14 +237,13 @@ let Main = {
     return save;
   },
   import: function () {
-    const importDiv = getID("changethiswhenyoumaketheimportDiv");
-    let string = importDiv.textContent;
+    const IMPORTDIV = getID("changethiswhenyoumaketheimportDiv");
+    let string = IMPORTDIV.textContent;
     try {
       let save = atob(string);
       save = JSON.parse(save);
       localStorage.setItem("save", save);
       this.saveGame(); // saves the new 'save'
-      console.log("save imported");
       this.loadGame(); // then loads it to SM.components
       console.log("loaded complete");
     } catch (error) {
@@ -267,15 +265,15 @@ let Run = {
 let Journey = {
   activeModule: null,
   init: function () {
-    //invocationOfSin.init();
-    PathfinderSelector.init();
-    if (PathfinderSelector.finished) {
+    //SelectSin.init();
+    FormParty.init();
+    if (FormParty.finished) {
       metaProgression.init();
     }
     if (metaProgression.finished) {
     }
 
-    this.changeModule(PathfinderSelector);
+    this.changeModule(FormParty);
   },
 
   reset: function () {},
@@ -290,11 +288,11 @@ let Journey = {
     //console.log(this.activeModule);
   },
 };
-let invocationOfSin = {
+let SelectSin = {
   init: function () {
     /*
-    if (SM.get("features.locations.invocationOfSin") == undefined) {
-      SM.set("features.locations.invocationOfSin", true);
+    if (SM.get("features.locations.SelectSin") == undefined) {
+      SM.set("features.locations.SelectSin", true);
     }
     */
 
@@ -313,9 +311,9 @@ let invocationOfSin = {
 /**
  * picks characters
  */
-let PathfinderSelector = {
+let FormParty = {
   finished: false,
-  chosenPathfinders: [],
+  chosenParty: [],
 
   init: function () {
     /*
@@ -323,141 +321,148 @@ let PathfinderSelector = {
       SM.set("features.locations.pathfinderSelection", true);
     }
     */
-    this.makeView(); // makes the view
+    this.createViewElements(); // makes the view
+    Pings.ping(
+      "Choose your allies carefully, for they will determine the course of your journey."
+    );
   },
   launch: function () {
     this.setDocumentTitle();
   },
-  makeView: function () {
-    // make root
+  createViewElements: function () {
     let pathfinderView = createEl("div");
     pathfinderView.setAttribute("id", "pathfinderView");
-    // append to view
-    const view = getID("view");
-    view.appendChild(pathfinderView);
+    const VIEW = getID("view"); // the parent that all "views" will get appended to
+    VIEW.appendChild(pathfinderView);
 
-    this.makePathfinderView();
-    this.makePathfinderContent();
+    // make the content
+    this.createPathfinderListContent(); // makes patfinder list, unlocked/locked
+    this.createPathfinderDetails(); // makes the content when you click on a hero in the list
+    this.createHeaderView(); // makes the header of the content
+    this.createPathfinderPosEffectPreview(); // makes the pathfinder pos effectiveness preview
+    this.createPathfinderInfoSection(); // makes pathfinder info, quote/desc, etc
+    this.createPathfinderSkillsSection(); // makes the skill display
+    this.createLockedInLayout(); // makes the locked in layout display,
   },
-  makePathfinderView: function () {
+  createPathfinderListContent: function () {
     // make pathfinderList
     let pathfinderList = createEl("div");
     pathfinderList.setAttribute("id", "pathfinderList");
     pathfinderView.appendChild(pathfinderList);
-    // make pathfinder container
+
     let pathfinderContainer = createEl("div");
     pathfinderContainer.setAttribute("class", "container");
     pathfinderList.appendChild(pathfinderContainer);
-    // make each pathfinder by iterating over pathfinder list
-    characters.forEach((e, index) => {
-      let elem = makePathfinderPreview(e, index); // e.id, e.name, e.available
+
+    characters.forEach((pathfinder, index) => {
+      let elem = this.createPathfinderListItem(pathfinder, index);
       pathfinderContainer.appendChild(elem);
     });
-    checkPathfinderPreview();
-    function makePathfinderPreview(char, index) {
-      // id, name, available
-      let elem = createEl("span");
-      elem.setAttribute("id", char.id);
-      elem.setAttribute("class", "pathfinder");
-      elem.addEventListener("click", () => {
-        PathfinderSelector.changeActive(char, index);
-        console.log(index);
-      });
-
-      let isUnlocked = char.available();
-      if (!isUnlocked) {
-        elem.classList.add("locked");
-      }
-      let nameC = createEl("div");
-      nameC.setAttribute("class", "name");
-      nameC.textContent = char.name;
-      elem.appendChild(nameC);
-
-      return elem;
-    }
-    function checkPathfinderPreview() {
-      const pathfinderContainer = getQuerySelector(
-        "#pathfinderList .container"
-      );
-      let characters = pathfinderContainer.getElementsByClassName("pathfinder");
-      let unlockedPathfinders = [];
-      let lockedPathfinders = [];
-
-      for (let i = 0; i < characters.length; i++) {
-        let currentPathfinder = characters[i];
-        if (currentPathfinder.classList.contains("locked")) {
-          // and get sm.get char.locked, so it is a && statement
-          lockedPathfinders.push(currentPathfinder);
-        } else {
-          unlockedPathfinders.push(currentPathfinder);
-        }
-      }
-      pathfinderContainer.innerHTML = "";
-      unlockedPathfinders.forEach((pathfinder) => {
-        pathfinderContainer.appendChild(pathfinder);
-      });
-      lockedPathfinders.forEach((pathfinder) => {
-        pathfinderContainer.appendChild(pathfinder);
-      });
-    }
+    this.checkPathfindersInListItems();
   },
-  makePathfinderContent: function () {
+  createPathfinderListItem: function (char, index) {
+    let elem = createEl("span");
+    elem.setAttribute("id", char.id);
+    elem.setAttribute("class", "pathfinder");
+    elem.addEventListener("click", () => {
+      FormParty.changeActive(char, index);
+      //console.log(index);
+    });
+
+    let isUnlocked = char.available();
+    if (!isUnlocked) {
+      elem.classList.add("locked");
+    }
+    let pfName = createEl("div");
+    pfName.setAttribute("class", "name");
+    pfName.textContent = char.name;
+    elem.appendChild(pfName);
+
+    return elem;
+  },
+  checkPathfindersInListItems: function () {
+    const PATHFINDERCONTAINER = getQuerySelector("#pathfinderList .container");
+    let characters = PATHFINDERCONTAINER.getElementsByClassName("pathfinder");
+    let unlockedPathfinders = [];
+    let lockedPathfinders = [];
+
+    for (let i = 0; i < characters.length; i++) {
+      let currentPathfinder = characters[i];
+      if (currentPathfinder.classList.contains("locked")) {
+        // and get sm.get char.locked, so it is a && statement when i implement that
+        lockedPathfinders.push(currentPathfinder);
+      } else {
+        unlockedPathfinders.push(currentPathfinder);
+      }
+    }
+    PATHFINDERCONTAINER.innerHTML = "";
+    unlockedPathfinders.forEach((pathfinder) => {
+      PATHFINDERCONTAINER.appendChild(pathfinder);
+    });
+    lockedPathfinders.forEach((pathfinder) => {
+      PATHFINDERCONTAINER.appendChild(pathfinder);
+    });
+  },
+  createPathfinderDetails: function () {
     // root
-    let pfContent = createEl("div");
-    pfContent.setAttribute("id", "pathfinderContent");
-    pathfinderView.appendChild(pfContent);
+    let details = createEl("div");
+    details.setAttribute("id", "pathfinderContent");
+    pathfinderView.appendChild(details);
+  },
+  createHeaderView: function () {
+    const PARENT = getID("pathfinderContent");
 
-    // header
-    let pfHeader = createEl("div");
-    pfHeader.setAttribute("id", "pathfinderHeader");
-    pfContent.appendChild(pfHeader);
-    // container
-    let headerContainer = createEl("div");
-    headerContainer.setAttribute("class", "container");
-    pfHeader.appendChild(headerContainer);
-    // title // the pugilist, the faceless, etc
-    let headerTitle = createEl("span");
-    headerTitle.setAttribute("id", "pathfinderTitle");
-    headerTitle.textContent = "The Pugilist"; // changeable
-    headerContainer.appendChild(headerTitle);
-    // wrapper
-    let pfClassWrapper = createEl("div");
-    pfClassWrapper.setAttribute("class", "wrapper");
-    headerContainer.appendChild(pfClassWrapper);
-    // class icon
-    let headerClassIcon = createEl("img");
-    headerClassIcon.setAttribute("id", "pathfinderClassIcon");
-    headerClassIcon.src = characters[0].icon; // changeable
+    let header = createEl("div");
+    header.setAttribute("id", "pathfinderHeader");
+    PARENT.appendChild(header);
 
-    pfClassWrapper.appendChild(headerClassIcon);
-    // class text
-    let headerClassText = createEl("span");
-    headerClassText.setAttribute("id", "pathfinderClassText");
-    headerClassText.textContent = characters[0].class; // changeable
-    pfClassWrapper.appendChild(headerClassText);
+    let container = createEl("div");
+    container.setAttribute("class", "container");
+    header.appendChild(container);
 
-    // effectiveness preview
-    let pfEffPreview = createEl("div");
-    pfEffPreview.setAttribute("id", "pathfinderEffectivenessPreview");
-    pfContent.appendChild(pfEffPreview);
-    // container
-    let effPreviewContainer = createEl("div");
-    effPreviewContainer.setAttribute("class", "container");
-    pfEffPreview.appendChild(effPreviewContainer);
+    let title = createEl("span");
+    title.setAttribute("id", "pathfinderTitle");
+    title.textContent = "The Pugilist";
+    container.appendChild(title);
+
+    let innerWrapper = createEl("div");
+    innerWrapper.setAttribute("class", "wrapper");
+    container.appendChild(innerWrapper);
+
+    let classIcon = createEl("img");
+    classIcon.setAttribute("id", "pathfinderClassIcon");
+    classIcon.src = characters[0].icon;
+    innerWrapper.appendChild(classIcon);
+
+    let classText = createEl("span");
+    classText.setAttribute("id", "pathfinderClassText");
+    classText.textContent = characters[0].class;
+    innerWrapper.appendChild(classText);
+  },
+  createPathfinderPosEffectPreview: function () {
+    const PARENT = getID("pathfinderContent");
+
+    let effectivenessPreview = createEl("div");
+    effectivenessPreview.setAttribute("id", "pathfinderEffectivenessPreview");
+    PARENT.appendChild(effectivenessPreview);
+
+    let container = createEl("div");
+    container.setAttribute("class", "container");
+    effectivenessPreview.appendChild(container);
     // making the 2 types
-    let effTypes = ["allyEffPreview", "enemyEffPreview"];
-    effTypes.forEach((type) => {
+    let types = ["allyEffPreview", "enemyEffPreview"];
+    types.forEach((type) => {
       let elem = createEl("div");
       elem.setAttribute("id", type);
       elem.setAttribute("class", "effPreview");
-      effPreviewContainer.appendChild(elem);
+      container.appendChild(elem);
     });
 
     const allyEffPreview = getID("allyEffPreview");
     const enemyEffPreview = getID("enemyEffPreview");
-    // making the headers
-    let previewHeaders = ["allyEffPreviewHeader", "enemyEffPreviewHeader"];
-    previewHeaders.forEach((header, index) => {
+
+    let headers = ["allyEffPreviewHeader", "enemyEffPreviewHeader"];
+    headers.forEach((header, index) => {
       let elem = createEl("span");
       elem.setAttribute("id", header);
       elem.setAttribute("class", "effPreviewHeader");
@@ -487,60 +492,95 @@ let PathfinderSelector = {
         //console.log("tile" + i);
       }
     }
-    // adding hr line
+
     const pathfinderEffectivenessPreview = getID(
       "pathfinderEffectivenessPreview"
     );
     let pfEffPreviewHr = createEl("hr");
     pfEffPreviewHr.setAttribute("class", "hr");
     pathfinderEffectivenessPreview.appendChild(pfEffPreviewHr);
-    // info
-    let pathfinderInfo = createEl("div");
-    pathfinderInfo.setAttribute("id", "pathfinderInfo");
-    pfContent.appendChild(pathfinderInfo);
-    // container
-    let infoContainer = createEl("div");
-    infoContainer.setAttribute("class", "container");
-    pathfinderInfo.appendChild(infoContainer);
-    // quote
-    let infoQuote = createEl("p");
-    infoQuote.setAttribute("id", "pathfinderQuote");
-    infoQuote.textContent = characters[0].quote; // default
-    infoContainer.appendChild(infoQuote);
-    // desc
-    let infoDesc = createEl("p");
-    infoDesc.setAttribute("id", "pathfinderDescription");
-    infoDesc.textContent = characters[0].desc; // default
-    infoContainer.appendChild(infoDesc);
+  },
+  createPathfinderInfoSection: function () {
+    const PARENT = getID("pathfinderContent");
 
-    // skills
+    let info = createEl("div");
+    info.setAttribute("id", "pathfinderInfo");
+    PARENT.appendChild(info);
+
+    let container = createEl("div");
+    container.setAttribute("class", "container");
+    info.appendChild(container);
+
+    let quote = createEl("div");
+    quote.setAttribute("id", "pathfinderQuote");
+    quote.textContent = characters[0].quote; // default
+    container.appendChild(quote);
+
+    /*
+    let desc = createEl("p");
+    desc.setAttribute("id", "pathfinderDescription");
+    desc.textContent = characters[0].desc; // default
+    container.appendChild(desc);
+    */
+  },
+  createPathfinderSkillsSection: function () {
+    const PARENT = getID("pathfinderContent");
+
     let pathfinderSkills = createEl("div");
     pathfinderSkills.setAttribute("id", "pathfinderSkills");
-    pfContent.appendChild(pathfinderSkills);
-    // skills container
+    PARENT.appendChild(pathfinderSkills);
+
     let skillsContainer = createEl("div");
     skillsContainer.setAttribute("class", "container");
     pathfinderSkills.appendChild(skillsContainer);
 
-    // create skills
-    this.displaySkills(0);
+    // create default skills, gets changed when u click specific pathfinder
+    this.createSkillList(0);
+  },
+  createSkillList: function (i) {
+    // make the skillsContainer modular in the future by adding param that takes container
+    const CONTAINER = getQuerySelector("#pathfinderSkills .container");
+    CONTAINER.innerHTML = "";
+    characters[i].skills.forEach((skill) => {
+      let elem = createEl("div");
+      elem.setAttribute("id", skill.id);
+      elem.setAttribute("class", "skill");
+      CONTAINER.appendChild(elem);
 
-    // battleformation layout
-    let pathfinderBfLayout = createEl("div");
-    pathfinderBfLayout.setAttribute("id", "pathfinderBfLayout");
-    pfContent.appendChild(pathfinderBfLayout);
-    // container
-    let bfLayoutContainer = createEl("div");
-    bfLayoutContainer.setAttribute("class", "container");
-    pathfinderBfLayout.appendChild(bfLayoutContainer);
-    // preview
-    let bfLayoutPreview = createEl("div");
-    bfLayoutPreview.setAttribute("id", "pathfinderBfLayoutPreview");
-    bfLayoutContainer.appendChild(bfLayoutPreview);
-    // preview wrapper
+      let container = createEl("div");
+      container.setAttribute("class", "iconContainer");
+      elem.appendChild(container);
+
+      let icon = createEl("img");
+      icon.setAttribute("class", "skillIcon");
+      icon.src = skill.icon;
+      container.appendChild(icon);
+      /*
+      let name = createEl("span");
+      name.setAttribute("class", "name");
+      name.textContent = skill.name;
+      elem.appendChild(name);
+      */
+    });
+  },
+  createLockedInLayout: function () {
+    const PARENT = getID("pathfinderContent");
+
+    let layout = createEl("div");
+    layout.setAttribute("id", "pathfinderBattleLayout");
+    PARENT.appendChild(layout);
+
+    let container = createEl("div");
+    container.setAttribute("class", "container");
+    layout.appendChild(container);
+
+    let preview = createEl("div");
+    preview.setAttribute("id", "pathfinderBattleLayoutPreview");
+    container.appendChild(preview);
+
     let bfLayoutPreviewWrapper = createEl("div");
     bfLayoutPreviewWrapper.setAttribute("class", "wrapper");
-    bfLayoutPreview.appendChild(bfLayoutPreviewWrapper);
+    preview.appendChild(bfLayoutPreviewWrapper);
 
     let layoutSlots = ["E", "E", "E", "E"];
     layoutSlots.forEach((slot, index) => {
@@ -551,90 +591,44 @@ let PathfinderSelector = {
 
       // making the inner where the icon will be changed dynamically
       // depending on the pathfinder screen youre on. layoutslots will be dynamically changed aswell
-      let elemInner = createEl("span");
-      elemInner.setAttribute("class", "pathfinderSlotIcon");
-      elem.appendChild(elemInner);
+      let icon = createEl("span");
+      icon.setAttribute("class", "pathfinderPosIcon");
+      elem.appendChild(icon);
     });
 
-    // finalize
     let bfLayoutFinalize = createEl("div");
     bfLayoutFinalize.setAttribute("id", "pathfinderBfLayoutFinalize");
-    bfLayoutContainer.appendChild(bfLayoutFinalize);
-
-    /*
-    let finalizeButton = new Button.custom({
-      id: "pick",
-    });
-    */
-
-    /*
-      characters.skills.forEach((skill) => {
-        let elem = makeSkillPreview(
-          skill.id,
-          skill.name,
-          skill.available
-        );
-        skillsContainer.appendChild(elem);
-      });
-
-      function makeSkillPreview(id, name, available) {
-        let elem = createEl("div");
-        elem.setAttribute("id", id);
-
-        let name = createEl("div");
-      }
-      */
-  },
-  displaySkills: function (i) {
-    const skillsContainer = getQuerySelector("#pathfinderSkills .container");
-    skillsContainer.innerHTML = "";
-    characters[i].skills.forEach((skill) => {
-      let elem = createEl("div");
-      elem.setAttribute("id", skill.id);
-      elem.setAttribute("class", "skill");
-      skillsContainer.appendChild(elem);
-
-      let iconContainer = createEl("div");
-      iconContainer.setAttribute("class", "iconContainer");
-      elem.appendChild(iconContainer);
-
-      let elemIcon = createEl("img");
-      elemIcon.setAttribute("id", "skillIcon");
-      elemIcon.src = skill.icon;
-      iconContainer.appendChild(elemIcon);
-
-      let name = createEl("span");
-      name.setAttribute("class", "name");
-      name.textContent = skill.name;
-      elem.appendChild(name);
-    });
+    container.appendChild(bfLayoutFinalize);
   },
   changeActive: function (char, index) {
-    const headerTitle = getQuerySelector(
-        "#pathfinderHeader .container #pathfinderTitle"
-      ),
-      classIcon = getQuerySelector(
-        "#pathfinderHeader .container .wrapper #pathfinderClassIcon"
-      ),
-      classText = getQuerySelector(
-        "#pathfinderHeader .container .wrapper #pathfinderClassText"
-      ),
-      quote = getQuerySelector("#pathfinderInfo .container #pathfinderQuote"),
-      desc = getQuerySelector(
-        "#pathfinderInfo .container #pathfinderDescription"
-      );
-    const allyEffPreviewHeader = getID("allyEffPreviewHeader");
-    const enemyEffPreviewHeader = getID("enemyEffPreviewHeader");
+    const HEADERTITLE = getQuerySelector(
+      "#pathfinderHeader .container #pathfinderTitle"
+    );
+    const CLASSICON = getQuerySelector(
+      "#pathfinderHeader .container .wrapper #pathfinderClassIcon"
+    );
+    const CLASSTEXT = getQuerySelector(
+      "#pathfinderHeader .container .wrapper #pathfinderClassText"
+    );
+    const QUOTE = getQuerySelector(
+      "#pathfinderInfo .container #pathfinderQuote"
+    );
+    /*
+    const DESC = getQuerySelector(
+      "#pathfinderInfo .container #pathfinderDescription"
+    );
+    */
+    const ALLYEFFPREVIEWHEADER = getID("allyEffPreviewHeader");
+    const ENEMYEFFPREVIEWHEADER = getID("enemyEffPreviewHeader");
 
     // sets values
-    headerTitle.textContent = char.name;
-    classIcon.src = char.icon;
-    classText.textContent = char.class;
-    quote.textContent = char.quote;
-    desc.textContent = char.desc;
-    this.displaySkills(index);
+    HEADERTITLE.textContent = char.name;
+    CLASSICON.src = char.icon;
+    CLASSTEXT.textContent = char.class;
+    QUOTE.textContent = char.quote;
+    //DESC.textContent = char.desc;
+    this.createSkillList(index);
 
-    // todo, get object index inside arrray thing here::::
     // https://stackoverflow.com/questions/7176908/how-can-i-get-the-index-of-an-object-by-its-property-in-javascript/22864817#22864817
     // theoretically would fetch the info from an array about the heroes effectiveness
     // on specific positions in the battleformation layout.
@@ -643,10 +637,10 @@ let PathfinderSelector = {
     // should be more effective on the rightmost slot/ first slot because he is a tank.
     // but he should also be slightly less effective on the 2nd slot.
   },
-  getEffectivePosition: function (num) {
-    const things = num.split(/[,]/);
-    for (let i = 0; i < things.length; i++) {
-      let splitNum = things[i];
+  getEffectivePosition: function (nums) {
+    const THINGS = nums.split(/[,]/);
+    for (let i = 0; i < THINGS.length; i++) {
+      let splitNum = THINGS[i];
       console.log(splitNum);
     }
   },
@@ -654,7 +648,7 @@ let PathfinderSelector = {
     document.title = "choose your characters";
   },
   finalizeChosenPathfinders: function () {
-    for (let pathfinder in this.chosenPathfinders) {
+    for (let pathfinder in this.chosenParty) {
       if (!SM.get(pathfinder)) {
         SM.set("character. " + pathfinder);
         console.log("creating pathfinder: " + pathfinder + " in character cat");
@@ -663,8 +657,8 @@ let PathfinderSelector = {
     }
   },
   createTraits: function (pathfinder) {
-    for (let i = 0; i < 4; i++) {
-      let trait = Traits[random(Traits.length) + 1];
+    for (let i = 0; i < 2; i++) {
+      let trait = pfTraits[random(pfTraits.length) + 1];
       if (trait.condition()) {
         // trait.condition() is just getting the condition from the object
         SM.addTrait(pathfinder, trait.name);
@@ -677,7 +671,10 @@ let PathfinderSelector = {
  * shrine of abyss / metaprogression
  */
 let metaProgression = {
-  init: function () {},
+  init: function () {
+    this.createViewElements();
+  },
+  createViewElements: function () {},
   launch: function () {
     this.setDocumentTitle();
   },
@@ -764,8 +761,9 @@ let characters = [
     id: "thePugilistPreview",
     icon: "img/thePugilist.png",
     class: "fist",
-    quote: '"fillThisInWithQuoteLater"',
-    desc: "fillThisInWithDescLater",
+    quote:
+      '"In the heat of battle, every blow tells a story of resilience and determination."',
+    desc: "A seasoned fighter, the Pugilist thrives in combat, his fists weaving tales of triumph and overcoming adversity with every strike.",
     effectiveAllyPos: "3,4",
     effectiveEnemyPos: "1,2",
     available: function () {
@@ -817,8 +815,8 @@ let characters = [
     id: "theFacelessPreview",
     icon: "img/theFaceless.png",
     class: "light",
-    quote: '"fillThisInWithQuoteLater"',
-    desc: "fillThisInWithDescLater",
+    quote: '"Discard your identity, peer into the depths of the abyss."',
+    desc: "Mysterious and agile, the Faceless strikes swiftly from the shadows, wielding deadly precision and cunning tactics.",
     available: function () {
       return true;
     },
@@ -866,8 +864,9 @@ let characters = [
     id: "theOccultistPreview",
     icon: "img/theOccultist.png",
     class: "light",
-    quote: '"fillThisInWithQuoteLater"',
-    desc: "fillThisInWithDescLater",
+    quote:
+      '"Knowledge is power, but forbidden knowledge is a double-edged sword."',
+    desc: "Delving into the darkest arts, the Occultist harnesses forbidden powers to manipulate and drain the essence of their foes.",
     available: function () {
       return true;
     },
@@ -914,8 +913,8 @@ let characters = [
     id: "theParagonPreview",
     icon: "img/theParagon.png",
     class: "heavy",
-    quote: '"fillThisInWithQuoteLater"',
-    desc: "fillThisInWithDescLater",
+    quote: '"Stand proud, for valor and honor are our shields."',
+    desc: "A bastion of strength and resilience, the Paragon defends allies with unwavering courage and unmatched determination.",
     available: function () {
       return true;
     },
@@ -1000,8 +999,8 @@ let characters = [
     id: "theKnightPreview",
     icon: "img/theKnight.png",
     class: "medium",
-    quote: '"fillThisInWithQuoteLater"',
-    desc: "fillThisInWithDescLater",
+    quote: '"Faith is our shield, and righteousness our sword."',
+    desc: "An embodiment of righteousness, the Knight wields the divine power of faith to dispel darkness and protect the innocent from the forces of evil.",
     available: function () {
       return false;
     },
@@ -1041,52 +1040,170 @@ let characters = [
 ];
 
 /**
- * traits are small boosts or decreases in power that each pathfinder has 4 of,
- * each pathfinder will get 1 positive and 1 negative trait that have a small
- * effect on gameplay and the character, your character will display the
+ * each pathfinder has 2 default traits,
+ * each pathfinder will get 1 positive and 1 negative trait that has a small, or slighty more noticable
+ * change based on rarity, that influences different things.
+ * the player can remove or get more traits based on stuff like items, nodeEvents, pathEvents and such.
+ *
+ * the traits can manipulate resistances, max hp, speed, positive and negative marks, and other niches such as inventoryspace and etc.
  */
-let Traits = [
-  // positives
-  {
-    name: "lucky",
-    desc: "bask in luck's glow, for blessings' overflow.",
-    condition: function () {
-      return Journey.activeModule == PathfinderSelector;
+let pfTraits = [
+  [
+    // boons
+    {
+      name: "Packmule",
+      rarity: "common",
+      toolTip: "you somehow find ways to carry more",
+      pingMsg:
+        "You feel lighter on your feet as you manage to carry more without strain.",
+      // +3 inventory space
     },
-    // you have a slightly higher chance of getting good pathEvents or nodeEvents
-  },
-  {
-    name: "hoarder",
-    desc: "you somehow find ways to carry more",
-    condition: function () {
-      return Journey.activeModule == PathfinderSelector;
+    {
+      name: "Nimble Footed",
+      rarity: "common",
+      toolTip: "You move with unmatched agility",
+      pingMsg: "Your movements become swifter and more agile.",
+      // speed +3
     },
-    // increases inventory space by a small amount
-  },
-  {
-    name: "individualist",
-    desc: "doing things alone yields greater experience",
-    condition: function () {
-      return Journey.activeModule == PathfinderSelector;
+    {
+      name: "Evasive",
+      rarity: "common",
+      toolTip: "You have a knack for avoiding attacks",
+      pingMsg:
+        "You become more elusive, making it harder for enemies to land hits on you.",
+      // +10% dodge chance
     },
-  },
-  // start of negatives
-  {
-    name: "restless",
-    desc: "you find it harder to rest properly",
-    condition: function () {
-      return Journey.activeModule == PathfinderSelector;
+    {
+      name: "Precise",
+      rarity: "common",
+      toolTip: "You have a steady hand and keen eye",
+      pingMsg:
+        "Your accurancy has increased, increasing your lethality in combat.",
+      // +5% accuracy
     },
-    // you will heal slightly less with potions
-  },
-  {
-    name: "blighted",
-    desc: "fortune frowns, your luck goes down",
-    condition: function () {
-      return Journey.activeModule == PathfinderSelector;
+    {
+      name: "Precise*",
+      rarity: "rare",
+      toolTip: "Allows for precise and critical attacks",
+      pingMsg: "You see your strikes becoming more precise and deadly.",
+      // +8% crit, +10% accuracy
     },
-    // you have a higher chance of getting bad pathEvents or nodeEvents
-  },
+    {
+      name: "Iron Will",
+      rarity: "common",
+      toolTip: "Strengthens your resolve against negative effects",
+      pingMsg:
+        "Your will strengthens, making it harder for negative effects to affect you.",
+      // +5% stun res, +5% mov res
+    },
+    {
+      name: "Stalwart",
+      rarity: "common",
+      toolTip: "Boosts your physical endurance",
+      pingMsg:
+        "You feel sturdier and more resilient, ready to withstand physical challenges.",
+      // +4 max hp, +4% physical res
+    },
+    {
+      name: "Swift Reflexes",
+      rarity: "common",
+      toolTip: "Heightens your agility and reaction time",
+      pingMsg:
+        "You feel lighter on your feet, ready to dodge incoming attacks with ease.",
+      // +2 speed, +5% dodge chance
+    },
+  ],
+  [
+    // flaws
+    {
+      name: "Anemic",
+      rarity: "common",
+      toolTip: "You lack vitality and vigor",
+      pingMsg:
+        "You feel weak and fatigued, making it harder to endure physical exertion.",
+      // -2% max hp
+    },
+    {
+      name: "Fumbler",
+      rarity: "common",
+      toolTip: "You tend to fumble actions more often",
+      pingMsg:
+        "Your coordination seems to suffer, leading to more frequent fumbles in your actions.",
+      // 40% chance of gaining the idk yet but the mark makes you have a % chance of failing your move
+    },
+    {
+      name: "Lethargic",
+      rarity: "common",
+      toolTip: "You lack energy and enthusiasm",
+      pingMsg:
+        "You feel drained of energy and motivation, making it difficult to muster enthusiasm for tasks or activities.",
+      // -1 speed, -5% dodge chance
+    },
+    {
+      name: "Frail",
+      rarity: "common",
+      toolTip: "Your constitution is weak",
+      pingMsg:
+        "You feel physically fragile, making you more susceptible to injuries and ailments.",
+      // -2 max hp
+    },
+    {
+      name: "Restless*",
+      rarity: "rare",
+      toolTip: "you find it harder to rest properly",
+      pingMsg:
+        "Rest eludes you, making it difficult to fully recover during rest periods.",
+      // -10% heal (every source)
+    },
+    {
+      name: "Shaky Hands",
+      rarity: "common",
+      toolTip: "Your hands tremble uncontrollably",
+      pingMsg:
+        "Your hands shake uncontrollably, affecting your ability to aim steadily.",
+      // -5% accuracy
+    },
+    {
+      name: "Hemophilia*",
+      rarity: "rare",
+      toolTip: "You bleed more.",
+      pingMsg:
+        "Your blood seems to flow more freely, making you more susceptible to bleeding wounds.",
+      // -10% bleed res
+    },
+    {
+      name: "Brittle Bones*",
+      rarity: "rare",
+      toolTip: "Your bones are more prone to fractures",
+      pingMsg:
+        "Your bones feel fragile, making you more susceptible to fractures and injuries.",
+      // -10% max HP, -5% mov res
+    },
+    {
+      name: "Toxin Susceptible*",
+      rarity: "rare",
+      toolTip: "Your body reacts strongly to toxins",
+      pingMsg:
+        "Toxins affect you more severely, leading to heightened vulnerability to poisoning and other toxin-based attacks.",
+      // -10% poison resistance
+    },
+    {
+      name: "Vulnerable",
+      rarity: "common",
+      toolTip: "You are prone to vulnerabilities",
+      pingMsg:
+        "You feel exposed and vulnerable, making you more susceptible to various negative effects.",
+      // -3% to all resistances
+    },
+    {
+      name: "Scorched",
+      rarity: "common",
+      toolTip: "You are susceptible to burns",
+      pingMsg:
+        "Your skin feels sensitive to heat, making you more prone to burns and scalds.",
+      // -5% burn resistance
+    },
+  ],
 ];
 
 /**
@@ -1097,8 +1214,8 @@ let Pings = {
   init: function () {
     let elem = createEl("div");
     elem.setAttribute("id", "pings");
-    const container = getID("container");
-    container.insertBefore(elem, container.firstChild);
+    const CONTAINER = getID("container");
+    CONTAINER.insertBefore(elem, CONTAINER.firstChild);
 
     let fade = createEl("div");
     fade.setAttribute("id", "fade");
@@ -1122,30 +1239,30 @@ let Pings = {
     let ping = createEl("div");
     ping.className = "ping";
     ping.textContent = e;
-    const pings = getID("pings");
-    pings.insertBefore(ping, pings.firstChild);
+    const PINGS = getID("pings");
+    PINGS.insertBefore(ping, PINGS.firstChild);
     Pings.delete();
   },
   delete: function () {
     // checking if there are any overflowing ping(s) to delete, cause memoryleak
-    const pings = getID("pings");
+    const PINGS = getID("pings");
     let viewportHeight = window.innerHeight;
-    let pingList = pings.getElementsByClassName("ping");
+    let pingList = PINGS.getElementsByClassName("ping");
     for (let i = 0; i < pingList.length; i++) {
       let ping = pingList[i];
       let pingRect = ping.getBoundingClientRect();
       if (pingRect.bottom < 0 || pingRect.top > viewportHeight) {
-        pings.removeChild(ping);
+        PINGS.removeChild(ping);
       }
     }
   },
   clear: function () {
-    const pings = getID("pings");
-    let pingList = pings.getElementsByClassName("ping");
+    const PINGS = getID("pings");
+    let pingList = PINGS.getElementsByClassName("ping");
 
     let pingListArray = Array.from(pingList);
     pingListArray.forEach((e) => {
-      pings.removeChild(e);
+      PINGS.removeChild(e);
     });
   },
 };
@@ -1154,7 +1271,6 @@ let Pings = {
  * event object
  * handles ui + nodeEvents, pathEvents, randomEvents,
  */
-
 let Events = {
   eventList: [],
   init: function () {},
@@ -1171,8 +1287,8 @@ let Events = {
     if (typeof param.type !== "undefined") eventType = param.type;
     console.log(eventType);
 
-    const main = getID("main");
-    main.appendChild(elem);
+    const MAIN = getID("main");
+    MAIN.appendChild(elem);
   },
 };
 
@@ -1186,7 +1302,6 @@ let Events = {
  *  width: num,
  * })
  */
-
 let Button = {
   custom: function (param) {
     let elem = createEl("div");
@@ -1206,8 +1321,8 @@ let Button = {
       }
     }
 
-    const view = getID("view");
-    view.appendChild(elem);
+    const VIEW = getID("view");
+    VIEW.appendChild(elem);
     return elem;
   },
   disabled: function (btn, param) {
@@ -1217,7 +1332,7 @@ let Button = {
 };
 
 /**
- * handles most if not all values ingame; sets and gets values.
+ * handles most if not all values ingame; setter and getter methods
  * also used for saving and loading the game state,
  * components object gets saved then loaded.
  * get("object"),
@@ -1255,9 +1370,9 @@ let SM = {
   // gets a single value
   get: function (stateName) {
     let currentState = this.components;
-    const parts = stateName.split(/[.\[\]'"]+/);
+    const PARTS = stateName.split(/[.\[\]'"]+/);
     // checks for nesteds
-    for (let thing of parts) {
+    for (let thing of PARTS) {
       if (currentState && currentState.hasOwnProperty(thing)) {
         currentState = currentState[thing];
       } else {
@@ -1282,14 +1397,14 @@ let SM = {
     }
     let currentState = this.components;
     // regExp to check for ".", "[", "]", ", and '.
-    const parts = stateName.split(/[.\[\]'"]+/);
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!currentState.hasOwnProperty(parts[i])) {
-        currentState[parts[i]] = {};
+    const PARTS = stateName.split(/[.\[\]'"]+/);
+    for (let i = 0; i < PARTS.length - 1; i++) {
+      if (!currentState.hasOwnProperty(PARTS[i])) {
+        currentState[PARTS[i]] = {};
       }
-      currentState = currentState[parts[i]];
+      currentState = currentState[PARTS[i]];
     }
-    currentState[parts[parts.length - 1]] = value;
+    currentState[PARTS[PARTS.length - 1]] = value;
     Main.saveGame();
   },
   // sets multiple values if needed. for example setting prefs
@@ -1301,17 +1416,17 @@ let SM = {
   },
   delete: function (stateName) {
     let currentState = this.components;
-    const parts = stateName.split(/[.\[\]'"]+/);
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (currentState && currentState.hasOwnProperty(parts[i])) {
-        currentState = currentState[parts[i]];
+    const PARTS = stateName.split(/[.\[\]'"]+/);
+    for (let i = 0; i < PARTS.length - 1; i++) {
+      if (currentState && currentState.hasOwnProperty(PARTS[i])) {
+        currentState = currentState[PARTS[i]];
       } else {
         console.log("state not found");
         return;
       }
     }
-    if (currentState && currentState.hasOwnProperty(parts[parts.length - 1])) {
-      delete currentState[parts[parts.length - 1]];
+    if (currentState && currentState.hasOwnProperty(PARTS[PARTS.length - 1])) {
+      delete currentState[PARTS[PARTS.length - 1]];
       console.log("state deleted");
     } else {
       console.log("state not found");
@@ -1321,9 +1436,9 @@ let SM = {
   // custom methods for adding specific things
   addTrait: function (char, trait) {
     this.set("character." + char + "." + "traits." + trait, true);
-    const matchedTrait = Traits.find((e) => e.name === trait);
-    if (matchedTrait) {
-      Pings.ping(matchedTrait.desc);
+    const MATCHEDTRAITS = pfTraits.find((e) => e.name === trait);
+    if (MATCHEDTRAITS) {
+      Pings.ping(MATCHEDTRAITS.desc);
     } else {
       console.error("Trait not found:", trait);
     }
@@ -1345,8 +1460,8 @@ let SM = {
  */
 window.onload = function () {
   if (!Main.ready) {
-    const root = getID("root");
-    if (!root || !root.parentElement) {
+    const ROOT = getID("root");
+    if (!ROOT || !ROOT.parentElement) {
       Main.error();
     } else {
       console.log(
@@ -1360,6 +1475,10 @@ window.onload = function () {
 
 /**
  * Notes
+ *
+ * metaprogression currency = stygian lanterns
+ * money currency = Denarii
+ * special currency =
  *
  * rememeber using this vid as baseline for saving and loading with localstorage:
  * https://www.youtube.com/watch?v=ePHfRUIvbbg

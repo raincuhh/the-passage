@@ -76,21 +76,23 @@
   width: 350px;
   background: rgb(41, 41, 41);
   display: none;
-}
-#settings .container {
-  padding: 1.5rem 1rem 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-#settings .container .head {
-  display: flex;
-  .title {
-    font-weight: bold;
-    font-size: 1.5rem;
+
+  .container {
+    padding: 1.5rem 1rem 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    .head {
+      display: flex;
+      .title {
+        font-weight: bold;
+        font-size: 1.5rem;
+      }
+    }
   }
 }
+
 /* main */
 #main {
   height: 100%;
@@ -191,7 +193,7 @@
         display: flex;
         flex-direction: column;
         #pathfinderTitle {
-          font-size: 2.5rem;
+          font-size: 3rem;
         }
         .wrapper {
           display: flex;
@@ -201,7 +203,7 @@
 
           #pathfinderClassText {
             margin-left: 0.43rem;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
           }
         }
       }
@@ -214,7 +216,7 @@
       .container {
         display: flex;
         justify-content: end;
-        gap: 1rem;
+        gap: 3.2rem;
         .effPreview {
           display: flex;
           .effPreviewHeader {
@@ -229,20 +231,54 @@
             margin-right: 0.25rem;
           }
         }
+        #enemyEffPreview {
+          padding-right: 1rem;
+        }
       }
       .hr {
-        margin-left: 13rem;
+        width: 300px;
+        margin-left: auto;
       }
     }
     #pathfinderInfo {
       display: flex;
       justify-content: end;
-      padding-top: 0.5rem;
+      padding: 1rem 0;
+      .container {
+        width: 272px;
+        font-size: 0.9rem;
+        #pathfinderQuote {
+          text-align: center;
+        }
+      }
     }
     #pathfinderSkills {
       display: flex;
       justify-content: end;
-      padding-top: 0.5rem;
+      .container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 272px;
+        gap: 0.5rem;
+        .skill {
+          display: flex;
+          flex-direction: column;
+          .iconContainer {
+            width: 62px;
+            height: 62px;
+            border: 1px solid var(--text-base);
+            .skillIcon {
+              height: 100%;
+              width: auto;
+              image-rendering: pixelated;
+            }
+          }
+          .name {
+            font-size: 0.7rem;
+          }
+        }
+      }
     }
   }
 }
