@@ -16,24 +16,24 @@ function random(thing) {
  * handles general things, like initiating the different objects
  * and their methods
  */
-let Main = {
+let MainManager = {
   version: 1.0,
   beta: true,
   autoSaveDelay: 60000,
 
   init: function () {
-    Main.ready = true;
+    MainManager.ready = true;
 
     this.createView(); // makes view
     this.loadGame(); // loads game by localstorage
     Pings.init(); // starts the pings component
     SM.init(); // starts the statemanager component
-    Run.init(); // starts the run component
+    Game.init(); // starts the run component
 
     if (SM.get("prefs.autosave")) {
       //console.log("autosave is on");
       setInterval(() => {
-        Main.saveGame();
+        MainManager.saveGame();
       }, this.autoSaveDelay);
     } else {
       //console.log("autosave is off");
@@ -41,6 +41,9 @@ let Main = {
         "autosave is off, remember to save your progress manually through settings, or turn on autosave"
       );
     }
+
+    console.log(PathfinderCharLib);
+    console.log(PathfinderTraitsLib);
   },
   createView: function () {
     let view = createEl("div");
@@ -127,15 +130,15 @@ let Main = {
 
     const DELETE = getID("navbarDelete");
     DELETE.addEventListener("click", () => {
-      Main.deleteGame();
+      MainManager.deleteGame();
     });
     const LOAD = getID("navbarLoad");
     LOAD.addEventListener("click", () => {
-      Main.loadGame();
+      MainManager.loadGame();
     });
     const SAVE = getID("navbarSave");
     SAVE.addEventListener("click", () => {
-      Main.saveGame();
+      MainManager.saveGame();
     });
 
     function createSettings() {
@@ -254,20 +257,16 @@ let Main = {
 };
 
 /**
- * handles starting runs and resetting runs
+ * handles starting runs, resetting runs, unlocking locations,
+ * and the beforeJourney actions such as choosing which cardinal sin,
+ * and choosing party layout.
  */
-let Run = {
-  init: function () {
-    Journey.init();
-  },
-};
-
-let Journey = {
+let Game = {
   activeModule: null,
   init: function () {
     //SelectSin.init();
     FormParty.init();
-    if (FormParty.finished) {
+    if (SM.get("features.locations.formParty")) {
       metaProgression.init();
     }
     if (metaProgression.finished) {
@@ -279,15 +278,16 @@ let Journey = {
   reset: function () {},
 
   changeModule: function (module) {
-    if (Journey.activeModule === module) {
+    if (Game.activeModule === module) {
       return;
     }
-    Journey.activeModule = module;
+    Game.activeModule = module;
     module.launch();
     //console.log("active module is:");
     //console.log(this.activeModule);
   },
 };
+
 let SelectSin = {
   init: function () {
     /*
@@ -295,39 +295,43 @@ let SelectSin = {
       SM.set("features.locations.SelectSin", true);
     }
     */
-
     this.makeView();
   },
   launch: function () {
-    console.log("active module is: " + Journey.activeModule);
+    console.log("active module is: " + Game.activeModule);
     this.setDocumentTitle();
   },
-  makeView: function () {},
+  makeView: function () {
+    let sinView = createEl("div");
+    sinView.setAttribute("id", "sinSelectorView");
+  },
   setDocumentTitle: function () {
     document.title = "invocation of sin";
   },
 };
 
 /**
- * picks characters
+ * picks PathfinderCharLib
  */
 let FormParty = {
   finished: false,
-  chosenParty: [],
+  party: ["char1", "char2", "char3", "char4"],
 
   init: function () {
-    /*
-    if (SM.get("features.locations.pathfinderSelection") == undefined) {
-      SM.set("features.locations.pathfinderSelection", true);
+    if (SM.get("features.locations.formParty") === undefined) {
+      console.log("formparty is new");
+      SM.set("features.locations.formParty", true);
+    } else {
+      SM.get("features.locations.formParty");
     }
-    */
+
     this.createViewElements(); // makes the view
-    Pings.ping(
-      "Choose your allies carefully, for they will determine the course of your journey."
-    );
   },
   launch: function () {
     this.setDocumentTitle();
+    Pings.ping(
+      "Choose your allies carefully, for they will determine the course of your journey."
+    );
   },
   createViewElements: function () {
     let pathfinderView = createEl("div");
@@ -354,7 +358,7 @@ let FormParty = {
     pathfinderContainer.setAttribute("class", "container");
     pathfinderList.appendChild(pathfinderContainer);
 
-    characters.forEach((pathfinder, index) => {
+    PathfinderCharLib.forEach((pathfinder, index) => {
       let elem = this.createPathfinderListItem(pathfinder, index);
       pathfinderContainer.appendChild(elem);
     });
@@ -382,12 +386,13 @@ let FormParty = {
   },
   checkPathfindersInListItems: function () {
     const PATHFINDERCONTAINER = getQuerySelector("#pathfinderList .container");
-    let characters = PATHFINDERCONTAINER.getElementsByClassName("pathfinder");
+    let PathfinderCharLib =
+      PATHFINDERCONTAINER.getElementsByClassName("pathfinder");
     let unlockedPathfinders = [];
     let lockedPathfinders = [];
 
-    for (let i = 0; i < characters.length; i++) {
-      let currentPathfinder = characters[i];
+    for (let i = 0; i < PathfinderCharLib.length; i++) {
+      let currentPathfinder = PathfinderCharLib[i];
       if (currentPathfinder.classList.contains("locked")) {
         // and get sm.get char.locked, so it is a && statement when i implement that
         lockedPathfinders.push(currentPathfinder);
@@ -431,12 +436,12 @@ let FormParty = {
 
     let classIcon = createEl("img");
     classIcon.setAttribute("id", "pathfinderClassIcon");
-    classIcon.src = characters[0].icon;
+    classIcon.src = PathfinderCharLib[0].icon;
     innerWrapper.appendChild(classIcon);
 
     let classText = createEl("span");
     classText.setAttribute("id", "pathfinderClassText");
-    classText.textContent = characters[0].class;
+    classText.textContent = PathfinderCharLib[0].class;
     innerWrapper.appendChild(classText);
   },
   createPathfinderPosEffectPreview: function () {
@@ -513,13 +518,13 @@ let FormParty = {
 
     let quote = createEl("div");
     quote.setAttribute("id", "pathfinderQuote");
-    quote.textContent = characters[0].quote; // default
+    quote.textContent = PathfinderCharLib[0].quote; // default
     container.appendChild(quote);
 
     /*
     let desc = createEl("p");
     desc.setAttribute("id", "pathfinderDescription");
-    desc.textContent = characters[0].desc; // default
+    desc.textContent = PathfinderCharLib[0].desc; // default
     container.appendChild(desc);
     */
   },
@@ -537,11 +542,11 @@ let FormParty = {
     // create default skills, gets changed when u click specific pathfinder
     this.createSkillList(0);
   },
-  createSkillList: function (i) {
+  createSkillList: function (index) {
     // make the skillsContainer modular in the future by adding param that takes container
     const CONTAINER = getQuerySelector("#pathfinderSkills .container");
     CONTAINER.innerHTML = "";
-    characters[i].skills.forEach((skill) => {
+    PathfinderCharLib[index].skills.forEach((skill) => {
       let elem = createEl("div");
       elem.setAttribute("id", skill.id);
       elem.setAttribute("class", "skill");
@@ -567,7 +572,7 @@ let FormParty = {
     const PARENT = getID("pathfinderContent");
 
     let layout = createEl("div");
-    layout.setAttribute("id", "pathfinderBattleLayout");
+    layout.setAttribute("id", "pathfinderParty");
     PARENT.appendChild(layout);
 
     let container = createEl("div");
@@ -575,19 +580,19 @@ let FormParty = {
     layout.appendChild(container);
 
     let preview = createEl("div");
-    preview.setAttribute("id", "pathfinderBattleLayoutPreview");
+    preview.setAttribute("id", "pathfinderPartyLayout");
     container.appendChild(preview);
 
-    let bfLayoutPreviewWrapper = createEl("div");
-    bfLayoutPreviewWrapper.setAttribute("class", "wrapper");
-    preview.appendChild(bfLayoutPreviewWrapper);
+    let wrapper = createEl("div");
+    wrapper.setAttribute("class", "wrapper");
+    preview.appendChild(wrapper);
 
-    let layoutSlots = ["E", "E", "E", "E"];
-    layoutSlots.forEach((slot, index) => {
+    let partySlots = ["E", "E", "E", "E"];
+    partySlots.forEach((slot, index) => {
       let elem = createEl("span");
-      elem.setAttribute("id", "previewSlot" + `${slot}${index}`);
+      elem.setAttribute("id", "partySlot_" + `${slot}${index}`);
       elem.setAttribute("class", "slot");
-      bfLayoutPreviewWrapper.appendChild(elem);
+      wrapper.appendChild(elem);
 
       // making the inner where the icon will be changed dynamically
       // depending on the pathfinder screen youre on. layoutslots will be dynamically changed aswell
@@ -613,13 +618,8 @@ let FormParty = {
     const QUOTE = getQuerySelector(
       "#pathfinderInfo .container #pathfinderQuote"
     );
-    /*
-    const DESC = getQuerySelector(
-      "#pathfinderInfo .container #pathfinderDescription"
-    );
-    */
-    const ALLYEFFPREVIEWHEADER = getID("allyEffPreviewHeader");
-    const ENEMYEFFPREVIEWHEADER = getID("enemyEffPreviewHeader");
+    //const ALLYEFFPREVIEWHEADER = getID("allyEffPreviewHeader");
+    //const ENEMYEFFPREVIEWHEADER = getID("enemyEffPreviewHeader");
 
     // sets values
     HEADERTITLE.textContent = char.name;
@@ -629,39 +629,33 @@ let FormParty = {
     //DESC.textContent = char.desc;
     this.createSkillList(index);
 
-    // https://stackoverflow.com/questions/7176908/how-can-i-get-the-index-of-an-object-by-its-property-in-javascript/22864817#22864817
-    // theoretically would fetch the info from an array about the heroes effectiveness
-    // on specific positions in the battleformation layout.
-    // weighing values on the 4 different slots a hero can be in,
-    // depending on what pathfinder it is, like for example the paragon
-    // should be more effective on the rightmost slot/ first slot because he is a tank.
-    // but he should also be slightly less effective on the 2nd slot.
+    /**
+     * https://stackoverflow.com/questions/7176908/how-can-i-get-the-index-of-an-object-by-its-property-in-javascript/22864817#22864817
+     *
+     * theoretically would fetch the info from an array about the heroes effectiveness
+     * on specific positions in the battleformation layout.
+     * weighing values on the 4 different slots a hero can be in,
+     * depending on what pathfinder it is, like for example the paragon
+     * should be more effective on the rightmost slot/ first slot because he is a tank.
+     * but he should also be slightly less effective on the 2nd slot.
+     */
   },
-  getEffectivePosition: function (nums) {
-    const THINGS = nums.split(/[,]/);
+  getEffectivePosition: function (string) {
+    const THINGS = string.split(/[,]/);
     for (let i = 0; i < THINGS.length; i++) {
-      let splitNum = THINGS[i];
-      console.log(splitNum);
+      let splitString = THINGS[i];
+      console.log(splitString);
     }
   },
   setDocumentTitle: function () {
-    document.title = "choose your characters";
+    document.title = "choose your party...";
   },
-  finalizeChosenPathfinders: function () {
-    for (let pathfinder in this.chosenParty) {
-      if (!SM.get(pathfinder)) {
-        SM.set("character. " + pathfinder);
+  finishPartyCreation: function () {
+    for (let pathfinder in this.party) {
+      if (!SM.get("character." + pathfinder)) {
+        SM.set("character." + pathfinder, {});
         console.log("creating pathfinder: " + pathfinder + " in character cat");
-        this.createTraits(pathfinder);
-      }
-    }
-  },
-  createTraits: function (pathfinder) {
-    for (let i = 0; i < 2; i++) {
-      let trait = pfTraits[random(pfTraits.length) + 1];
-      if (trait.condition()) {
-        // trait.condition() is just getting the condition from the object
-        SM.addTrait(pathfinder, trait.name);
+        PFM.createTraits(pathfinder, 2); //creates 2 default traits
       }
     }
   },
@@ -679,7 +673,7 @@ let metaProgression = {
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {
-    if (Journey.activeModule == "metaProgression") {
+    if (Game.activeModule == "metaProgression") {
       document.title = "Shrine of the Abyss";
     }
   },
@@ -732,7 +726,7 @@ let Header = {
     chapter.addEventListener("click", () => {
       if (canTravel(actInnerWrapperId)) {
         console.log("traveling");
-        //Main.changeView(location);
+        //MainManager.changeView(location);
       } else {
         console.log("chapters in currentAct not over 1");
       }
@@ -754,13 +748,18 @@ let Header = {
  *
  * enemy layout
  * 1-fr, 2-fr, 3-br, 4-br
+ *
+ * base stats that get made for each char.
+ * name is name of stat
+ * value is base % or number of that stat
+ * stats can be either % or a number.
  */
-let characters = [
+let PathfinderCharLib = [
   {
     name: "The Pugilist",
     id: "thePugilistPreview",
     icon: "img/thePugilist.png",
-    class: "fist",
+    class: "lost",
     quote:
       '"In the heat of battle, every blow tells a story of resilience and determination."',
     desc: "A seasoned fighter, the Pugilist thrives in combat, his fists weaving tales of triumph and overcoming adversity with every strike.",
@@ -809,14 +808,73 @@ let characters = [
         // hits 3-5 times low-medium damage
       },
     ],
+    stat: [
+      {
+        name: "hp",
+        fullName: "healthpoints",
+        value: "27",
+        type: "number",
+      },
+      {
+        name: "spd",
+        fullName: "speed",
+        value: "4",
+        type: "number",
+      },
+      // resistances/res
+      {
+        name: "phys res",
+        fullName: "physical resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
+        name: "bld res",
+        fullName: "bleed resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "psn res",
+        fullName: "poison resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "cld res",
+        fullName: "cold resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "fire res",
+        fullName: "fire resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "stun res",
+        fullName: "stun resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "mov res",
+        fullName: "move resistance",
+        value: "20%",
+        type: "percent",
+      },
+    ],
   },
   {
     name: "The Faceless",
     id: "theFacelessPreview",
     icon: "img/theFaceless.png",
-    class: "light",
+    class: "lost",
     quote: '"Discard your identity, peer into the depths of the abyss."',
     desc: "Mysterious and agile, the Faceless strikes swiftly from the shadows, wielding deadly precision and cunning tactics.",
+    effectiveAllyPos: "1,2", // backrow
+    effectiveEnemyPos: "2,3,4", // backrow
     available: function () {
       return true;
     },
@@ -858,15 +916,68 @@ let characters = [
         // strikes an enemy in the neck with a heavily damaging attack.
       },
     ],
+    stats: [
+      {
+        name: "hp",
+        fullName: "healthpoints",
+        value: "24",
+        type: "number",
+      },
+      {
+        name: "spd",
+        fullName: "speed",
+        value: "5",
+        type: "number",
+      },
+      // resistances/res
+      {
+        name: "bld res",
+        fullName: "bleed resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "psn res",
+        fullName: "poison resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "cld res",
+        fullName: "cold resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "fire res",
+        fullName: "fire resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "stun res",
+        fullName: "stun resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "mov res",
+        fullName: "move resistance",
+        value: "20%",
+        type: "percent",
+      },
+    ],
   },
   {
     name: "The Occultist",
     id: "theOccultistPreview",
     icon: "img/theOccultist.png",
-    class: "light",
+    class: "lost",
     quote:
       '"Knowledge is power, but forbidden knowledge is a double-edged sword."',
     desc: "Delving into the darkest arts, the Occultist harnesses forbidden powers to manipulate and drain the essence of their foes.",
+    effectiveAllyPos: "1,2", // backrow ally side
+    effectiveEnemyPos: "3,4", // backrow enemy side
     available: function () {
       return true;
     },
@@ -907,14 +1018,67 @@ let characters = [
         // base dmg will increase incrementally by 0.15x
       },
     ],
+    stat: [
+      {
+        name: "hp",
+        fullName: "healthpoints",
+        value: "21",
+        type: "number",
+      },
+      {
+        name: "spd",
+        fullName: "speed",
+        value: "3",
+        type: "number",
+      },
+      // resistances/res
+      {
+        name: "bld res",
+        fullName: "bleed resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "psn res",
+        fullName: "poison resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "cld res",
+        fullName: "cold resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "fire res",
+        fullName: "fire resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "stun res",
+        fullName: "stun resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "mov res",
+        fullName: "move resistance",
+        value: "20%",
+        type: "percent",
+      },
+    ],
   },
   {
     name: "The Paragon",
     id: "theParagonPreview",
     icon: "img/theParagon.png",
-    class: "heavy",
+    class: "lost",
     quote: '"Stand proud, for valor and honor are our shields."',
     desc: "A bastion of strength and resilience, the Paragon defends allies with unwavering courage and unmatched determination.",
+    effectiveAllyPos: "3,4",
+    effectiveEnemyPos: "1,2",
     available: function () {
       return true;
     },
@@ -950,14 +1114,67 @@ let characters = [
         // attack the enemy with a titan's fury, hitting 2-3 times.
       },
     ],
+    stat: [
+      {
+        name: "hp",
+        fullName: "healthpoints",
+        value: "37",
+        type: "number",
+      },
+      {
+        name: "spd",
+        fullName: "speed",
+        value: "2",
+        type: "number",
+      },
+      // resistances/res
+      {
+        name: "bld res",
+        fullName: "bleed resistance",
+        value: "35%",
+        type: "percent",
+      },
+      {
+        name: "psn res",
+        fullName: "poison resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "cld res",
+        fullName: "cold resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "fire res",
+        fullName: "fire resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "stun res",
+        fullName: "stun resistance",
+        value: "35%",
+        type: "percent",
+      },
+      {
+        name: "mov res",
+        fullName: "move resistance",
+        value: "30%",
+        type: "percent",
+      },
+    ],
   },
   {
     name: "The Blatherer",
     id: "theBlathererPreview",
     icon: "img/theBlatherer.png",
-    class: "heavy",
+    class: "lost",
     quote: '"fillThisInWithQuoteLater"',
     desc: "fillThisInWithDescLater",
+    effectiveAllyPos: "3,4",
+    effectiveEnemyPos: "1,2",
     available: function () {
       return false;
     },
@@ -993,14 +1210,67 @@ let characters = [
         // do damage to 3 the front 3 enemies
       },
     ],
+    stat: [
+      {
+        name: "hp",
+        fullName: "healthpoints",
+        value: "31",
+        type: "number",
+      },
+      {
+        name: "spd",
+        fullName: "speed",
+        value: "3",
+        type: "number",
+      },
+      // resistances/res
+      {
+        name: "bld res",
+        fullName: "bleed resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "psn res",
+        fullName: "poison resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "cld res",
+        fullName: "cold resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "fire res",
+        fullName: "fire resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "stun res",
+        fullName: "stun resistance",
+        value: "25%",
+        type: "percent",
+      },
+      {
+        name: "mov res",
+        fullName: "move resistance",
+        value: "20%",
+        type: "percent",
+      },
+    ],
   },
   {
     name: "The Knight",
     id: "theKnightPreview",
     icon: "img/theKnight.png",
-    class: "medium",
+    class: "lost",
     quote: '"Faith is our shield, and righteousness our sword."',
     desc: "An embodiment of righteousness, the Knight wields the divine power of faith to dispel darkness and protect the innocent from the forces of evil.",
+    effectiveAllyPos: "3,4",
+    effectiveEnemyPos: "1,2",
     available: function () {
       return false;
     },
@@ -1036,8 +1306,115 @@ let characters = [
         icon: "img/placeholderSkillIcon.png",
       },
     ],
+    stat: [
+      {
+        name: "hp",
+        fullName: "healthpoints",
+        value: "34",
+        type: "number",
+      },
+      {
+        name: "spd",
+        fullName: "speed",
+        value: "4",
+        type: "number",
+      },
+      // resistances/res
+      {
+        name: "bld res",
+        fullName: "bleed resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "psn res",
+        fullName: "poison resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "cld res",
+        fullName: "cold resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "fire res",
+        fullName: "fire resistance",
+        value: "20%",
+        type: "percent",
+      },
+      {
+        name: "stun res",
+        fullName: "stun resistance",
+        value: "30%",
+        type: "percent",
+      },
+      {
+        name: "mov res",
+        fullName: "move resistance",
+        value: "30%",
+        type: "percent",
+      },
+    ],
   },
 ];
+
+/**
+ * pathfinderManager
+ * handles pathfinders, their stats and traits, etc.
+ */
+let PFM = {
+  init: function () {},
+  createTraits: function (pathfinder, numberOfTraits) {
+    let positiveTraitList = PathfinderTraitsLib[0];
+    let negativeTraitList = PathfinderTraitsLib[1];
+
+    for (let i = 0; i < Math.floor(numberOfTraits / 2); i++) {
+      let randomTrait = getRandPositiveTrait();
+      let traitIndex = positiveTraitList[randomTrait];
+      let trait = traitIndex.name;
+      this.addTrait(pathfinder, trait, true);
+      console.log("trait added: " + trait);
+    }
+    for (let i = 0; i < Math.floor(numberOfTraits / 2); i++) {
+      let randomTrait = getRandNegativeTrait();
+      let traitIndex = negativeTraitList[randomTrait];
+      let trait = traitIndex.name;
+      this.addTrait(pathfinder, trait, true);
+      console.log("trait added: " + trait);
+    }
+
+    function getRandPositiveTrait() {
+      let num = Math.floor(Math.random() * positiveTraitList.length);
+      return num;
+    }
+    function getRandNegativeTrait() {
+      let num = Math.floor(Math.random() * negativeTraitList.length);
+      return num;
+    }
+  },
+  addTrait: function (pathfinder, trait, includePing) {
+    SM.set("character." + pathfinder + "." + "traits." + trait, true);
+    const MATCHEDTRAITS = PathfinderTraitsLib.find((e) => e.name === trait);
+    if (!includePing) {
+      return;
+    }
+    if (MATCHEDTRAITS) {
+      Pings.ping(MATCHEDTRAITS.pingMsg);
+    } else {
+      console.error();
+    }
+  },
+  removeTrait: function (pathfinder, trait) {},
+  getTrait: function (pathfinder, trait) {
+    try {
+      return SM.get("character." + pathfinder + "." + "traits." + trait);
+    } catch (error) {
+      console.error("trait not found" + error);
+    }
+  },
+};
 
 /**
  * each pathfinder has 2 default traits,
@@ -1047,9 +1424,9 @@ let characters = [
  *
  * the traits can manipulate resistances, max hp, speed, positive and negative marks, and other niches such as inventoryspace and etc.
  */
-let pfTraits = [
+let PathfinderTraitsLib = [
+  // index 0, boons
   [
-    // boons
     {
       name: "Packmule",
       rarity: "common",
@@ -1113,8 +1490,8 @@ let pfTraits = [
       // +2 speed, +5% dodge chance
     },
   ],
+  // index 1, flaws
   [
-    // flaws
     {
       name: "Anemic",
       rarity: "common",
@@ -1279,7 +1656,9 @@ let Events = {
     let elem = createEl("event");
     elem.setAttribute(
       "id",
-      typeof param.id !== "undefined" ? param.id : "EVENT_" + Main.createGuid()
+      typeof param.id !== "undefined"
+        ? param.id
+        : "EVENT_" + MainManager.createGuid()
     );
     elem.className = "event";
     // eventtype
@@ -1307,7 +1686,9 @@ let Button = {
     let elem = createEl("div");
     elem.setAttribute(
       "id",
-      typeof param.id !== "undefined" ? param.id : "BTN_" + Main.createGuid()
+      typeof param.id !== "undefined"
+        ? param.id
+        : "BTN_" + MainManager.createGuid()
     );
     elem.className = "button";
     elem.textContent =
@@ -1352,7 +1733,7 @@ let SM = {
       "features", // locations, etc.
       "game", // more specific stuff. candles in purgatory lit, etc.
       "entities", // generated enemies will be instantiated inside the entities category
-      "character", // characters, boons, flaws, perks, health, stats and such.
+      "character", // PathfinderCharLib, boons, flaws, perks, health, stats and such.
       "inventory", // inventory handling,
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression, kept between runs.
@@ -1365,7 +1746,7 @@ let SM = {
         console.log("category: " + category + " initialized");
       }
     }
-    this.set("ver", Main.version);
+    this.set("ver", MainManager.version);
   },
   // gets a single value
   get: function (stateName) {
@@ -1405,7 +1786,7 @@ let SM = {
       currentState = currentState[PARTS[i]];
     }
     currentState[PARTS[PARTS.length - 1]] = value;
-    Main.saveGame();
+    MainManager.saveGame();
   },
   // sets multiple values if needed. for example setting prefs
   setMany: function (listObjects) {
@@ -1431,44 +1812,25 @@ let SM = {
     } else {
       console.log("state not found");
     }
-    Main.saveGame();
+    MainManager.saveGame();
   },
-  // custom methods for adding specific things
-  addTrait: function (char, trait) {
-    this.set("character." + char + "." + "traits." + trait, true);
-    const MATCHEDTRAITS = pfTraits.find((e) => e.name === trait);
-    if (MATCHEDTRAITS) {
-      Pings.ping(MATCHEDTRAITS.desc);
-    } else {
-      console.error("Trait not found:", trait);
-    }
-  },
-  removeTrait: function (char, trait) {
-    this.set("character." + char + "." + "traits" + "." + trait, false);
-  },
-  getTrait: function (char, trait) {
-    try {
-      return this.get("character." + char + "." + "traits" + "." + trait);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+  // specific functions
 };
 
 /**
  * onload
  */
 window.onload = function () {
-  if (!Main.ready) {
+  if (!MainManager.ready) {
     const ROOT = getID("root");
     if (!ROOT || !ROOT.parentElement) {
-      Main.error();
+      MainManager.error();
     } else {
       console.log(
         "[=== " + "Hello, myself here, dont change the save will you ʕ•ᴥ•ʔ",
         ", the game has loaded." + " ===]"
       );
-      Main.init();
+      MainManager.init();
     }
   }
 };
