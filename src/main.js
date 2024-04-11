@@ -1,4 +1,4 @@
-// just shortens process
+// helper functions
 function getID(id) {
   return document.getElementById(id);
 }
@@ -8,8 +8,36 @@ function getQuerySelector(what) {
 function createEl(elem) {
   return document.createElement(elem);
 }
-function random(thing) {
+function floorRandom(thing) {
   return Math.floor(Math.random() * thing);
+}
+function random(thing) {
+  return Math.random() * thing;
+}
+function uppercaseifyString(str) {
+  let PARTS = str.split(" ");
+  PARTS.forEach((part, index) => {
+    PARTS[index] = uppercaseify(part);
+  });
+
+  return PARTS.join(" ");
+}
+function uppercaseify(str) {
+  let firstChar = str.charAt(0);
+  if (firstChar !== firstChar.toUpperCase()) {
+    str = str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  return str;
+}
+function periodify(str) {
+  if (str.slice(-1) != ".") {
+    str += ".";
+  }
+  return str;
+}
+// for localization if needbe in the future
+function loc(str) {
+  return str;
 }
 /**
  * main manager,
@@ -23,12 +51,11 @@ let MM = {
 
   init: function () {
     MM.ready = true;
-
     this.createView(); // makes view
     this.loadGame(); // loads game by localstorage
-    Pings.init(); // starts the pings component
+    PM.init(); // starts the pings component
     SM.init(); // starts the statemanager component
-    Game.init(); // starts the Game component
+    GM.init(); // starts the GM component
 
     if (SM.get("prefs.autosave")) {
       //console.log("autosave is on");
@@ -37,7 +64,7 @@ let MM = {
       }, this.autoSaveDelay);
     } else {
       //console.log("autosave is off");
-      Pings.ping(
+      PM.ping(
         "autosave is off, remember to save your progress manually, or turn on autosave in settings"
       );
     }
@@ -82,9 +109,6 @@ let MM = {
 
     let navbarInfo = [
       { id: "navbarDelete", text: "delete." },
-      { id: "navbarLoad", text: "load." },
-      { id: "navbarSave", text: "save." },
-
       { id: "navbarGithub", text: "github." },
       { id: "navbarPortfolio", text: "portfolio." },
       { id: "navbarAchievements", text: "achievements." },
@@ -129,18 +153,9 @@ let MM = {
         open = false;
       }
     });
-
     const DELETE = getID("navbarDelete");
     DELETE.addEventListener("click", () => {
       MM.deleteGame();
-    });
-    const LOAD = getID("navbarLoad");
-    LOAD.addEventListener("click", () => {
-      MM.loadGame();
-    });
-    const SAVE = getID("navbarSave");
-    SAVE.addEventListener("click", () => {
-      MM.saveGame();
     });
 
     function createSettings() {
@@ -259,11 +274,12 @@ let MM = {
 };
 
 /**
+ * gameManager module
  * handles starting runs, resetting runs, unlocking locations,
  * and the beforeJourney actions such as choosing which cardinal sin,
  * and choosing party layout.
  */
-let Game = {
+let GM = {
   activeModule: null,
   init: function () {
     //SelectSin.init();
@@ -280,10 +296,10 @@ let Game = {
   reset: function () {},
 
   changeModule: function (module) {
-    if (Game.activeModule === module) {
+    if (GM.activeModule === module) {
       return;
     }
-    Game.activeModule = module;
+    GM.activeModule = module;
     module.launch();
     //console.log("active module is:");
     //console.log(this.activeModule);
@@ -300,7 +316,7 @@ let SelectSin = {
     this.makeView();
   },
   launch: function () {
-    console.log("active module is: " + Game.activeModule);
+    console.log("active module is: " + GM.activeModule);
     this.setDocumentTitle();
   },
   makeView: function () {
@@ -313,17 +329,20 @@ let SelectSin = {
 };
 
 /**
- * picks PathfinderCharLib
+ * formParty
+ * handles the creation of the party selection view
+ * and selecting the pathfinders for the current run.
  */
 let FormParty = {
   finished: false,
-  party: ["The Test1", "The Test2", "The Test3", "The Test4"],
+  party: ["the pugilist", "the faceless", "the occultist", "the paragon"],
 
   init: function () {
     if (SM.get("features.locations.formParty") === undefined) {
       console.log("formparty is new");
       SM.set("features.locations.formParty", true);
     } else {
+      console.log("formparty is not new");
       SM.get("features.locations.formParty");
     }
 
@@ -337,8 +356,8 @@ let FormParty = {
   },
   launch: function () {
     this.setDocumentTitle();
-    Pings.ping(
-      "Choose your allies carefully, for they will determine the course of your journey."
+    PM.ping(
+      "choose your allies carefully, for they will determine the course of your journey"
     );
   },
   createViewElements: function () {
@@ -348,7 +367,7 @@ let FormParty = {
     VIEW.appendChild(pathfinderView);
 
     // make the content
-    this.createPathfinderListContent(); // makes patfinder list, unlocked/locked
+    this.createPathfinderListContent(); // makes patfinder list, locked/locked
     this.createPathfinderDetails(); // makes the content when you click on a hero in the list
     this.createHeaderView(); // makes the header of the content
     this.createPathfinderPosEffectPreview(); // makes the pathfinder pos effectiveness preview
@@ -387,7 +406,8 @@ let FormParty = {
     }
     let pfName = createEl("div");
     pfName.setAttribute("class", "name");
-    pfName.textContent = char.name;
+    let formattedName = uppercaseifyString(char.name);
+    pfName.textContent = formattedName;
     elem.appendChild(pfName);
 
     return elem;
@@ -435,7 +455,8 @@ let FormParty = {
 
     let title = createEl("span");
     title.setAttribute("id", "pathfinderTitle");
-    title.textContent = "The Pugilist";
+    let formattedTitle = uppercaseifyString(PathfinderCharLib[0].name);
+    title.textContent = formattedTitle;
     container.appendChild(title);
 
     let innerWrapper = createEl("div");
@@ -449,7 +470,8 @@ let FormParty = {
 
     let classText = createEl("span");
     classText.setAttribute("id", "pathfinderClassText");
-    classText.textContent = PathfinderCharLib[0].class;
+    let formattedClassText = uppercaseifyString(PathfinderCharLib[0].class);
+    classText.textContent = formattedClassText;
     innerWrapper.appendChild(classText);
   },
   createPathfinderPosEffectPreview: function () {
@@ -630,10 +652,14 @@ let FormParty = {
     //const ENEMYEFFPREVIEWHEADER = getID("enemyEffPreviewHeader");
 
     // sets values
-    HEADERTITLE.textContent = char.name;
+    let formattedTitle = uppercaseifyString(char.name);
+    let formattedClassText = uppercaseifyString(char.class);
+    let formattedQuote = uppercaseifyString(char.quote);
+
+    HEADERTITLE.textContent = formattedTitle;
     CLASSICON.src = char.icon;
-    CLASSTEXT.textContent = char.class;
-    QUOTE.textContent = char.quote;
+    CLASSTEXT.textContent = formattedClassText;
+    QUOTE.textContent = formattedQuote;
     //DESC.textContent = char.desc;
     this.createSkillList(index);
 
@@ -649,21 +675,20 @@ let FormParty = {
      */
   },
   getEffectivePosition: function (string) {
-    const THINGS = string.split(/[,]/);
-    for (let i = 0; i < THINGS.length; i++) {
-      let splitString = THINGS[i];
-      console.log(splitString);
+    const PARTS = string.split(/[,]+/);
+    for (let i = 0; i < PARTS.length; i++) {
+      let part = PARTS[i];
+      console.log(part);
     }
   },
   setDocumentTitle: function () {
     document.title = "choose your party...";
   },
-  finishPartyCreation: function () {
+  finishParty: function () {
     for (let pathfinder of this.party) {
       if (!SM.get("character." + pathfinder)) {
         SM.set("character." + pathfinder, {});
-        console.log("creating pathfinder: " + pathfinder + " in character cat");
-        PFM.randomizeTraits(pathfinder, 2); //creates 2 default traits
+        PFM.createPathfinder(pathfinder);
       }
     }
   },
@@ -681,7 +706,7 @@ let metaProgression = {
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {
-    if (Game.activeModule == "metaProgression") {
+    if (GM.activeModule == "metaProgression") {
       document.title = "Shrine of the Abyss";
     }
   },
@@ -764,8 +789,8 @@ let Header = {
  */
 let PathfinderCharLib = [
   {
-    name: "The Pugilist",
-    id: "thePugilistPreview",
+    name: "the pugilist",
+    id: "thePugilist",
     icon: "img/thePugilist.png",
     class: "lost",
     quote:
@@ -778,41 +803,58 @@ let PathfinderCharLib = [
     },
     skills: [
       {
-        name: "Leg Breaker",
-        id: "lbPreview",
+        name: "leg breaker",
+        id: "legBreaker",
         icon: "img/placeholderSkillIcon.png",
-
+        locked: function () {
+          return true;
+        },
         // 40% chance of disabling enemy for 1 turn + low-lowmedium dmg
       },
       {
-        name: "Fire Fist",
-        id: "ffPreview",
+        name: "fire fist",
+        id: "fireFist",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // hit enemy 1 time with a fire fist, low-medium dmg
       },
       {
-        name: "Crushing Uppercut",
-        id: "cuPreview",
+        name: "crushing uppercut",
+        id: "crushingUppercut",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // hit enemy 1 time with a uppercut,
         // 25% chance of concussion which gives the "confused" buff on target
       },
       {
-        name: "Burst Combo",
-        id: "bcPreview",
+        name: "burst combo",
+        id: "burstCombo",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // hits enemy 2-5 times, low damage
       },
       {
-        name: "Meteor Strike",
-        id: "msPreview",
+        name: "meteor strike",
+        id: "meteorStrike",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // hits 1 time heavy damage
       },
       {
-        name: "Demon Assault",
-        id: "daPreview",
+        name: "demon assault",
+        id: "demonAssault",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // hits 3-5 times low-medium damage
       },
     ],
@@ -881,8 +923,8 @@ let PathfinderCharLib = [
     ],
   },
   {
-    name: "The Faceless",
-    id: "theFacelessPreview",
+    name: "the faceless",
+    id: "theFaceless",
     icon: "img/theFaceless.png",
     class: "lost",
     quote: '"Discard your identity, peer into the depths of the abyss."',
@@ -894,39 +936,57 @@ let PathfinderCharLib = [
     },
     skills: [
       {
-        name: "Blade Flurry",
+        name: "blade flurry",
         id: "bladeFlurry",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // hits an enemy 3-5 times, low dmg
       },
       {
-        name: "Poison fan",
-        id: "poisonFan",
+        name: "set your sights",
+        id: "setYourSights",
         icon: "img/placeholderSkillIcon.png",
-        // hits all 4 enemies with kunais', %chance of gaining "Poisoned"
+        locked: function () {
+          return true;
+        },
+        // sets a sight on an enemy, increasing hit accuracy by +80% for that enemy for 1 turn
       },
       {
-        name: "Vanishing Strike",
+        name: "vanishing strike",
         id: "vanishingStrike",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // you disappear for 1 round charging up and attacking in the 2nd round
       },
       {
-        name: "Blinding dagger",
+        name: "blinding dagger",
         id: "blindingDagger",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // 45% chance of target reciving the "blind" buff.
       },
       {
-        name: "Mirage Step",
+        name: "mirage step",
         id: "mirageStep",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // makes you invunerable for 1 turn
       },
       {
-        name: "Eviscerate",
+        name: "eviscerate",
         id: "eviscerate",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // strikes an enemy in the neck with a heavily damaging attack.
       },
     ],
@@ -995,8 +1055,8 @@ let PathfinderCharLib = [
     ],
   },
   {
-    name: "The Occultist",
-    id: "theOccultistPreview",
+    name: "the occultist",
+    id: "theOccultist",
     icon: "img/theOccultist.png",
     class: "lost",
     quote:
@@ -1009,24 +1069,36 @@ let PathfinderCharLib = [
     },
     skills: [
       {
-        name: "Soul Siphon",
+        name: "soul siphon",
         id: "soulSiphon",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
       },
       {
-        name: "Essence Drain",
+        name: "essence drain",
         id: "essenceDrain",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
       },
       {
-        name: "Curse of Darkness",
+        name: "curse of darkness",
         id: "curseOfDarkness",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
       },
       {
-        name: "Forbidden Knowledge",
+        name: "forbidden knowledge",
         id: "forbiddenKnowledge",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
       },
       /*
       {
@@ -1036,9 +1108,12 @@ let PathfinderCharLib = [
       },
       */
       {
-        name: "Eldritch Reckoning",
+        name: "eldritch reckoning",
         id: "eldritchReckoning",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // base dmg 15
         // for each cursestack applied.,
         // base dmg will increase incrementally by 0.15x
@@ -1109,8 +1184,8 @@ let PathfinderCharLib = [
     ],
   },
   {
-    name: "The Paragon",
-    id: "theParagonPreview",
+    name: "the paragon",
+    id: "theParagon",
     icon: "img/theParagon.png",
     class: "lost",
     quote: '"Stand proud, for valor and honor are our shields."',
@@ -1125,30 +1200,45 @@ let PathfinderCharLib = [
         name: "shield bash",
         id: "shieldBash",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // hits designated enemy with a shield
       },
       {
-        name: "Bulwark Slam",
+        name: "bulwark slam",
         id: "bulkwarkSlam",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // slams an enemy
       },
       {
-        name: "Shield Wall",
+        name: "shield wall",
         id: "shieldWall",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // choose an ally to protect 1 attack from an enemy
       },
       {
-        name: "Paragon's Resolve",
+        name: "paragons resolve",
         id: "paragonsResolve",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // buffs defence for the ally behind you and yourself
       },
       {
-        name: "Titan's Fury",
+        name: "titans fury",
         id: "titansFury",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // attack the enemy with a titan's fury, hitting 2-3 times.
       },
     ],
@@ -1217,8 +1307,8 @@ let PathfinderCharLib = [
     ],
   },
   {
-    name: "The Blatherer",
-    id: "theBlathererPreview",
+    name: "the blatherer",
+    id: "theBlatherer",
     icon: "img/theBlatherer.png",
     class: "lost",
     quote: '"fillThisInWithQuoteLater"',
@@ -1230,33 +1320,48 @@ let PathfinderCharLib = [
     },
     skills: [
       {
-        name: "Crushing Blows",
+        name: "crushing blows",
         id: "crushingBlows",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // hits 2 crushing blows on an enemy
       },
       {
-        name: "Head Splitter",
+        name: "head splitter",
         id: "headSplitter",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // hit 1 heavily damaging move on an enemy
       },
       {
-        name: "War Cry",
+        name: "war cry",
         id: "warCry",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
         // increases dmg for 2 turns
       },
       {
-        name: "Mighty Swing",
+        name: "mighty swing",
         id: "mightySwing",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // mighty swing
       },
       {
-        name: "Earthquake",
+        name: "earthquake",
         id: "earthquake",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
         // do damage to 3 the front 3 enemies
       },
     ],
@@ -1325,8 +1430,8 @@ let PathfinderCharLib = [
     ],
   },
   {
-    name: "The Knight",
-    id: "theKnightPreview",
+    name: "the knight",
+    id: "theKnight",
     icon: "img/theKnight.png",
     class: "lost",
     quote: '"Faith is our shield, and righteousness our sword."',
@@ -1338,34 +1443,52 @@ let PathfinderCharLib = [
     },
     skills: [
       {
-        name: "Valiant Strike",
+        name: "valiant strike",
         id: "valiantStrike",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
       },
       {
-        name: "Holy Retribution",
+        name: "holy retribution",
         id: "holyRetribution",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
       },
       {
-        name: "Pommel Strike",
-        id: "pommelStrike",
+        name: "strike to the head",
+        id: "strikeToTheHead",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
       },
       {
-        name: "Holy Blessing",
-        id: "holyBlessing",
+        name: "a holy blessing",
+        id: "aHolyBlessing",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return true;
+        },
       },
       {
-        name: "Surge of Action",
+        name: "surge of action",
         id: "surgeOfAction",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
       },
       {
         name: "crusade",
         id: "crusade",
         icon: "img/placeholderSkillIcon.png",
+        locked: function () {
+          return false;
+        },
       },
     ],
     stat: [
@@ -1435,11 +1558,185 @@ let PathfinderCharLib = [
 ];
 
 /**
- * pathfinderManager/ PFM(alias)
+ * each pathfinder has 2 default traits,
+ * each pathfinder will get 1 positive and 1 negative trait that has a small, or slighty more noticable
+ * change based on rarity, that influences different things.
+ * the player can remove or get more traits based on stuff like items, nodeEvents, pathEvents and such.
+ *
+ * the traits can manipulate resistances, max hp, speed, positive and negative marks, and other niches such as inventoryspace and etc.
+ */
+let PathfinderTraitsLib = [
+  // index 0, boons
+  [
+    {
+      name: "packmule",
+      rarity: "common",
+      toolTip: "you somehow find ways to carry more",
+      pingMsg:
+        "you feel lighter on your feet as you manage to carry more without strain",
+      // +3 inventory space
+    },
+    {
+      name: "nimble footed",
+      rarity: "common",
+      toolTip: "You move with unmatched agility",
+      pingMsg: "Your movements become swifter and more agile",
+      // speed +3
+    },
+    {
+      name: "evasive",
+      rarity: "common",
+      toolTip: "you have a knack for avoiding attacks",
+      pingMsg:
+        "you become more elusive, making it harder for enemies to land hits on you",
+      // +10% dodge chance
+    },
+    {
+      name: "precise",
+      rarity: "common",
+      toolTip: "You have a steady hand and keen eye",
+      pingMsg:
+        "your accurancy has increased, increasing your lethality in combat",
+      // +5% accuracy
+    },
+    {
+      name: "precise*",
+      rarity: "rare",
+      toolTip: "allows for precise and critical attacks",
+      pingMsg: "You see your strikes becoming more precise and deadly",
+      // +8% crit, +10% accuracy
+    },
+    {
+      name: "iron will",
+      rarity: "common",
+      toolTip: "strengthens your resolve against negative effects",
+      pingMsg:
+        "your will strengthens, making it harder for negative effects to affect you",
+      // +5% stun res, +5% mov res
+    },
+    {
+      name: "stalwart",
+      rarity: "common",
+      toolTip: "boosts your physical endurance",
+      pingMsg:
+        "you feel sturdier and more resilient, ready to withstand physical challenges",
+      // +4 max hp, +4% physical res
+    },
+    {
+      name: "swift reflexes",
+      rarity: "common",
+      toolTip: "Heightens your agility and reaction time",
+      pingMsg:
+        "you feel lighter on your feet, ready to dodge incoming attacks with ease",
+      // +2 speed, +5% dodge chance
+    },
+  ],
+  // index 1, flaws
+  [
+    {
+      name: "anemic",
+      rarity: "common",
+      toolTip: "you lack vitality and vigor",
+      pingMsg:
+        "you feel weak and fatigued, making it harder to endure physical exertion",
+      // -2% max hp
+    },
+    {
+      name: "fumbler",
+      rarity: "common",
+      toolTip: "you tend to fumble actions more often",
+      pingMsg:
+        "your coordination seems to suffer, leading to more frequent fumbles in your actions",
+      // 40% chance of gaining the idk yet but the mark makes you have a % chance of failing your move
+    },
+    {
+      name: "lethargic",
+      rarity: "common",
+      toolTip: "you lack energy and enthusiasm",
+      pingMsg:
+        "you feel drained of energy and motivation, making it difficult to muster enthusiasm for tasks or activities",
+      // -1 speed, -5% dodge chance
+    },
+    {
+      name: "frail",
+      rarity: "common",
+      toolTip: "your constitution is weak",
+      pingMsg:
+        "you feel physically fragile, making you more susceptible to injuries and ailments",
+      // -2 max hp
+    },
+    {
+      name: "restless*",
+      rarity: "rare",
+      toolTip: "you find it harder to rest properly",
+      pingMsg:
+        "rest eludes you, making it difficult to fully recover during rest periods",
+      // -10% heal (every source)
+    },
+    {
+      name: "shaky hands",
+      rarity: "common",
+      toolTip: "your hands tremble uncontrollably",
+      pingMsg:
+        "your hands shake uncontrollably, affecting your ability to aim steadily",
+      // -5% accuracy
+    },
+    {
+      name: "hemophilia*",
+      rarity: "rare",
+      toolTip: "You bleed more.",
+      pingMsg:
+        "your blood seems to flow more freely, making you more susceptible to bleeding wounds",
+      // -10% bleed res
+    },
+    {
+      name: "brittle bones*",
+      rarity: "rare",
+      toolTip: "your bones are more prone to fractures",
+      pingMsg:
+        "your bones feel fragile, making you more susceptible to fractures and injuries",
+      // -10% max HP, -5% mov res
+    },
+    {
+      name: "toxin susceptible*",
+      rarity: "rare",
+      toolTip: "your body reacts strongly to toxins",
+      pingMsg:
+        "toxins affect you more severely, leading to heightened vulnerability to poisoning and other toxin-based attacks",
+      // -10% poison resistance
+    },
+    {
+      name: "vulnerable",
+      rarity: "common",
+      toolTip: "You are prone to vulnerabilities",
+      pingMsg:
+        "you feel exposed and vulnerable, making you more susceptible to various negative effects",
+      // -3% to all resistances
+    },
+    {
+      name: "scorched",
+      rarity: "common",
+      toolTip: "you are susceptible to burns",
+      pingMsg:
+        "your skin feels sensitive to heat, making you more prone to burns and scalds",
+      // -5% burn resistance
+    },
+  ],
+];
+
+/**
+ * pathfinderManager
  * handles pathfinders, their stats and traits, etc.
  */
 let PFM = {
   init: function () {},
+  createPathfinder: function (pathfinder) {
+    let charList = PathfinderCharLib;
+    let pathfinderIndex = charList.findIndex((e) => e.name === pathfinder);
+    this.randomizeTraits(pathfinder, 2);
+    this.setBaseSkills(pathfinder, pathfinderIndex);
+    this.setBaseStats(pathfinder, pathfinderIndex);
+  },
   randomizeTraits: function (pathfinder, numberOfTraits) {
     let positiveTraitList = PathfinderTraitsLib[0];
     let negativeTraitList = PathfinderTraitsLib[1];
@@ -1448,15 +1745,15 @@ let PFM = {
       let randomTrait = this.getRandPositiveTrait();
       let traitIndex = positiveTraitList[randomTrait];
       let trait = traitIndex.name;
-      this.addTrait(pathfinder, trait, false);
-      console.log("trait added: " + trait);
+      SM.setTrait(pathfinder, trait, true, false);
+      //console.log("trait added: " + trait);
     }
     for (let i = 0; i < Math.floor(numberOfTraits / 2); i++) {
       let randomTrait = this.getRandNegativeTrait();
       let traitIndex = negativeTraitList[randomTrait];
       let trait = traitIndex.name;
-      this.addTrait(pathfinder, trait, false);
-      console.log("trait added: " + trait);
+      SM.setTrait(pathfinder, trait, true, false);
+      //console.log("trait added: " + trait);
     }
   },
   getRandPositiveTrait: function () {
@@ -1486,8 +1783,7 @@ let PFM = {
 
     return selectedTrait;
   },
-  addTrait: function (pathfinder, trait, includePing) {
-    SM.set("character." + pathfinder + "." + "traits." + trait, true);
+  includeTraitPing: function (trait, bool) {
     let matchedTrait;
     for (let i = 0; i < PathfinderTraitsLib.length; i++) {
       let traitList = PathfinderTraitsLib[i];
@@ -1497,198 +1793,50 @@ let PFM = {
         break;
       }
     }
-
-    if (!includePing) {
+    if (!bool) {
       return;
     }
     if (matchedTrait) {
-      Pings.ping(matchedTrait.pingMsg);
+      PM.ping(matchedTrait.pingMsg);
     } else {
       console.error();
     }
   },
-  removeTrait: function (pathfinder, trait) {},
-  getTrait: function (pathfinder, trait) {
-    try {
-      return SM.get("character." + pathfinder + "." + "traits." + trait);
-    } catch (error) {
-      console.error("trait not found" + error);
-    }
-  },
-};
+  setBaseStats: function (pathfinder, index) {},
+  setBaseSkills: function (pathfinder, index) {
+    let charList = PathfinderCharLib;
+    let charListSkills = charList[index].skills;
 
-/**
- * each pathfinder has 2 default traits,
- * each pathfinder will get 1 positive and 1 negative trait that has a small, or slighty more noticable
- * change based on rarity, that influences different things.
- * the player can remove or get more traits based on stuff like items, nodeEvents, pathEvents and such.
- *
- * the traits can manipulate resistances, max hp, speed, positive and negative marks, and other niches such as inventoryspace and etc.
- */
-let PathfinderTraitsLib = [
-  // index 0, boons
-  [
-    {
-      name: "Packmule",
-      rarity: "common",
-      toolTip: "you somehow find ways to carry more",
-      pingMsg:
-        "You feel lighter on your feet as you manage to carry more without strain.",
-      // +3 inventory space
-    },
-    {
-      name: "Nimble Footed",
-      rarity: "common",
-      toolTip: "You move with unmatched agility",
-      pingMsg: "Your movements become swifter and more agile.",
-      // speed +3
-    },
-    {
-      name: "Evasive",
-      rarity: "common",
-      toolTip: "You have a knack for avoiding attacks",
-      pingMsg:
-        "You become more elusive, making it harder for enemies to land hits on you.",
-      // +10% dodge chance
-    },
-    {
-      name: "Precise",
-      rarity: "common",
-      toolTip: "You have a steady hand and keen eye",
-      pingMsg:
-        "Your accurancy has increased, increasing your lethality in combat.",
-      // +5% accuracy
-    },
-    {
-      name: "Precise*",
-      rarity: "rare",
-      toolTip: "Allows for precise and critical attacks",
-      pingMsg: "You see your strikes becoming more precise and deadly.",
-      // +8% crit, +10% accuracy
-    },
-    {
-      name: "Iron Will",
-      rarity: "common",
-      toolTip: "Strengthens your resolve against negative effects",
-      pingMsg:
-        "Your will strengthens, making it harder for negative effects to affect you.",
-      // +5% stun res, +5% mov res
-    },
-    {
-      name: "Stalwart",
-      rarity: "common",
-      toolTip: "Boosts your physical endurance",
-      pingMsg:
-        "You feel sturdier and more resilient, ready to withstand physical challenges.",
-      // +4 max hp, +4% physical res
-    },
-    {
-      name: "Swift Reflexes",
-      rarity: "common",
-      toolTip: "Heightens your agility and reaction time",
-      pingMsg:
-        "You feel lighter on your feet, ready to dodge incoming attacks with ease.",
-      // +2 speed, +5% dodge chance
-    },
-  ],
-  // index 1, flaws
-  [
-    {
-      name: "Anemic",
-      rarity: "common",
-      toolTip: "You lack vitality and vigor",
-      pingMsg:
-        "You feel weak and fatigued, making it harder to endure physical exertion.",
-      // -2% max hp
-    },
-    {
-      name: "Fumbler",
-      rarity: "common",
-      toolTip: "You tend to fumble actions more often",
-      pingMsg:
-        "Your coordination seems to suffer, leading to more frequent fumbles in your actions.",
-      // 40% chance of gaining the idk yet but the mark makes you have a % chance of failing your move
-    },
-    {
-      name: "Lethargic",
-      rarity: "common",
-      toolTip: "You lack energy and enthusiasm",
-      pingMsg:
-        "You feel drained of energy and motivation, making it difficult to muster enthusiasm for tasks or activities.",
-      // -1 speed, -5% dodge chance
-    },
-    {
-      name: "Frail",
-      rarity: "common",
-      toolTip: "Your constitution is weak",
-      pingMsg:
-        "You feel physically fragile, making you more susceptible to injuries and ailments.",
-      // -2 max hp
-    },
-    {
-      name: "Restless*",
-      rarity: "rare",
-      toolTip: "you find it harder to rest properly",
-      pingMsg:
-        "Rest eludes you, making it difficult to fully recover during rest periods.",
-      // -10% heal (every source)
-    },
-    {
-      name: "Shaky Hands",
-      rarity: "common",
-      toolTip: "Your hands tremble uncontrollably",
-      pingMsg:
-        "Your hands shake uncontrollably, affecting your ability to aim steadily.",
-      // -5% accuracy
-    },
-    {
-      name: "Hemophilia*",
-      rarity: "rare",
-      toolTip: "You bleed more.",
-      pingMsg:
-        "Your blood seems to flow more freely, making you more susceptible to bleeding wounds.",
-      // -10% bleed res
-    },
-    {
-      name: "Brittle Bones*",
-      rarity: "rare",
-      toolTip: "Your bones are more prone to fractures",
-      pingMsg:
-        "Your bones feel fragile, making you more susceptible to fractures and injuries.",
-      // -10% max HP, -5% mov res
-    },
-    {
-      name: "Toxin Susceptible*",
-      rarity: "rare",
-      toolTip: "Your body reacts strongly to toxins",
-      pingMsg:
-        "Toxins affect you more severely, leading to heightened vulnerability to poisoning and other toxin-based attacks.",
-      // -10% poison resistance
-    },
-    {
-      name: "Vulnerable",
-      rarity: "common",
-      toolTip: "You are prone to vulnerabilities",
-      pingMsg:
-        "You feel exposed and vulnerable, making you more susceptible to various negative effects.",
-      // -3% to all resistances
-    },
-    {
-      name: "Scorched",
-      rarity: "common",
-      toolTip: "You are susceptible to burns",
-      pingMsg:
-        "Your skin feels sensitive to heat, making you more prone to burns and scalds.",
-      // -5% burn resistance
-    },
-  ],
-];
+    // Check if charListSkills is undefined
+    if (!charListSkills) {
+      console.error("Skills not found for the given index.");
+      return;
+    }
+    //console.log(charListSkills);
+
+    // every available skill will have their SM.set available to true,
+    // opposite for unavailable, then will do stuff in turnbased based on this, and etc.
+    let unlockedSkills = charListSkills.filter((skill) => !skill.locked());
+    let lockedSkills = charListSkills.filter((skill) => skill.locked());
+
+    //console.log(unlockedSkills);
+    //console.log(lockedSkills);
+
+    unlockedSkills.forEach((skill) => {
+      SM.setSkill(pathfinder, skill, true);
+    });
+    lockedSkills.forEach((skill) => {
+      SM.setSkill(pathfinder, skill, false);
+    });
+  },
+  includeSkillPing: function (skill, bool) {},
+};
 
 /**
  * pings object
  * handles all ping(s) related methods. messaging, pinging, deleting.
  */
-let Pings = {
+let PM = {
   init: function () {
     let elem = createEl("div");
     elem.setAttribute("id", "pings");
@@ -1699,30 +1847,25 @@ let Pings = {
     fade.setAttribute("id", "fade");
     //elem.appendChild(fade);
   },
-  ping: function (text) {
-    if (typeof text == "undefined") {
-      return; // if no text then dont do stuff
+  ping: function (string) {
+    if (typeof string == "undefined") {
+      return;
     }
-    if (text.slice(-1) != ".") {
-      text += ".";
-    }
-    let firstChar = text.charAt(0);
-    if (firstChar !== firstChar.toUpperCase()) {
-      text = text.charAt(0).toUpperCase() + text.slice(1);
-    }
-    Pings.send(text);
+    string = periodify(string);
+    string = uppercaseify(string);
+    this.send(string);
   },
   send: function (e) {
-    // outputs the finalized message to the pings(parent)node
+    // outputs the finalized message to the pings node
     let ping = createEl("div");
     ping.className = "ping";
     ping.textContent = e;
     const PINGS = getID("pings");
     PINGS.insertBefore(ping, PINGS.firstChild);
-    Pings.delete();
+    this.deleteCheck();
   },
-  delete: function () {
-    // checking if there are any overflowing ping(s) to delete, cause memoryleak
+  deleteCheck: function () {
+    // checking if there are any overflowing pings to delete, cause memoryleak.
     const PINGS = getID("pings");
     let viewportHeight = window.innerHeight;
     let pingList = PINGS.getElementsByClassName("ping");
@@ -1911,7 +2054,26 @@ let SM = {
     }
     MM.saveGame();
   },
-  // specific functions
+
+  // specific setter and getters and other methods
+  setTrait: function (pathfinder, trait, bool, includePing) {
+    this.set("character." + pathfinder + ".traits." + trait, bool);
+    PFM.includeTraitPing(trait, includePing);
+  },
+  getTrait: function (pathfinder, trait) {
+    try {
+      return SM.get("character." + pathfinder + ".traits." + trait);
+    } catch (error) {
+      console.error("trait not found" + error);
+    }
+  },
+  setSkill: function (pathfinder, skill, bool, includePing) {
+    SM.set(
+      "character." + pathfinder + ".skills." + skill.name + ".locked",
+      bool
+    );
+    PFM.includeSkillPing(skill, includePing);
+  },
 };
 
 /**
@@ -1950,10 +2112,10 @@ window.onload = function () {
  * take inspo from roguelineage permadeath.
  *
  * // first time in purgatory text, for later
- * Pings.ping(
+ * PM.ping(
  * "you find yourself in a dimly lit chamber, disoriented and unsure of where you are"
  * );
- * Pings.ping(
+ * PM.ping(
  * "shadows cling to the walls like specters, and the faint flicker of candles offers little solace in this unfamiliar enviornment"
  * );
  *
