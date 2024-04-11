@@ -12,38 +12,40 @@ function random(thing) {
   return Math.floor(Math.random() * thing);
 }
 /**
- * main
+ * main manager,
  * handles general things, like initiating the different objects
  * and their methods
  */
-let MainManager = {
+let MM = {
   version: 1.0,
   beta: true,
   autoSaveDelay: 60000,
 
   init: function () {
-    MainManager.ready = true;
+    MM.ready = true;
 
     this.createView(); // makes view
     this.loadGame(); // loads game by localstorage
     Pings.init(); // starts the pings component
     SM.init(); // starts the statemanager component
-    Game.init(); // starts the run component
+    Game.init(); // starts the Game component
 
     if (SM.get("prefs.autosave")) {
       //console.log("autosave is on");
       setInterval(() => {
-        MainManager.saveGame();
+        MM.saveGame();
       }, this.autoSaveDelay);
     } else {
       //console.log("autosave is off");
       Pings.ping(
-        "autosave is off, remember to save your progress manually through settings, or turn on autosave"
+        "autosave is off, remember to save your progress manually, or turn on autosave in settings"
       );
     }
 
+    /*
     console.log(PathfinderCharLib);
     console.log(PathfinderTraitsLib);
+    */
   },
   createView: function () {
     let view = createEl("div");
@@ -130,15 +132,15 @@ let MainManager = {
 
     const DELETE = getID("navbarDelete");
     DELETE.addEventListener("click", () => {
-      MainManager.deleteGame();
+      MM.deleteGame();
     });
     const LOAD = getID("navbarLoad");
     LOAD.addEventListener("click", () => {
-      MainManager.loadGame();
+      MM.loadGame();
     });
     const SAVE = getID("navbarSave");
     SAVE.addEventListener("click", () => {
-      MainManager.saveGame();
+      MM.saveGame();
     });
 
     function createSettings() {
@@ -315,7 +317,7 @@ let SelectSin = {
  */
 let FormParty = {
   finished: false,
-  party: ["char1", "char2", "char3", "char4"],
+  party: ["The Test1", "The Test2", "The Test3", "The Test4"],
 
   init: function () {
     if (SM.get("features.locations.formParty") === undefined) {
@@ -324,6 +326,12 @@ let FormParty = {
     } else {
       SM.get("features.locations.formParty");
     }
+
+    /*
+    for (let pathfinder of this.party) {
+      console.log("party has: " + pathfinder);
+    }
+    */
 
     this.createViewElements(); // makes the view
   },
@@ -651,11 +659,11 @@ let FormParty = {
     document.title = "choose your party...";
   },
   finishPartyCreation: function () {
-    for (let pathfinder in this.party) {
+    for (let pathfinder of this.party) {
       if (!SM.get("character." + pathfinder)) {
         SM.set("character." + pathfinder, {});
         console.log("creating pathfinder: " + pathfinder + " in character cat");
-        PFM.createTraits(pathfinder, 2); //creates 2 default traits
+        PFM.randomizeTraits(pathfinder, 2); //creates 2 default traits
       }
     }
   },
@@ -726,7 +734,7 @@ let Header = {
     chapter.addEventListener("click", () => {
       if (canTravel(actInnerWrapperId)) {
         console.log("traveling");
-        //MainManager.changeView(location);
+        //MM.changeView(location);
       } else {
         console.log("chapters in currentAct not over 1");
       }
@@ -825,6 +833,12 @@ let PathfinderCharLib = [
       {
         name: "phys res",
         fullName: "physical resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
+        name: "rang res",
+        fullName: "ranged resistance",
         value: "5%",
         type: "percent",
       },
@@ -931,6 +945,18 @@ let PathfinderCharLib = [
       },
       // resistances/res
       {
+        name: "phys res",
+        fullName: "physical resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
+        name: "rang res",
+        fullName: "ranged resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
         name: "bld res",
         fullName: "bleed resistance",
         value: "30%",
@@ -1033,6 +1059,18 @@ let PathfinderCharLib = [
       },
       // resistances/res
       {
+        name: "phys res",
+        fullName: "physical resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
+        name: "rang res",
+        fullName: "ranged resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
         name: "bld res",
         fullName: "bleed resistance",
         value: "30%",
@@ -1128,6 +1166,18 @@ let PathfinderCharLib = [
         type: "number",
       },
       // resistances/res
+      {
+        name: "phys res",
+        fullName: "physical resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
+        name: "rang res",
+        fullName: "ranged resistance",
+        value: "5%",
+        type: "percent",
+      },
       {
         name: "bld res",
         fullName: "bleed resistance",
@@ -1225,6 +1275,18 @@ let PathfinderCharLib = [
       },
       // resistances/res
       {
+        name: "phys res",
+        fullName: "physical resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
+        name: "rang res",
+        fullName: "ranged resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
         name: "bld res",
         fullName: "bleed resistance",
         value: "30%",
@@ -1321,6 +1383,18 @@ let PathfinderCharLib = [
       },
       // resistances/res
       {
+        name: "phys res",
+        fullName: "physical resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
+        name: "rang res",
+        fullName: "ranged resistance",
+        value: "5%",
+        type: "percent",
+      },
+      {
         name: "bld res",
         fullName: "bleed resistance",
         value: "30%",
@@ -1361,47 +1435,74 @@ let PathfinderCharLib = [
 ];
 
 /**
- * pathfinderManager
+ * pathfinderManager/ PFM(alias)
  * handles pathfinders, their stats and traits, etc.
  */
 let PFM = {
   init: function () {},
-  createTraits: function (pathfinder, numberOfTraits) {
+  randomizeTraits: function (pathfinder, numberOfTraits) {
     let positiveTraitList = PathfinderTraitsLib[0];
     let negativeTraitList = PathfinderTraitsLib[1];
 
     for (let i = 0; i < Math.floor(numberOfTraits / 2); i++) {
-      let randomTrait = getRandPositiveTrait();
+      let randomTrait = this.getRandPositiveTrait();
       let traitIndex = positiveTraitList[randomTrait];
       let trait = traitIndex.name;
-      this.addTrait(pathfinder, trait, true);
+      this.addTrait(pathfinder, trait, false);
       console.log("trait added: " + trait);
     }
     for (let i = 0; i < Math.floor(numberOfTraits / 2); i++) {
-      let randomTrait = getRandNegativeTrait();
+      let randomTrait = this.getRandNegativeTrait();
       let traitIndex = negativeTraitList[randomTrait];
       let trait = traitIndex.name;
-      this.addTrait(pathfinder, trait, true);
+      this.addTrait(pathfinder, trait, false);
       console.log("trait added: " + trait);
     }
+  },
+  getRandPositiveTrait: function () {
+    let positiveTraitList = PathfinderTraitsLib[0];
+    let trait = this.getTraitPool(positiveTraitList);
+    return trait;
+  },
+  getRandNegativeTrait: function () {
+    let negativeTraitList = PathfinderTraitsLib[1];
+    let trait = this.getTraitPool(negativeTraitList);
+    return trait;
+  },
+  getTraitPool: function (traitList) {
+    let rareTreshold = 0.3;
+    let commonTraits = traitList.filter((e) => e.rarity === "common");
+    let rareTraits = traitList.filter((e) => e.rarity === "rare");
 
-    function getRandPositiveTrait() {
-      let num = Math.floor(Math.random() * positiveTraitList.length);
-      return num;
+    let selectedTrait;
+    let randomValue = Math.random();
+    //console.log(randomValue);
+
+    if (randomValue > rareTreshold) {
+      selectedTrait = Math.floor(Math.random() * commonTraits.length);
+    } else {
+      selectedTrait = Math.floor(Math.random() * rareTraits.length);
     }
-    function getRandNegativeTrait() {
-      let num = Math.floor(Math.random() * negativeTraitList.length);
-      return num;
-    }
+
+    return selectedTrait;
   },
   addTrait: function (pathfinder, trait, includePing) {
     SM.set("character." + pathfinder + "." + "traits." + trait, true);
-    const MATCHEDTRAITS = PathfinderTraitsLib.find((e) => e.name === trait);
+    let matchedTrait;
+    for (let i = 0; i < PathfinderTraitsLib.length; i++) {
+      let traitList = PathfinderTraitsLib[i];
+      let foundTrait = traitList.find((e) => e.name === trait);
+      if (foundTrait) {
+        matchedTrait = foundTrait;
+        break;
+      }
+    }
+
     if (!includePing) {
       return;
     }
-    if (MATCHEDTRAITS) {
-      Pings.ping(MATCHEDTRAITS.pingMsg);
+    if (matchedTrait) {
+      Pings.ping(matchedTrait.pingMsg);
     } else {
       console.error();
     }
@@ -1656,9 +1757,7 @@ let Events = {
     let elem = createEl("event");
     elem.setAttribute(
       "id",
-      typeof param.id !== "undefined"
-        ? param.id
-        : "EVENT_" + MainManager.createGuid()
+      typeof param.id !== "undefined" ? param.id : "EVENT_" + MM.createGuid()
     );
     elem.className = "event";
     // eventtype
@@ -1686,9 +1785,7 @@ let Button = {
     let elem = createEl("div");
     elem.setAttribute(
       "id",
-      typeof param.id !== "undefined"
-        ? param.id
-        : "BTN_" + MainManager.createGuid()
+      typeof param.id !== "undefined" ? param.id : "BTN_" + MM.createGuid()
     );
     elem.className = "button";
     elem.textContent =
@@ -1746,7 +1843,7 @@ let SM = {
         console.log("category: " + category + " initialized");
       }
     }
-    this.set("ver", MainManager.version);
+    this.set("ver", MM.version);
   },
   // gets a single value
   get: function (stateName) {
@@ -1786,7 +1883,7 @@ let SM = {
       currentState = currentState[PARTS[i]];
     }
     currentState[PARTS[PARTS.length - 1]] = value;
-    MainManager.saveGame();
+    MM.saveGame();
   },
   // sets multiple values if needed. for example setting prefs
   setMany: function (listObjects) {
@@ -1812,7 +1909,7 @@ let SM = {
     } else {
       console.log("state not found");
     }
-    MainManager.saveGame();
+    MM.saveGame();
   },
   // specific functions
 };
@@ -1821,16 +1918,16 @@ let SM = {
  * onload
  */
 window.onload = function () {
-  if (!MainManager.ready) {
+  if (!MM.ready) {
     const ROOT = getID("root");
     if (!ROOT || !ROOT.parentElement) {
-      MainManager.error();
+      MM.error();
     } else {
       console.log(
         "[=== " + "Hello, myself here, dont change the save will you ʕ•ᴥ•ʔ",
         ", the game has loaded." + " ===]"
       );
-      MainManager.init();
+      MM.init();
     }
   }
 };
