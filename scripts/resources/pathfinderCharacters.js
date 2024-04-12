@@ -19,7 +19,7 @@ let PathfinderCharLib = [
   {
     name: "the pugilist",
     id: "thePugilist",
-    icon: "img/thePugilist.png",
+    icon: "./img/thePugilist.png",
     class: "lost",
     quote:
       '"In the heat of battle, every blow tells a story of resilience and determination."',
@@ -33,7 +33,7 @@ let PathfinderCharLib = [
       {
         name: "leg breaker",
         id: "legBreaker",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -42,7 +42,7 @@ let PathfinderCharLib = [
       {
         name: "fire fist",
         id: "fireFist",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -51,7 +51,7 @@ let PathfinderCharLib = [
       {
         name: "crushing uppercut",
         id: "crushingUppercut",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -61,7 +61,7 @@ let PathfinderCharLib = [
       {
         name: "burst combo",
         id: "burstCombo",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -70,7 +70,7 @@ let PathfinderCharLib = [
       {
         name: "meteor strike",
         id: "meteorStrike",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -79,7 +79,7 @@ let PathfinderCharLib = [
       {
         name: "demon assault",
         id: "demonAssault",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -153,7 +153,7 @@ let PathfinderCharLib = [
   {
     name: "the faceless",
     id: "theFaceless",
-    icon: "img/theFaceless.png",
+    icon: "./img/theFaceless.png",
     class: "lost",
     quote: '"Discard your identity, peer into the depths of the abyss."',
     desc: "Mysterious and agile, the Faceless strikes swiftly from the shadows, wielding deadly precision and cunning tactics.",
@@ -166,7 +166,7 @@ let PathfinderCharLib = [
       {
         name: "blade flurry",
         id: "bladeFlurry",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -175,7 +175,7 @@ let PathfinderCharLib = [
       {
         name: "set your sights",
         id: "setYourSights",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -184,7 +184,7 @@ let PathfinderCharLib = [
       {
         name: "vanishing strike",
         id: "vanishingStrike",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -193,7 +193,7 @@ let PathfinderCharLib = [
       {
         name: "blinding dagger",
         id: "blindingDagger",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -202,7 +202,7 @@ let PathfinderCharLib = [
       {
         name: "mirage step",
         id: "mirageStep",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -211,7 +211,7 @@ let PathfinderCharLib = [
       {
         name: "eviscerate",
         id: "eviscerate",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -285,7 +285,7 @@ let PathfinderCharLib = [
   {
     name: "the occultist",
     id: "theOccultist",
-    icon: "img/theOccultist.png",
+    icon: "./img/theOccultist.png",
     class: "lost",
     quote:
       '"Knowledge is power, but forbidden knowledge is a double-edged sword."',
@@ -299,7 +299,7 @@ let PathfinderCharLib = [
       {
         name: "soul siphon",
         id: "soulSiphon",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -307,7 +307,7 @@ let PathfinderCharLib = [
       {
         name: "essence drain",
         id: "essenceDrain",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -315,7 +315,7 @@ let PathfinderCharLib = [
       {
         name: "curse of darkness",
         id: "curseOfDarkness",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -323,7 +323,7 @@ let PathfinderCharLib = [
       {
         name: "forbidden knowledge",
         id: "forbiddenKnowledge",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -332,13 +332,13 @@ let PathfinderCharLib = [
        {
          name: "Eldritch Shield",
          id: "eldritchShield",
-         icon: "img/placeholderSkillIcon.png",
+         icon: "./img/placeholderSkillIcon.png",
        },
        */
       {
         name: "eldritch reckoning",
         id: "eldritchReckoning",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -414,7 +414,7 @@ let PathfinderCharLib = [
   {
     name: "the paragon",
     id: "theParagon",
-    icon: "img/theParagon.png",
+    icon: "./img/theParagon.png",
     class: "lost",
     quote: '"Stand proud, for valor and honor are our shields."',
     desc: "A bastion of strength and resilience, the Paragon defends allies with unwavering courage and unmatched determination.",
@@ -427,7 +427,7 @@ let PathfinderCharLib = [
       {
         name: "shield bash",
         id: "shieldBash",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -436,7 +436,7 @@ let PathfinderCharLib = [
       {
         name: "bulwark slam",
         id: "bulkwarkSlam",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -445,7 +445,7 @@ let PathfinderCharLib = [
       {
         name: "shield wall",
         id: "shieldWall",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -454,7 +454,7 @@ let PathfinderCharLib = [
       {
         name: "paragons resolve",
         id: "paragonsResolve",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -463,7 +463,7 @@ let PathfinderCharLib = [
       {
         name: "titans fury",
         id: "titansFury",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -537,7 +537,7 @@ let PathfinderCharLib = [
   {
     name: "the blatherer",
     id: "theBlatherer",
-    icon: "img/theBlatherer.png",
+    icon: "./img/theBlatherer.png",
     class: "lost",
     quote: '"fillThisInWithQuoteLater"',
     desc: "fillThisInWithDescLater",
@@ -550,7 +550,7 @@ let PathfinderCharLib = [
       {
         name: "crushing blows",
         id: "crushingBlows",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -559,7 +559,7 @@ let PathfinderCharLib = [
       {
         name: "head splitter",
         id: "headSplitter",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -568,7 +568,7 @@ let PathfinderCharLib = [
       {
         name: "war cry",
         id: "warCry",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -577,7 +577,7 @@ let PathfinderCharLib = [
       {
         name: "mighty swing",
         id: "mightySwing",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -586,7 +586,7 @@ let PathfinderCharLib = [
       {
         name: "earthquake",
         id: "earthquake",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -660,7 +660,7 @@ let PathfinderCharLib = [
   {
     name: "the knight",
     id: "theKnight",
-    icon: "img/theKnight.png",
+    icon: "./img/theKnight.png",
     class: "lost",
     quote: '"Faith is our shield, and righteousness our sword."',
     desc: "An embodiment of righteousness, the Knight wields the divine power of faith to dispel darkness and protect the innocent from the forces of evil.",
@@ -674,7 +674,7 @@ let PathfinderCharLib = [
       {
         name: "valiant strike",
         id: "valiantStrike",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -682,7 +682,7 @@ let PathfinderCharLib = [
       {
         name: "holy retribution",
         id: "holyRetribution",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -690,7 +690,7 @@ let PathfinderCharLib = [
       {
         name: "strike to the head",
         id: "strikeToTheHead",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -698,7 +698,7 @@ let PathfinderCharLib = [
       {
         name: "a holy blessing",
         id: "aHolyBlessing",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return true;
         },
@@ -706,7 +706,7 @@ let PathfinderCharLib = [
       {
         name: "surge of action",
         id: "surgeOfAction",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
@@ -714,7 +714,7 @@ let PathfinderCharLib = [
       {
         name: "crusade",
         id: "crusade",
-        icon: "img/placeholderSkillIcon.png",
+        icon: "./img/placeholderSkillIcon.png",
         locked: function () {
           return false;
         },
