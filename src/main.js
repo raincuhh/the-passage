@@ -226,9 +226,6 @@ let MM = {
     }
   },
   deleteGame: function (/*reload*/) {
-    // overkill but its sometimes buggy and doesnt delete gamestate
-    //SM.components = {};
-    //localStorage.setItem("save", {});
     this.saveGame();
     localStorage.removeItem("save");
     localStorage.clear();
@@ -785,7 +782,7 @@ let Header = {
  *
  * base stats that get made for each char.
  * name is name of stat
- * value is base % or number of that stat
+ * value is base % or num of that stat
  * stats can be either % or a number.
  */
 let PathfinderCharLib = [
@@ -859,65 +856,65 @@ let PathfinderCharLib = [
         // hits 3-5 times low-medium damage
       },
     ],
-    stat: [
+    stats: [
       {
         name: "hp",
-        fullName: "healthpoints",
+        id: "healthpoints",
         value: "27",
-        type: "number",
+        type: "num",
       },
       {
         name: "spd",
-        fullName: "speed",
+        id: "speed",
         value: "4",
-        type: "number",
+        type: "num",
       },
       // resistances/res
       {
         name: "phys res",
-        fullName: "physical resistance",
+        id: "physicalResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "rang res",
-        fullName: "ranged resistance",
+        id: "rangedResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "bld res",
-        fullName: "bleed resistance",
+        id: "bleedResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "psn res",
-        fullName: "poison resistance",
+        id: "poisonResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "cld res",
-        fullName: "cold resistance",
+        id: "coldResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "fire res",
-        fullName: "fire resistance",
+        id: "fireResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "stun res",
-        fullName: "stun resistance",
+        id: "stunResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "mov res",
-        fullName: "move resistance",
+        id: "moveResistance",
         value: "20%",
         type: "percent",
       },
@@ -994,62 +991,62 @@ let PathfinderCharLib = [
     stats: [
       {
         name: "hp",
-        fullName: "healthpoints",
+        id: "healthpoints",
         value: "24",
-        type: "number",
+        type: "num",
       },
       {
         name: "spd",
-        fullName: "speed",
+        id: "speed",
         value: "5",
-        type: "number",
+        type: "num",
       },
       // resistances/res
       {
         name: "phys res",
-        fullName: "physical resistance",
+        id: "physicalResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "rang res",
-        fullName: "ranged resistance",
+        id: "rangedResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "bld res",
-        fullName: "bleed resistance",
+        id: "bleedResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "psn res",
-        fullName: "poison resistance",
+        id: "poisonResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "cld res",
-        fullName: "cold resistance",
+        id: "coldResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "fire res",
-        fullName: "fire resistance",
+        id: "fireResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "stun res",
-        fullName: "stun resistance",
+        id: "stunResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "mov res",
-        fullName: "move resistance",
+        id: "moveResistance",
         value: "20%",
         type: "percent",
       },
@@ -1120,65 +1117,65 @@ let PathfinderCharLib = [
         // base dmg will increase incrementally by 0.15x
       },
     ],
-    stat: [
+    stats: [
       {
         name: "hp",
-        fullName: "healthpoints",
+        id: "healthpoints",
         value: "21",
-        type: "number",
+        type: "num",
       },
       {
         name: "spd",
-        fullName: "speed",
+        id: "speed",
         value: "3",
-        type: "number",
+        type: "num",
       },
       // resistances/res
       {
         name: "phys res",
-        fullName: "physical resistance",
+        id: "physicalResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "rang res",
-        fullName: "ranged resistance",
+        id: "rangedResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "bld res",
-        fullName: "bleed resistance",
+        id: "bleedResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "psn res",
-        fullName: "poison resistance",
+        id: "poisonResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "cld res",
-        fullName: "cold resistance",
+        id: "coldResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "fire res",
-        fullName: "fire resistance",
+        id: "fireResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "stun res",
-        fullName: "stun resistance",
+        id: "stunResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "mov res",
-        fullName: "move resistance",
+        id: "moveResistance",
         value: "20%",
         type: "percent",
       },
@@ -1243,65 +1240,65 @@ let PathfinderCharLib = [
         // attack the enemy with a titan's fury, hitting 2-3 times.
       },
     ],
-    stat: [
+    stats: [
       {
         name: "hp",
-        fullName: "healthpoints",
+        id: "healthpoints",
         value: "37",
-        type: "number",
+        type: "num",
       },
       {
         name: "spd",
-        fullName: "speed",
+        id: "speed",
         value: "2",
-        type: "number",
+        type: "num",
       },
       // resistances/res
       {
         name: "phys res",
-        fullName: "physical resistance",
+        id: "physicalResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "rang res",
-        fullName: "ranged resistance",
+        id: "rangedResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "bld res",
-        fullName: "bleed resistance",
+        id: "bleedResistance",
         value: "35%",
         type: "percent",
       },
       {
         name: "psn res",
-        fullName: "poison resistance",
+        id: "poisonResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "cld res",
-        fullName: "cold resistance",
+        id: "coldResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "fire res",
-        fullName: "fire resistance",
+        id: "fireResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "stun res",
-        fullName: "stun resistance",
+        id: "stunResistance",
         value: "35%",
         type: "percent",
       },
       {
         name: "mov res",
-        fullName: "move resistance",
+        id: "moveResistance",
         value: "30%",
         type: "percent",
       },
@@ -1366,65 +1363,65 @@ let PathfinderCharLib = [
         // do damage to 3 the front 3 enemies
       },
     ],
-    stat: [
+    stats: [
       {
         name: "hp",
-        fullName: "healthpoints",
+        id: "healthpoints",
         value: "31",
-        type: "number",
+        type: "num",
       },
       {
         name: "spd",
-        fullName: "speed",
+        id: "speed",
         value: "3",
-        type: "number",
+        type: "num",
       },
       // resistances/res
       {
         name: "phys res",
-        fullName: "physical resistance",
+        id: "physicalResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "rang res",
-        fullName: "ranged resistance",
+        id: "rangedResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "bld res",
-        fullName: "bleed resistance",
+        id: "bleedResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "psn res",
-        fullName: "poison resistance",
+        id: "poisonResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "cld res",
-        fullName: "cold resistance",
+        id: "coldResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "fire res",
-        fullName: "fire resistance",
+        id: "fireResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "stun res",
-        fullName: "stun resistance",
+        id: "stunResistance",
         value: "25%",
         type: "percent",
       },
       {
         name: "mov res",
-        fullName: "move resistance",
+        id: "moveResistance",
         value: "20%",
         type: "percent",
       },
@@ -1442,6 +1439,7 @@ let PathfinderCharLib = [
     available: function () {
       return false;
     },
+    // skills and stats refers to both skills and stats
     skills: [
       {
         name: "valiant strike",
@@ -1492,65 +1490,65 @@ let PathfinderCharLib = [
         },
       },
     ],
-    stat: [
+    stats: [
       {
         name: "hp",
-        fullName: "healthpoints",
+        id: "healthpoints",
         value: "34",
-        type: "number",
+        type: "num",
       },
       {
         name: "spd",
-        fullName: "speed",
+        id: "speed",
         value: "4",
-        type: "number",
+        type: "num",
       },
       // resistances/res
       {
         name: "phys res",
-        fullName: "physical resistance",
+        id: "physicalResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "rang res",
-        fullName: "ranged resistance",
+        id: "rangedResistance",
         value: "5%",
         type: "percent",
       },
       {
         name: "bld res",
-        fullName: "bleed resistance",
+        id: "bleedResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "psn res",
-        fullName: "poison resistance",
+        id: "poisonResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "cld res",
-        fullName: "cold resistance",
+        id: "coldResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "fire res",
-        fullName: "fire resistance",
+        id: "fireResistance",
         value: "20%",
         type: "percent",
       },
       {
         name: "stun res",
-        fullName: "stun resistance",
+        id: "stunResistance",
         value: "30%",
         type: "percent",
       },
       {
         name: "mov res",
-        fullName: "move resistance",
+        id: "moveResistance",
         value: "30%",
         type: "percent",
       },
@@ -1704,7 +1702,7 @@ let PathfinderTraitsLib = [
       toolTip: "your body reacts strongly to toxins",
       pingMsg:
         "toxins affect you more severely, leading to heightened vulnerability to poisoning and other toxin-based attacks",
-      // -10% poison resistance
+      // -10% poisonResistance
     },
     {
       name: "vulnerable",
@@ -1733,10 +1731,10 @@ let PFM = {
   init: function () {},
   createPathfinder: function (pathfinder) {
     let charList = PathfinderCharLib;
-    let pathfinderIndex = charList.findIndex((e) => e.name === pathfinder);
+    let index = charList.findIndex((e) => e.name === pathfinder);
     this.randomizeTraits(pathfinder, 2);
-    this.setBaseSkills(pathfinder, pathfinderIndex);
-    this.setBaseStats(pathfinder, pathfinderIndex);
+    this.setBaseSkills(pathfinder, index);
+    this.setBaseStats(pathfinder, index);
   },
   randomizeTraits: function (pathfinder, numberOfTraits) {
     let positiveTraitList = PathfinderTraitsLib[0];
@@ -1803,26 +1801,17 @@ let PFM = {
       console.error();
     }
   },
-  setBaseStats: function (pathfinder, index) {},
   setBaseSkills: function (pathfinder, index) {
-    let charList = PathfinderCharLib;
-    let charListSkills = charList[index].skills;
+    let charListSkills = PathfinderCharLib[index].skills;
 
-    // Check if charListSkills is undefined
     if (!charListSkills) {
-      console.error("Skills not found for the given index.");
+      console.error("skill for given index not found");
       return;
     }
-    //console.log(charListSkills);
-
     // every available skill will have their SM.set available to true,
     // opposite for unavailable, then will do stuff in turnbased based on this, and etc.
     let unlockedSkills = charListSkills.filter((skill) => !skill.locked());
     let lockedSkills = charListSkills.filter((skill) => skill.locked());
-
-    //console.log(unlockedSkills);
-    //console.log(lockedSkills);
-
     unlockedSkills.forEach((skill) => {
       SM.setSkill(pathfinder, skill, true);
     });
@@ -1831,6 +1820,25 @@ let PFM = {
     });
   },
   includeSkillPing: function (skill, bool) {},
+  setBaseStats: function (pathfinder, index) {
+    let stats = PathfinderCharLib[index].stats;
+    if (!stats) {
+      console.error("stat for given index not found");
+      return;
+    }
+    SM.setStats(pathfinder, stats);
+    /*
+    let baseNumberStats = stats.filter((stat) => stat.type === "num");
+    let basePercentStats = stats.filter((stat) => stat.type === "percent");
+
+    baseNumberStats.forEach((stat) => {
+      SM.setStat(pathfinder, stat);
+    });
+    basePercentStats.forEach((stat) => {
+      SM.setStat(pathfinder, stat);
+    });
+    */
+  },
 };
 
 /**
@@ -2014,7 +2022,7 @@ let SM = {
   },
   // sets a single state value
   set: function (stateName, value) {
-    if (typeof value === "number" && value > this.maxValue) {
+    if (typeof value === "num" && value > this.maxValue) {
       value = this.maxValue;
     }
     let currentState = this.components;
@@ -2069,11 +2077,17 @@ let SM = {
     }
   },
   setSkill: function (pathfinder, skill, bool, includePing) {
-    SM.set(
+    this.set(
       "character." + pathfinder + ".skills." + skill.name + ".locked",
       bool
     );
     PFM.includeSkillPing(skill, includePing);
+  },
+  setStats: function (pathfinder, stats) {
+    this.setStat("character." + pathfinder + ".stats." + stats.id, stats.value);
+  },
+  setStat: function (pathfinder, stat, value) {
+    this.set("character." + pathfinder + ".stats." + stat, value);
   },
 };
 
