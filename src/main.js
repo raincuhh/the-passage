@@ -39,6 +39,7 @@ function periodify(str) {
 function loc(str) {
   return str;
 }
+
 /**
  * main manager,
  * handles general things, like initiating the different objects
@@ -654,7 +655,7 @@ let FormParty = {
     // sets values
     let formattedTitle = uppercaseifyString(char.name);
     let formattedClassText = uppercaseifyString(char.class);
-    let formattedQuote = uppercaseifyString(char.quote);
+    let formattedQuote = uppercaseify(char.quote);
 
     HEADERTITLE.textContent = formattedTitle;
     CLASSICON.src = char.icon;
@@ -2101,16 +2102,6 @@ window.onload = function () {
  * money currency = Denarii
  * special currency =
  *
- * rememeber using this vid as baseline for saving and loading with localstorage:
- * https://www.youtube.com/watch?v=ePHfRUIvbbg
- *
- * note to self, oop everything cuh
- * https://medium.com/@crohacz_86666/basics-of-modular-javascript-2395c82dd93a
- * remember thisshit
- *
- * the encounter system has a kind of pokemon/darkestdungeon(turnbased) esque battlesystem.
- * take inspo from roguelineage permadeath.
- *
  * // first time in purgatory text, for later
  * PM.ping(
  * "you find yourself in a dimly lit chamber, disoriented and unsure of where you are"
@@ -2124,10 +2115,28 @@ window.onload = function () {
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects
  *
  *
- * todo  4/9/2024
- * finish pathfinder selection screen, meaning adding the changeActive method
- * to change info of pathfinder depending on which pathfinder ur selected on.
- *
  * fix the available return function on each pathfinder,
  * make it like the SM.get("prefs.autosave"), maybe a tertiary?
+ *
+ * preface: think of every location as a module, the journey start is as such
+ * invocation of sin > choose party > if not new journey then shrine of the abyss, else > Charons crossing > etc. etc. etc...
+ * if dead > purgatory > invocation of sin (cycle repeats.)
+ *
+ * todo list
+ *
+ * path and node generating algorithm
+ * path and node events
+ * for each path and node event is a seperate module, all encounters get categorized as Journey.activeModule == fight or something.
+ * shop
+ * respite
+ * shrine of the abyss
+ * region enemies
+ *  includes their skills
+ *  stats and resistances
+ *
+ * turnbasedManager
+ * markManager
+ * marks(tokens), marks are stuff like "burn", "strength+", "strength", "dodge", "poisoned", "poisoned+" etc.
+ *
+ * tooltip modular component
  */
