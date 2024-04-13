@@ -43,7 +43,7 @@ let partySelection = {
     this.createPathfinderPosEffectPreview(); // makes the pathfinder pos effectiveness preview
     this.createPathfinderInfoSection(); // makes pathfinder info, quote/desc, etc
     this.createPathfinderSkillsSection(); // makes the skill display
-    this.createLockedInLayout(); // makes the locked in layout display,
+    this.createPartySection(); // makes the locked in layout display,
   },
   createPathfinderListContent: function () {
     // make pathfinderList
@@ -268,7 +268,7 @@ let partySelection = {
        */
     });
   },
-  createLockedInLayout: function () {
+  createPartySection: function () {
     const PARENT = getID("pathfinderContent");
 
     let layout = createEl("div");
@@ -287,18 +287,23 @@ let partySelection = {
     wrapper.setAttribute("class", "wrapper");
     preview.appendChild(wrapper);
 
-    let partySlots = ["E", "E", "E", "E"];
+    let partySlots = [];
+    for (let i = 0; i < 4; i++) {
+      partySlots.push("slot");
+    }
+    console.log(partySlots);
+
     partySlots.forEach((slot, index) => {
       let elem = createEl("span");
-      elem.setAttribute("id", "partySlot_" + `${slot}${index}`);
+      elem.setAttribute("id", "party" + `${slot}${index}`);
       elem.setAttribute("class", "slot");
       wrapper.appendChild(elem);
 
       // making the inner where the icon will be changed dynamically
       // depending on the pathfinder screen youre on. layoutslots will be dynamically changed aswell
-      let icon = createEl("span");
-      icon.setAttribute("class", "pathfinderPosIcon");
-      elem.appendChild(icon);
+      let pathfinderIcon = createEl("img");
+      pathfinderIcon.setAttribute("id", "icon" + `${slot}${index}`);
+      elem.appendChild(pathfinderIcon);
     });
 
     let bfLayoutFinalize = createEl("div");
