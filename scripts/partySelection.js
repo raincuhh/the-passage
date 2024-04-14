@@ -280,30 +280,50 @@ let partySelection = {
     layout.appendChild(container);
 
     let preview = createEl("div");
-    preview.setAttribute("id", "pathfinderPartyLayout");
+    preview.setAttribute("id", "pathfinderPartySlots");
     container.appendChild(preview);
 
-    let wrapper = createEl("div");
-    wrapper.setAttribute("class", "wrapper");
-    preview.appendChild(wrapper);
+    let previewWrapper = createEl("div");
+    previewWrapper.setAttribute("class", "wrapper");
+    preview.appendChild(previewWrapper);
 
-    let partySlots = ["E", "E", "E", "E"];
+    let partySlots = [];
+    for (let i = 0; i < 4; i++) {
+      partySlots.push("slot");
+    }
+
     partySlots.forEach((slot, index) => {
-      let elem = createEl("span");
-      elem.setAttribute("id", "partySlot_" + `${slot}${index}`);
+      let elem = createEl("div");
+      elem.setAttribute("id", "party" + `${slot}${index}`);
       elem.setAttribute("class", "slot");
-      wrapper.appendChild(elem);
+      previewWrapper.appendChild(elem);
+      elem.addEventListener("click", () => {
+        console.log(index);
+      });
 
+      let diamond = createEl("div");
+      diamond.setAttribute("class", "diamond");
+      elem.appendChild(diamond);
       // making the inner where the icon will be changed dynamically
       // depending on the pathfinder screen youre on. layoutslots will be dynamically changed aswell
-      let icon = createEl("span");
-      icon.setAttribute("class", "pathfinderPosIcon");
-      elem.appendChild(icon);
+      let icon = createEl("div");
+      icon.setAttribute("id", "icon" + `${slot}${index}`);
+      icon.setAttribute("class", "icon");
+      diamond.appendChild(icon);
     });
 
-    let bfLayoutFinalize = createEl("div");
-    bfLayoutFinalize.setAttribute("id", "pathfinderBfLayoutFinalize");
-    container.appendChild(bfLayoutFinalize);
+    let pathfinderSelectAndFinish = createEl("div");
+    pathfinderSelectAndFinish.setAttribute("id", "pathfinderSelectAndFinish");
+    container.appendChild(pathfinderSelectAndFinish);
+
+    let splitLine = createEl("div");
+    splitLine.setAttribute("class", "line");
+    pathfinderSelectAndFinish.appendChild(splitLine);
+
+    let buttons = createEl("div");
+    buttons.textContent = "buttons";
+    buttons.setAttribute("id", "buttons");
+    pathfinderSelectAndFinish.appendChild(buttons);
   },
   changeActive: function (char, index) {
     const HEADERTITLE = getQuerySelector(
