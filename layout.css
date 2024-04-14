@@ -219,17 +219,17 @@
         gap: 3.2rem;
         .effPreview {
           display: flex;
-          .effPreviewHeader {
-            display: flex;
-            flex-direction: column;
-            justify-content: end;
-            padding-right: 0.25rem;
-            font-size: 0.875rem;
-            color: var(--text-subdued);
-          }
-          .tile:not(:last-child) {
-            margin-right: 0.25rem;
-          }
+        }
+        .effPreview .effPreviewHeader {
+          display: flex;
+          flex-direction: column;
+          justify-content: end;
+          padding-right: 0.25rem;
+          font-size: 0.875rem;
+          color: var(--text-subdued);
+        }
+        .effPreview .tile:not(:last-child) {
+          margin-right: 0.25rem;
         }
         #enemyEffPreview {
           padding-right: 1rem;
@@ -264,19 +264,68 @@
         .skill {
           display: flex;
           flex-direction: column;
-          .iconContainer {
-            width: 62px;
-            height: 62px;
-            border: 1px solid var(--text-base);
-            .skillIcon {
-              height: 100%;
-              width: auto;
-              image-rendering: pixelated;
-            }
-          }
-          .name {
-            font-size: 0.7rem;
-          }
+        }
+        .skill .iconContainer {
+          height: 60px;
+          width: 60px;
+          border: 1px solid var(--text-base);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .skill .iconContainer .skillIcon {
+          height: 95%;
+          width: auto;
+          image-rendering: pixelated;
+        }
+        .skill .name {
+          font-size: 0.7rem;
+        }
+      }
+    }
+    #pathfinderParty {
+      margin-top: auto;
+      padding-bottom: 3.5rem;
+      .container {
+        display: flex;
+        align-items: center;
+
+        #pathfinderPartySlots .wrapper {
+          display: flex;
+        }
+        #pathfinderPartySlots .slot {
+          height: 45px;
+          width: 45px;
+        }
+        #pathfinderPartySlots .slot .diamond {
+          transform: rotate(45deg);
+          border: 1px solid var(--text-subdued);
+          width: 100%;
+          height: 100%;
+        }
+        #pathfinderPartySlots .slot .diamond .icon {
+          transform: rotate(-45deg);
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        #pathfinderPartySlots .slot:not(:last-child) {
+          margin-right: 2.5rem;
+        }
+        #pathfinderPartySlots .slot:hover .diamond {
+          border: 1px solid var(--text-base);
+        }
+        #pathfinderSelectAndFinish {
+          margin-left: 3rem;
+          display: flex;
+          align-items: center;
+        }
+        #pathfinderSelectAndFinish .line {
+          height: 75px;
+          border-left: 0.5px solid var(--text-base);
+          margin-right: 2rem;
         }
       }
     }
