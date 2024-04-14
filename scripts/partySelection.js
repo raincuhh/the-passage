@@ -480,6 +480,7 @@ let partySelection = {
   updatePartyIcons: function () {
     this.party.forEach((slot, index) => {
       //console.log(slot + index);
+      // some bugs and edgecases here to fix
       let e = PathfinderCharLib.find((e) => e.name === slot);
       console.log(e.icon);
       let icon = getID("iconSlot" + index);
