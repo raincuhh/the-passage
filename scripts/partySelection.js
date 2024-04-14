@@ -5,7 +5,11 @@
  */
 let partySelection = {
   finished: false,
-  party: ["the pugilist", "the faceless", "the occultist", "the paragon"],
+  //party: ["the pugilist", "the faceless", "the occultist", "the paragon"],
+  party: [],
+  activeSelectedSlot: null,
+  activeSelectedHero: null,
+  activeSelectedHeroIcon: null,
 
   init: function () {
     if (SM.get("features.locations.formParty") === undefined) {
@@ -67,7 +71,9 @@ let partySelection = {
     elem.setAttribute("class", "pathfinder");
     elem.addEventListener("click", () => {
       partySelection.changeActive(char, index);
-      //console.log(index);
+      this.activeSelectedHero = char.name;
+      this.activeSelectedHeroIcon = char.icon;
+      console.log(this.activeSelectedHeroIcon);
     });
 
     let isUnlocked = char.available();
@@ -294,11 +300,11 @@ let partySelection = {
 
     partySlots.forEach((slot, index) => {
       let elem = createEl("div");
-      elem.setAttribute("id", "party" + `${slot}${index}`);
+      elem.setAttribute("id", "partySlot" + `${index}`);
       elem.setAttribute("class", "slot");
       previewWrapper.appendChild(elem);
       elem.addEventListener("click", () => {
-        console.log(index);
+        this.handleSelectedSlot(index);
       });
 
       let diamond = createEl("div");
@@ -306,11 +312,13 @@ let partySelection = {
       elem.appendChild(diamond);
       // making the inner where the icon will be changed dynamically
       // depending on the pathfinder screen youre on. layoutslots will be dynamically changed aswell
-      let icon = createEl("div");
-      icon.setAttribute("id", "icon" + `${slot}${index}`);
+      let icon = createEl("img");
+      icon.setAttribute("id", "iconSlot" + `${index}`);
       icon.setAttribute("class", "icon");
+      icon.src = "./img/questionMarkSlot.png";
       diamond.appendChild(icon);
     });
+    //this.initPartySlotsEventListeners();
 
     let pathfinderSelectAndFinish = createEl("div");
     pathfinderSelectAndFinish.setAttribute("id", "pathfinderSelectAndFinish");
@@ -321,9 +329,66 @@ let partySelection = {
     pathfinderSelectAndFinish.appendChild(splitLine);
 
     let buttons = createEl("div");
-    buttons.textContent = "buttons";
     buttons.setAttribute("id", "buttons");
     pathfinderSelectAndFinish.appendChild(buttons);
+
+    let selectButton = new Button.custom({
+      id: "selectButton",
+      text: "select",
+    });
+    let lockInButton = new Button.custom({
+      id: "lockInPartyButton",
+      text: "lock in",
+    });
+    let finalizeButton = new Button.custom({
+      id: "finalizeButton",
+      text: "begin journey",
+    });
+    buttons.appendChild(selectButton);
+    buttons.appendChild(lockInButton);
+    buttons.appendChild(finalizeButton);
+    this.buttonsInitialState();
+    this.updatePartyIcons();
+    selectButton.addEventListener("click", () => {
+      if (
+        this.activeSelectedHero !== null ||
+        this.activeSelectedSlot !== null
+      ) {
+        this.pushToParty(this.activeSelectedHero, this.activeSelectedSlot);
+        console.log(
+          "hero: " +
+            this.activeSelectedHero +
+            ", slot: " +
+            this.activeSelectedSlot
+        );
+      }
+    });
+    finalizeButton.addEventListener("click", () => {
+      this.finishParty();
+    });
+  },
+  handleSelectedSlot: function (index) {
+    if (index === this.activeSelectedSlot) {
+      this.removingSelected();
+    } else {
+      if (this.activeSelectedSlot !== null) {
+        this.removingSelected();
+      }
+
+      let selected = getID("partySlot" + index);
+      selected.classList.add("selected");
+      this.activeSelectedSlot = index;
+      console.log("activeSelectedSlot: " + this.activeSelectedSlot);
+    }
+  },
+  removingSelected: function (index) {
+    for (let i = 0; i < 4; i++) {
+      let slot = getID("partySlot" + i);
+      if (slot && i !== index) {
+        slot.classList.remove("selected");
+        this.activeSelectedSlot = null;
+      }
+    }
   },
   changeActive: function (char, index) {
     const HEADERTITLE = getQuerySelector(
@@ -364,6 +429,63 @@ let partySelection = {
      * but he should also be slightly less effective on the 2nd slot.
      */
   },
+  buttonsInitialState: function () {
+    let selectButton = getQuerySelector(
+      "#pathfinderSelectAndFinish #buttons #selectButton"
+    );
+    let lockInButton = getQuerySelector(
+      "#pathfinderSelectAndFinish #buttons #lockInPartyButton"
+    );
+    let finalizeButton = getQuerySelector(
+      "#pathfinderSelectAndFinish #buttons #finalizeButton"
+    );
+    lockInButton.style.display = "none";
+    finalizeButton.style.display = "none";
+  },
+  updateButtons: function () {
+    let selectButton = getQuerySelector(
+      "#pathfinderSelectAndFinish #buttons #selectButton"
+    );
+    let lockInButton = getQuerySelector(
+      "#pathfinderSelectAndFinish #buttons #lockInPartyButton"
+    );
+    let finalizeButton = getQuerySelector(
+      "#pathfinderSelectAndFinish #buttons #finalizeButton"
+    );
+
+    /*
+    selectButton.addEventListener("click", () => {
+      this.pushToParty("")
+    })
+    */
+  },
+  pushToParty: function (char, index) {
+    let existingIndex = this.party.indexOf(char);
+    if (existingIndex === -1) {
+      // If the character is not already in the party, simply add it to the specified slot
+      this.party[index] = char;
+      this.removingSelected(index);
+    } else {
+      // If the character is already in the party, swap it with the character in the specified slot
+      [this.party[index], this.party[existingIndex]] = [
+        this.party[existingIndex],
+        this.party[index],
+      ];
+      this.removingSelected(index - 1);
+    }
+    this.updateButtons();
+    this.updatePartyIcons();
+    //console.log(this.party);
+  },
+  updatePartyIcons: function () {
+    this.party.forEach((slot, index) => {
+      //console.log(slot + index);
+      let e = PathfinderCharLib.find((e) => e.name === slot);
+      console.log(e.icon);
+      let icon = getID("iconSlot" + index);
+      icon.src = e.icon;
+    });
+  },
   getEffectivePosition: function (string) {
     const PARTS = string.split(/[,]+/);
     for (let i = 0; i < PARTS.length; i++) {
@@ -372,7 +494,7 @@ let partySelection = {
     }
   },
   setDocumentTitle: function () {
-    document.title = "choose your party...";
+    document.title = "party";
   },
   finishParty: function () {
     for (let pathfinder of this.party) {

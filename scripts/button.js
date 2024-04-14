@@ -19,16 +19,13 @@ let Button = {
     elem.textContent =
       typeof param.text !== "undefined" ? param.text : "button";
     // el.classList.toggle("disabled", typeof param.cd !== "undefined");
-    if (typeof param.click === "function") {
+    if (typeof param.click !== "undefined" && param.click === "function") {
       if (!elem.classList.contains("disabled")) {
         elem.addEventListener("click", function (event) {
           param.click(event);
         });
       }
     }
-
-    const VIEW = getID("view");
-    VIEW.appendChild(elem);
     return elem;
   },
   disabled: function (btn, param) {
