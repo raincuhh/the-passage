@@ -4,10 +4,11 @@
  */
 let PFM = {
   init: function () {},
+  baseTraitNum: 2,
   createPathfinder: function (pathfinder) {
     let charList = PathfinderCharLib;
     let index = charList.findIndex((e) => e.name === pathfinder);
-    this.randomizeTraits(pathfinder, 2);
+    this.randomizeTraits(pathfinder, this.baseTraitNum);
     this.setBaseSkills(pathfinder, index);
     this.setBaseStats(pathfinder, index);
   },
