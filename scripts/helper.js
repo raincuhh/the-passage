@@ -39,3 +39,6 @@ function periodify(str) {
 function loc(str) {
   return str;
 }
+function randomNumberBetween2Values(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

@@ -1,7 +1,7 @@
 /**
  * shrine of abyss / metaprogression
  */
-let metaProgression = {
+const metaProgression = {
   init: function () {
     this.createViewElements();
   },

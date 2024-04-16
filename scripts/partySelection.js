@@ -3,7 +3,7 @@
  * handles the creation of the party selection view
  * and selecting the pathfinders for the current run.
  */
-let partySelection = {
+const partySelection = {
   finished: false,
   //party: ["the pugilist", "the faceless", "the occultist", "the paragon"],
   party: [],
@@ -73,7 +73,7 @@ let partySelection = {
       partySelection.changeActive(char, index);
       this.activeSelectedHero = char.name;
       this.activeSelectedHeroIcon = char.icon;
-      console.log(this.activeSelectedHeroIcon);
+      //console.log(this.activeSelectedHeroIcon);
     });
 
     let isUnlocked = char.available();
@@ -355,12 +355,14 @@ let partySelection = {
         this.activeSelectedSlot !== null
       ) {
         this.pushToParty(this.activeSelectedHero, this.activeSelectedSlot);
-        console.log(
+        console.log(this.party);
+        /*console.log(
           "hero: " +
             this.activeSelectedHero +
             ", slot: " +
             this.activeSelectedSlot
         );
+        */
       }
     });
     finalizeButton.addEventListener("click", () => {
@@ -479,12 +481,17 @@ let partySelection = {
   },
   updatePartyIcons: function () {
     this.party.forEach((slot, index) => {
-      //console.log(slot + index);
-      // some bugs and edgecases here to fix
       let e = PathfinderCharLib.find((e) => e.name === slot);
-      console.log(e.icon);
-      let icon = getID("iconSlot" + index);
-      icon.src = e.icon;
+      if (e && e.icon) {
+        let icon = getID("iconSlot" + index);
+        if (icon) {
+          icon.src = e.icon;
+        } else {
+          console.error("icon element not found for index: ", index);
+        }
+      } else {
+        console.error("character icon not found for: ", slot);
+      }
     });
   },
   getEffectivePosition: function (string) {

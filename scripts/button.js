@@ -8,7 +8,7 @@
  *  width: num,
  * })
  */
-let Button = {
+const Button = {
   custom: function (param) {
     let elem = createEl("div");
     elem.setAttribute(

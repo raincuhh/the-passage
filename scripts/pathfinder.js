@@ -2,7 +2,7 @@
  * pathfinderManager
  * handles pathfinders, their stats and traits, etc.
  */
-let PFM = {
+const PFM = {
   init: function () {},
   baseTraitNum: 2,
   createPathfinder: function (pathfinder) {
