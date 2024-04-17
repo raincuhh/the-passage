@@ -8,8 +8,7 @@ window.onload = function () {
       MM.error();
     } else {
       console.log(
-        "[=== " + "Hello, myself here, dont change the save will you ʕ•ᴥ•ʔ",
-        ", the game has loaded." + " ===]"
+        "[=== " + "Heya, the game has loaded, dont cheat thanks." + " ===]"
       );
       MM.init();
     }

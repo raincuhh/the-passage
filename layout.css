@@ -18,7 +18,7 @@
   --text-active: rgb(140, 140, 140);
 
   --game-height: 100%;
-  --pings-width: clamp(30%, 82.5vw, 33%);
+  --pings-width: clamp(35%, 82.5vw, 40%);
   --view-width: calc(100% - var(--pings-width));
 
   /* z-index */

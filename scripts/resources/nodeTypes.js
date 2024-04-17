@@ -1,18 +1,22 @@
-const NodeTypes = [
+/**
+ * nodeTypesPool
+ * all probabilties needs to have a cumulative probability of 1
+ */
+const NodeTypesPool = [
   {
     type: "encounter",
-    chance: 0.4,
+    probability: 0.4,
   },
   {
     type: "scavengerMarket",
-    chance: 0.15,
+    probability: 0.1,
   },
   {
     type: "dungeon",
-    chance: 0.1,
+    probability: 0.05,
   },
   {
     type: "pathfinderSanctum",
-    chance: 0,
+    probability: 0.1,
   },
 ];

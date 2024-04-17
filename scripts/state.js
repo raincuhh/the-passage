@@ -16,20 +16,21 @@ let SM = {
   components: {},
   init: function () {
     let categories = [
-      "features", // locations, etc.
-      "game", // more specific stuff. candles in purgatory lit, etc.
-      "entities", // generated enemies will be instantiated inside the entities category
-      "character", // PathfinderCharLib, boons, flaws, perks, health, stats and such.
-      "inventory", // inventory handling,
+      "location", //
+      "game", // more specific stuff,
+      "entity", // generated enemies will be instantiated inside the entities category
+      "char", // PathfinderCharLib, boons, flaws, perks, health, stats and such.
+      "resources", // will have inventory, etc, intitiated in it.
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression, kept between runs.
-      "cooldown", // cooldown on different situations handling
+      "currentRegion", //where currentRegion attr will be kept, as in nodes, paths, connections, how far in, which depth or road, etc.
+      //"cooldown", // cooldown on different situations handling
     ];
     // checks through iterating over values, and creates a category if category undefined
     for (let category of categories) {
       if (!this.get(category)) {
         this.set(category, {});
-        console.log("category: " + category + " initialized");
+        console.log("category made: " + category);
       }
     }
     this.set("ver", MM.version);
@@ -103,21 +104,18 @@ let SM = {
 
   // specific setter and getters and other methods
   setTrait: function (pathfinder, trait, bool, includePing) {
-    this.set("character." + pathfinder + ".traits." + trait, bool);
+    this.set("char." + pathfinder + ".traits." + trait, bool);
     PFM.includeTraitPing(trait, includePing);
   },
   getTrait: function (pathfinder, trait) {
     try {
-      return SM.get("character." + pathfinder + ".traits." + trait);
+      return SM.get("char." + pathfinder + ".traits." + trait);
     } catch (error) {
       console.error("trait not found" + error);
     }
   },
   setSkill: function (pathfinder, skill, bool, includePing) {
-    this.set(
-      "character." + pathfinder + ".skills." + skill.name + ".locked",
-      bool
-    );
+    this.set("char." + pathfinder + ".skills." + skill.name + ".locked", bool);
     PFM.includeSkillPing(skill, includePing);
   },
   setStats: function (pathfinder, stats) {
@@ -126,6 +124,9 @@ let SM = {
     });
   },
   setStat: function (pathfinder, stat, value) {
-    this.set("character." + pathfinder + ".stats." + stat, value);
+    this.set("char." + pathfinder + ".stats." + stat, value);
+  },
+  setRegionAttr: function (region, attribute, bool) {
+    this.set("location.regions." + region + "." + attribute, bool);
   },
 };

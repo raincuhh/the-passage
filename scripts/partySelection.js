@@ -12,12 +12,12 @@ const partySelection = {
   activeSelectedHeroIcon: null,
 
   init: function () {
-    if (SM.get("features.locations.formParty") === undefined) {
+    if (SM.get("location.formParty") === undefined) {
       console.log("formparty is new");
-      SM.set("features.locations.formParty", true);
+      SM.set("location.formParty", true);
     } else {
       console.log("formparty is not new");
-      SM.get("features.locations.formParty");
+      SM.get("location.formParty");
     }
 
     /*
@@ -506,8 +506,8 @@ const partySelection = {
   },
   finishParty: function () {
     for (let pathfinder of this.party) {
-      if (!SM.get("character." + pathfinder)) {
-        SM.set("character." + pathfinder, {});
+      if (!SM.get("char." + pathfinder)) {
+        SM.set("char." + pathfinder, {});
         PFM.createPathfinder(pathfinder);
       }
     }
