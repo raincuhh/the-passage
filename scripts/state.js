@@ -1,39 +1,31 @@
 /**
- * handles most if not all values ingame; setter and getter methods
- * also used for saving and loading the game state,
- * components object gets saved then loaded.
- * get("object"),
- * getMany(["object.object.value", "object.value", "object"]),
- * set("candlesLit", value),
- * setMany(
- *  {object: {example: value, example: value}
- *  {object2: {example2: value, example2: value}
- * )
- * categories: features, game, character, inventory, prefs, meta
+ * stateManager
+ * generally everything gets run through here so that it can get made into a saveable state.
+ *
  */
 let SM = {
   maxValue: 99999999,
   components: {},
   init: function () {
     let categories = [
-      "location", //
-      "game", // more specific stuff,
+      "location", // locations, regions explored etc.
+      "features", // more specific stuff,
       "entity", // generated enemies will be instantiated inside the entities category
       "char", // PathfinderCharLib, boons, flaws, perks, health, stats and such.
       "resources", // will have inventory, etc, intitiated in it.
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression, kept between runs.
-      "currentRegion", //where currentRegion attr will be kept, as in nodes, paths, connections, how far in, which depth or road, etc.
+      "currentRegion", // where currentRegion attr will be kept, as in nodes, paths, connections, how far in, which depth or road, etc.
+      "gameState",
       //"cooldown", // cooldown on different situations handling
     ];
-    // checks through iterating over values, and creates a category if category undefined
-    for (let category of categories) {
+    for (const category of categories) {
       if (!this.get(category)) {
         this.set(category, {});
         console.log("category made: " + category);
       }
     }
-    this.set("ver", MM.version);
+    this.set("ver", Main.version);
   },
   // gets a single value
   get: function (stateName) {
@@ -73,7 +65,7 @@ let SM = {
       currentState = currentState[PARTS[i]];
     }
     currentState[PARTS[PARTS.length - 1]] = value;
-    MM.saveGame();
+    SaveManager.saveGame();
   },
   // sets multiple values if needed. for example setting prefs
   setMany: function (listObjects) {
@@ -99,7 +91,7 @@ let SM = {
     } else {
       console.log("state not found");
     }
-    MM.saveGame();
+    SaveManager.saveGame();
   },
 
   // specific setter and getters and other methods

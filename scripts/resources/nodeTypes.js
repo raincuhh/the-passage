@@ -8,7 +8,7 @@ const NodeTypesPool = [
     probability: 0.4,
   },
   {
-    type: "scavengerMarket",
+    type: "market",
     probability: 0.1,
   },
   {
@@ -16,7 +16,7 @@ const NodeTypesPool = [
     probability: 0.05,
   },
   {
-    type: "pathfinderSanctum",
+    type: "sanctum",
     probability: 0.1,
   },
 ];

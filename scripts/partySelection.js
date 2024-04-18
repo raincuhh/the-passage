@@ -3,8 +3,7 @@
  * handles the creation of the party selection view
  * and selecting the pathfinders for the current run.
  */
-const partySelection = {
-  finished: false,
+const PartySelection = {
   //party: ["the pugilist", "the faceless", "the occultist", "the paragon"],
   party: [],
   activeSelectedSlot: null,
@@ -25,16 +24,16 @@ const partySelection = {
        console.log("party has: " + pathfinder);
      }
      */
-
-    this.createViewElements(); // makes the view
+    this.render(); // makes the view
   },
   launch: function () {
+    console.log("active module is: " + GM.activeModule);
     this.setDocumentTitle();
     PM.ping(
       "choose your allies carefully, for they will determine the course of your journey"
     );
   },
-  createViewElements: function () {
+  render: function () {
     let pathfinderView = createEl("div");
     pathfinderView.setAttribute("id", "pathfinderView");
     const VIEW = getID("view"); // the parent that all "views" will get appended to

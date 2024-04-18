@@ -40,7 +40,7 @@ const Region = {
         console.log("region made: " + region);
       }
     }
-    // checking if they are undefined, if so then make them not explored
+    // checking for undefined
     for (let i = 0; i < regions.length; i++) {
       let region = regions[i];
       if (SM.get("location.regions." + region + ".exp") === undefined) {
@@ -48,7 +48,6 @@ const Region = {
         console.log("region unexplored");
       }
     }
-    // pushing unexplored regions in unexp, else push it in exp
     for (const region of regions) {
       switch (SM.get("location.regions." + region + ".exp")) {
         case true:
@@ -116,8 +115,10 @@ const Region = {
   },
   genPaths: function (nodes, depth) {
     let paths = [];
-    let nodesByDepth = {}; // grouping nodes by depth
+    let nodesByDepth = {};
     nodes.forEach((node) => {
+      // checks if there are nodes at specific depth level, then makes an empty array,
+      // then pushes the nodes at that depth level to that array
       if (!nodesByDepth[node.depth]) {
         nodesByDepth[node.depth] = [];
       }
@@ -199,7 +200,7 @@ const Region = {
   },
 };
 
-// classes
+//
 class Node {
   constructor(id, depth, type) {
     this.id = id;

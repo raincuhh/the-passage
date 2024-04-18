@@ -1,12 +1,13 @@
 /**
  * shrine of abyss / metaprogression
  */
-const metaProgression = {
+const ShrineOfAbyss = {
   init: function () {
-    this.createViewElements();
+    this.render();
   },
-  createViewElements: function () {},
+  render: function () {},
   launch: function () {
+    console.log("active module is: " + GM.activeModule);
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {

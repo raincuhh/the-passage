@@ -1,28 +1,26 @@
 /**
- * main manager,
- * handles general things, like initiating the different objects
- * and their methods
+ * main
+ * handles general things
  */
-let MM = {
+let Main = {
   version: 1.0,
   beta: true,
   autoSaveDelay: 60000,
 
   init: function () {
-    MM.ready = true;
-    this.createView(); // makes view
-    this.loadGame(); // loads game by localstorage
-    PM.init(); // starts the pings component
-    SM.init(); // starts the statemanager component
-    GM.init(); // starts the GM component
+    Main.ready = true;
+    this.render(); // makes view
+    SaveManager.loadGame(); // load game
+    PM.init(); // pingsManager
+    SM.init(); // stateManager
+    GM.init();
 
+    // settings preferences
     if (SM.get("prefs.autosave")) {
-      //console.log("autosave is on");
       setInterval(() => {
-        MM.saveGame();
+        SaveManager.saveGame();
       }, this.autoSaveDelay);
     } else {
-      //console.log("autosave is off");
       PM.ping(
         "autosave is off, remember to save your progress manually, or turn on autosave in settings"
       );
@@ -33,14 +31,14 @@ let MM = {
      console.log(PathfinderTraitsLib);
      */
   },
-  createView: function () {
+  render: function () {
     let view = createEl("div");
     view.id = "view";
     const CONTAINER = getID("container");
     CONTAINER.appendChild(view);
 
     this.createNavbar();
-    this.createSaved();
+    SaveManager.createSaved();
   },
   createGuid: function () {
     var pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
@@ -58,6 +56,13 @@ let MM = {
     return result;
   },
   createNavbar: function () {
+    let navbarInfo = [
+      { id: "navbarDelete", text: "delete." },
+      { id: "navbarGithub", text: "github." },
+      { id: "navbarAchievements", text: "achievements." },
+      { id: "navbarSettings", text: "settings." },
+    ];
+
     function createLinks(id, text) {
       let link = createEl("span");
       link.setAttribute("id", id);
@@ -65,14 +70,6 @@ let MM = {
       link.textContent = text;
       return link;
     }
-
-    let navbarInfo = [
-      { id: "navbarDelete", text: "delete." },
-      { id: "navbarGithub", text: "github." },
-      { id: "navbarPortfolio", text: "portfolio." },
-      { id: "navbarAchievements", text: "achievements." },
-      { id: "navbarSettings", text: "settings." },
-    ];
 
     let navbar = createEl("div");
     navbar.id = "navbar";
@@ -92,10 +89,6 @@ let MM = {
     LINKGITHUB.addEventListener("click", () => {
       window.open("https://github.com/raincuhh");
     });
-    const LINKPORTFOLIO = getID("navbarPortfolio");
-    LINKPORTFOLIO.addEventListener("click", () => {
-      window.open("https://raincuhh.github.io/portfolio/");
-    });
     const LINKACHIEVEMENTS = getID("navbarAchievements");
     LINKACHIEVEMENTS.addEventListener("click", () => {
       console.log("achievements");
@@ -114,7 +107,7 @@ let MM = {
     });
     const DELETE = getID("navbarDelete");
     DELETE.addEventListener("click", () => {
-      MM.deleteGame();
+      SaveManager.deleteGame();
     });
 
     function createSettings() {
@@ -136,95 +129,5 @@ let MM = {
   },
   error: function () {
     console.log("error");
-  },
-  createSaved: function () {
-    let elem = createEl("div");
-    elem.setAttribute("id", "saved");
-    elem.textContent = "saved";
-    elem.style.opacity = 0;
-    const MAIN = getID("main");
-    MAIN.insertBefore(elem, MAIN.firstChild);
-  },
-  saveNotif: function () {
-    const ELEM = getID("saved");
-    ELEM.style.opacity = 1;
-    setTimeout(function () {
-      ELEM.style.transition = "opacity 1.5s";
-      ELEM.style.opacity = 0;
-    }, 10);
-  },
-  saveGame: function () {
-    try {
-      //console.log(SM.components);
-      let string = JSON.stringify(SM.components);
-      localStorage.setItem("save", string);
-      this.saveNotif();
-    } catch (error) {
-      console.error("error occured: ", error);
-      alert("tried to save, attempt failed, view error in console");
-    }
-  },
-  loadGame: function () {
-    let string = localStorage.getItem("save");
-    //console.log("statemanager components:");
-    console.log(SM.components);
-    if (string) {
-      try {
-        let save = JSON.parse(string);
-        //console.log(save);
-        SM.components = save;
-        // SM.components = { ...SM.components, ...save };
-        //console.log("save loaded");
-      } catch (error) {
-        console.error("error occured: ", error);
-        alert("tried to load save, attempt failed, view error in console");
-      }
-    } else {
-      console.log("no save found");
-    }
-  },
-  deleteGame: function (/*reload*/) {
-    this.saveGame();
-    localStorage.removeItem("save");
-    localStorage.clear();
-    location.reload();
-    /*
-     if (reload){
-       location.reload()
-     }
-     */
-  },
-  export: function () {
-    this.saveGame();
-    let string = this.gen64();
-    // gives export in console.log if game isnt loading / bruteforce
-    console.log(
-      "[=== " +
-        "this is you savefile, copy it to transfer to other devices" +
-        " ===]"
-    );
-    console.log(string);
-    return string;
-  },
-  gen64: function () {
-    let save = SM.components;
-    save = JSON.stringify(save);
-    save = btoa(save);
-    return save;
-  },
-  import: function () {
-    const IMPORTDIV = getID("changethiswhenyoumaketheimportDiv");
-    let string = IMPORTDIV.textContent;
-    try {
-      let save = atob(string);
-      save = JSON.parse(save);
-      localStorage.setItem("save", save);
-      this.saveGame(); // saves the new 'save'
-      this.loadGame(); // then loads it to SM.components
-      console.log("loaded complete");
-    } catch (error) {
-      console.error(error);
-      alert("error: please try re-importing");
-    }
   },
 };

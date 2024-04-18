@@ -21,10 +21,15 @@ const PathTypesPool = [
   },
   {
     type: "ambush",
-    probability: 0.1,
-  },
-  {
-    type: "elite",
-    probability: 0.1,
+    probability: 0.2,
   },
 ];
+
+/*
+
+{
+    type: "",
+    probability: 0.0,
+  },
+
+*/

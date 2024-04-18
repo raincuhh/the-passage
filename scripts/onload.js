@@ -2,15 +2,15 @@
  * onload
  */
 window.onload = function () {
-  if (!MM.ready) {
+  if (!Main.ready) {
     const ROOT = getID("root");
     if (!ROOT || !ROOT.parentElement) {
-      MM.error();
+      Main.error();
     } else {
       console.log(
         "[=== " + "Heya, the game has loaded, dont cheat thanks." + " ===]"
       );
-      MM.init();
+      Main.init();
     }
   }
 };
