@@ -1,4 +1,5 @@
 let SinSelection = {
+  name: "SinSelection",
   init: function () {
     /*
      if (SM.get("features.locations.sinSelection") == undefined) {
@@ -8,14 +9,21 @@ let SinSelection = {
     this.render();
   },
   launch: function () {
-    console.log("active module is: " + GM.activeModule);
+    console.log("active module is:");
+    console.log(GM.activeModule);
+    //console.log("active module is: " + GM.activeModule);
     this.setDocumentTitle();
   },
   render: function () {
-    let sinView = createEl("div");
-    sinView.setAttribute("id", "sinSelectorView");
+    createView();
+  },
+  createView: function () {
+    let view = createEl("div");
+    view.setAttribute("id", "sinSelection");
+    const parent = getID("view"); // the parent that all "views" will get appended to
+    parent.appendChild(view);
   },
   setDocumentTitle: function () {
-    document.title = "invocation of sin";
+    document.title = "invoke your sin";
   },
 };

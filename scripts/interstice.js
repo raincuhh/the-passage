@@ -1,5 +1,8 @@
-const Region = {
-  name: "Region",
+/**
+ * not sure if i should name it purgatory or interstice, interstice for now
+ */
+const Interstice = {
+  name: "Interstice",
   init: function () {
     this.render();
   },
@@ -8,7 +11,8 @@ const Region = {
   },
   createView: function () {
     let view = createEl("div");
-    view.setAttribute("id", "regionView");
+    view.setAttribute("id", "intersticeView");
+    console.log("making view");
     const parent = getID("view"); // the parent that all "views" will get appended to
     parent.appendChild(view);
   },
@@ -19,7 +23,6 @@ const Region = {
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {
-    //this will get currentRegions name
-    document.title = "placeholder region";
+    document.title = "the Interstice";
   },
 };

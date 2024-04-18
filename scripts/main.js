@@ -6,13 +6,14 @@ let Main = {
   version: 1.0,
   beta: true,
   autoSaveDelay: 60000,
+  ready: false,
 
   init: function () {
-    Main.ready = true;
-    this.render(); // makes view
-    SaveManager.loadGame(); // load game
-    PM.init(); // pingsManager
-    SM.init(); // stateManager
+    this.ready = true;
+    this.render();
+    SaveManager.loadGame();
+    PM.init();
+    SM.init();
     GM.init();
 
     // settings preferences
@@ -25,11 +26,6 @@ let Main = {
         "autosave is off, remember to save your progress manually, or turn on autosave in settings"
       );
     }
-
-    /*
-     console.log(PathfinderCharLib);
-     console.log(PathfinderTraitsLib);
-     */
   },
   render: function () {
     let view = createEl("div");

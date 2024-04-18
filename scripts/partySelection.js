@@ -4,6 +4,7 @@
  * and selecting the pathfinders for the current run.
  */
 const PartySelection = {
+  name: "PartySelection",
   //party: ["the pugilist", "the faceless", "the occultist", "the paragon"],
   party: [],
   activeSelectedSlot: null,
@@ -12,10 +13,8 @@ const PartySelection = {
 
   init: function () {
     if (SM.get("location.formParty") === undefined) {
-      console.log("formparty is new");
       SM.set("location.formParty", true);
     } else {
-      console.log("formparty is not new");
       SM.get("location.formParty");
     }
 
@@ -27,7 +26,9 @@ const PartySelection = {
     this.render(); // makes the view
   },
   launch: function () {
-    console.log("active module is: " + GM.activeModule);
+    console.log("active module is:");
+    console.log(GM.activeModule);
+    //console.log("active module is: " + GM.activeModule);
     this.setDocumentTitle();
     PM.ping(
       "choose your allies carefully, for they will determine the course of your journey"
@@ -36,17 +37,17 @@ const PartySelection = {
   render: function () {
     let pathfinderView = createEl("div");
     pathfinderView.setAttribute("id", "pathfinderView");
-    const VIEW = getID("view"); // the parent that all "views" will get appended to
+    const VIEW = getID("view");
     VIEW.appendChild(pathfinderView);
 
     // make the content
-    this.createPathfinderListContent(); // makes patfinder list, locked/locked
-    this.createPathfinderDetails(); // makes the content when you click on a hero in the list
-    this.createHeaderView(); // makes the header of the content
-    this.createPathfinderPosEffectPreview(); // makes the pathfinder pos effectiveness preview
-    this.createPathfinderInfoSection(); // makes pathfinder info, quote/desc, etc
-    this.createPathfinderSkillsSection(); // makes the skill display
-    this.createPartySection(); // makes the locked in layout display,
+    this.createPathfinderListContent();
+    this.createPathfinderDetails();
+    this.createHeaderView();
+    this.createPathfinderPosEffectPreview();
+    this.createPathfinderInfoSection();
+    this.createPathfinderSkillsSection();
+    this.createPartySection();
   },
   createPathfinderListContent: function () {
     // make pathfinderList
@@ -501,7 +502,7 @@ const PartySelection = {
     }
   },
   setDocumentTitle: function () {
-    document.title = "party";
+    document.title = "select your pathfinders";
   },
   finishParty: function () {
     for (let pathfinder of this.party) {

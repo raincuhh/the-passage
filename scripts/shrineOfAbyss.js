@@ -1,5 +1,8 @@
-const Region = {
-  name: "Region",
+/**
+ * shrine of abyss / metaprogression
+ */
+const ShrineOfAbyss = {
+  name: "ShrineOfAbyss",
   init: function () {
     this.render();
   },
@@ -8,8 +11,8 @@ const Region = {
   },
   createView: function () {
     let view = createEl("div");
-    view.setAttribute("id", "regionView");
-    const parent = getID("view"); // the parent that all "views" will get appended to
+    view.setAttribute("id", "shrineOfAbyssView");
+    const parent = getID("view");
     parent.appendChild(view);
   },
   launch: function () {
@@ -19,7 +22,8 @@ const Region = {
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {
-    //this will get currentRegions name
-    document.title = "placeholder region";
+    if (GM.activeModule == "metaProgression") {
+      document.title = "peer into the abyss";
+    }
   },
 };

@@ -15,60 +15,69 @@ const Modules = {
 
 let GM = {
   activeModule: null,
+
+  modules: {
+    Intro: Intro,
+    SinSelection: SinSelection,
+    PartySelection: PartySelection,
+    ShrineOfAbyss: ShrineOfAbyss,
+  },
   init: function () {
-    //SinSelection.init();
     if (!SM.get("gameState.activeModule")) {
       SM.set("gameState.activeModule", "Intro");
       console.log("set base State Intro");
     }
     let moduleName = SM.get("gameState.activeModule");
-    let module = eval(moduleName);
+    console.log(moduleName);
+    let module;
+    if (typeof moduleName === "string") {
+      module = moduleName.split(".").reduce(this.indexModule, this.modules);
+      console.log("module is a string");
+    } else {
+      module = moduleName;
+      console.log("module is not a string");
+    }
     if (typeof module !== "undefined") {
-      this.changeModule(module);
+      try {
+        this.changeModule(module);
+      } catch (err) {
+        console.error("error loading module: " + err);
+      }
     } else {
       console.error("module undefined:", moduleName);
     }
-    /*
-    PartySelection.init();
-    if (SM.get("locations.formParty")) {
-      metaProgression.init();
-    }
-    if (metaProgression.finished) {
-    }
-    */
-
-    //this.changeModule(PartySelection);
   },
   update: function () {
     switch (this.activeModule) {
+      case SinSelection:
+        SinSelection.init();
+        break;
       case PartySelection:
-        this.changeModule(PartySelection);
+        PartySelection.init();
         break;
+      case ShrineOfAbyss:
+        ShrineOfAbyss.init();
+        break;
+      case Region:
+        Region.init();
+      case Interstice:
+        Interstice.init();
       default:
-        this.changeModule(Intro);
+        Intro.init();
         break;
     }
   },
-
-  reset: function () {},
-  startRun: function () {
-    SinSelection.init();
+  indexModule: function (obj, i) {
+    return obj[i];
   },
-
   changeModule: function (module) {
-    /*
-    if (!Modules.hasOwnProperty(module)) {
-      console.error("module not found: ", module);
-      return;
-    }
-    */
     if (GM.activeModule === module) {
       return;
     }
     GM.activeModule = module;
-    //this.Modules[module].launch();
+    this.update();
     module.launch();
-    //console.log("active module is:");
-    //console.log(this.activeModule);
+    //console.log("switched to module:", module.name);
+    SM.set("gameState.activeModule", module.name);
   },
 };
