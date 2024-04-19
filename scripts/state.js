@@ -16,7 +16,7 @@ let SM = {
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression, kept between runs.
       "currentRegion", // where currentRegion attr will be kept, as in nodes, paths, connections, how far in, which depth or road, etc.
-      "gameState",
+      "run", // run specific stuff
       //"cooldown", // cooldown on different situations handling
     ];
     for (const category of categories) {

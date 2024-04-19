@@ -7,7 +7,7 @@ const Interstice = {
     this.render();
   },
   render: function () {
-    createView();
+    this.createView();
   },
   createView: function () {
     let view = createEl("div");
@@ -17,9 +17,7 @@ const Interstice = {
     parent.appendChild(view);
   },
   launch: function () {
-    console.log("active module is:");
-    console.log(GM.activeModule);
-    //console.log("active module is: " + GM.activeModule);
+    console.log(Main.activeModule);
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {

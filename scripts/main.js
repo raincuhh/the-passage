@@ -1,12 +1,19 @@
 /**
  * main
- * handles general things
+ * handles gameloop
  */
 let Main = {
-  version: 1.0,
+  version: 0.29,
   beta: true,
   autoSaveDelay: 60000,
   ready: false,
+  activeModule: null,
+
+  modules: {
+    Intro: Intro,
+    SinSelection: SinSelection,
+    PartySelection: PartySelection,
+  },
 
   init: function () {
     this.ready = true;
@@ -14,9 +21,30 @@ let Main = {
     SaveManager.loadGame();
     PM.init();
     SM.init();
-    GM.init();
 
-    // settings preferences
+    if (!SM.get("run.activeModule")) {
+      SM.set("run.activeModule", "Intro");
+    }
+    let moduleName = SM.get("run.activeModule");
+    let module;
+    if (typeof moduleName === "string") {
+      module = moduleName.split(".").reduce(this.indexModule, this.modules);
+    } else {
+      module = moduleName;
+    }
+    if (typeof module !== "undefined") {
+      try {
+        this.changeModule(module);
+      } catch (err) {
+        console.error("error loading module: " + err);
+      }
+    } else {
+      console.error("module undefined: ", moduleName);
+    }
+
+    this.setDefaultPreferences();
+
+    // preferences
     if (SM.get("prefs.autosave")) {
       setInterval(() => {
         SaveManager.saveGame();
@@ -30,11 +58,47 @@ let Main = {
   render: function () {
     let view = createEl("div");
     view.id = "view";
-    const CONTAINER = getID("container");
-    CONTAINER.appendChild(view);
+    const container = getID("container");
+    container.appendChild(view);
 
     this.createNavbar();
     SaveManager.createSaved();
+  },
+  clearModuleView: function () {
+    const parent = getID("view");
+    while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+    }
+  },
+  update: function () {
+    switch (this.activeModule) {
+      case SinSelection:
+        SinSelection.init();
+        break;
+      case PartySelection:
+        PartySelection.init();
+        break;
+      case Region:
+        Region.init();
+      case Interstice:
+        Interstice.init();
+      default:
+        Intro.init();
+        break;
+    }
+  },
+  indexModule: function (obj, i) {
+    return obj[i];
+  },
+  changeModule: function (module) {
+    if (this.activeModule === module) {
+      return;
+    }
+    this.clearModuleView();
+    this.activeModule = module;
+    this.update();
+    module.launch();
+    SM.set("run.activeModule", module.name);
   },
   createGuid: function () {
     var pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
@@ -125,5 +189,11 @@ let Main = {
   },
   error: function () {
     console.log("error");
+  },
+  setDefaultPreferences: function () {
+    SM.setMany({
+      "prefs.autosave": true,
+      "prefs.darkmode": true,
+    });
   },
 };

@@ -7,7 +7,7 @@ const ShrineOfAbyss = {
     this.render();
   },
   render: function () {
-    createView();
+    this.createView();
   },
   createView: function () {
     let view = createEl("div");
@@ -16,14 +16,10 @@ const ShrineOfAbyss = {
     parent.appendChild(view);
   },
   launch: function () {
-    console.log("active module is:");
-    console.log(GM.activeModule);
-    //console.log("active module is: " + GM.activeModule);
+    console.log(Main.activeModule);
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {
-    if (GM.activeModule == "metaProgression") {
-      document.title = "peer into the abyss";
-    }
+    document.title = "peer into the abyss";
   },
 };

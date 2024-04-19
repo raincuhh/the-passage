@@ -257,36 +257,19 @@
       justify-content: end;
       .container {
         display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        width: 272px;
+        flex-direction: column;
+
         gap: 0.5rem;
         .skill {
           display: flex;
           flex-direction: column;
-        }
-        .skill .iconContainer {
-          height: 60px;
-          width: 60px;
-          border: 1px solid var(--text-base);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        .skill .iconContainer .skillIcon {
-          pointer-events: none;
-          height: 95%;
-          width: auto;
-          image-rendering: pixelated;
-        }
-        .skill .name {
-          font-size: 0.7rem;
+          text-align: end;
         }
       }
     }
     #pathfinderParty {
       margin-top: auto;
-      padding-bottom: 3.5rem;
+      padding-bottom: 4rem;
       .container {
         display: flex;
         align-items: center;
@@ -345,6 +328,51 @@
     }
   }
 }
+#sinSelectionView {
+  display: flex;
+  justify-content: end;
+  height: 100%;
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    .header {
+      display: flex;
+      padding-bottom: 0.25rem;
+      user-select: none;
+      .title {
+        font-size: 3rem;
+        text-align: end;
+      }
+    }
+    .seperator {
+      border-bottom: 2px solid var(--text-base);
+    }
+    #sinsWrapper {
+      display: flex;
+      flex-direction: column;
+      padding-top: 3rem;
+      text-align: end;
+      height: 300px;
+      .sin {
+        height: 10%;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        font-size: 1.25rem;
+        padding-bottom: 0.5rem;
+        color: var(--text-base);
+        cursor: pointer;
+      }
+      .sin:hover {
+        color: var(--text-active);
+      }
+    }
+    #buttonsWrapper {
+      margin-top: auto;
+      padding-bottom: 4rem;
+    }
+  }
+}
 
 /* components */
 .button {
@@ -361,6 +389,14 @@
 }
 .button:hover {
   text-decoration: underline;
+}
+.button.disabled {
+  cursor: pointer;
+  border: 1px solid var(--text-subdued);
+  color: var(--text-subdued);
+}
+.button.disabled:hover {
+  text-decoration: none;
 }
 
 /* mediaqueries */

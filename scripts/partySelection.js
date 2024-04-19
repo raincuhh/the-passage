@@ -1,5 +1,5 @@
 /**
- * formParty
+ * partySelection
  * handles the creation of the party selection view
  * and selecting the pathfinders for the current run.
  */
@@ -12,33 +12,25 @@ const PartySelection = {
   activeSelectedHeroIcon: null,
 
   init: function () {
-    if (SM.get("location.formParty") === undefined) {
-      SM.set("location.formParty", true);
-    } else {
-      SM.get("location.formParty");
-    }
-
     /*
      for (let pathfinder of this.party) {
        console.log("party has: " + pathfinder);
      }
      */
-    this.render(); // makes the view
+    this.render();
   },
   launch: function () {
-    console.log("active module is:");
-    console.log(GM.activeModule);
-    //console.log("active module is: " + GM.activeModule);
+    console.log(Main.activeModule);
     this.setDocumentTitle();
     PM.ping(
       "choose your allies carefully, for they will determine the course of your journey"
-    );
+    ); // make the ping different each time
   },
   render: function () {
     let pathfinderView = createEl("div");
     pathfinderView.setAttribute("id", "pathfinderView");
-    const VIEW = getID("view");
-    VIEW.appendChild(pathfinderView);
+    const view = getID("view");
+    view.appendChild(pathfinderView);
 
     // make the content
     this.createPathfinderListContent();
@@ -47,7 +39,8 @@ const PartySelection = {
     this.createPathfinderPosEffectPreview();
     this.createPathfinderInfoSection();
     this.createPathfinderSkillsSection();
-    this.createPartySection();
+    //this.createPartySection();
+    this.createPartySelection();
   },
   createPathfinderListContent: function () {
     // make pathfinderList
@@ -70,7 +63,7 @@ const PartySelection = {
     elem.setAttribute("id", char.id);
     elem.setAttribute("class", "pathfinder");
     elem.addEventListener("click", () => {
-      partySelection.changeActive(char, index);
+      this.changeActive(char, index);
       this.activeSelectedHero = char.name;
       this.activeSelectedHeroIcon = char.icon;
       //console.log(this.activeSelectedHeroIcon);
@@ -256,16 +249,9 @@ const PartySelection = {
       let elem = createEl("div");
       elem.setAttribute("id", skill.id);
       elem.setAttribute("class", "skill");
+      elem.textContent = skill.name;
       CONTAINER.appendChild(elem);
 
-      let container = createEl("div");
-      container.setAttribute("class", "iconContainer");
-      elem.appendChild(container);
-
-      let icon = createEl("img");
-      icon.setAttribute("class", "skillIcon");
-      icon.src = skill.icon;
-      container.appendChild(icon);
       /*
        let name = createEl("span");
        name.setAttribute("class", "name");
@@ -369,6 +355,13 @@ const PartySelection = {
       this.finishParty();
     });
   },
+  createPartySelection: function () {
+    const PARENT = getID("pathfinderContent");
+
+    let layout = createEl("div");
+    layout.setAttribute("id", "pathfinderParty");
+    PARENT.appendChild(layout);
+  },
   handleSelectedSlot: function (index) {
     if (index === this.activeSelectedSlot) {
       this.removingSelected();
@@ -444,24 +437,11 @@ const PartySelection = {
     lockInButton.style.display = "none";
     finalizeButton.style.display = "none";
   },
-  updateButtons: function () {
-    let selectButton = getQuerySelector(
-      "#pathfinderSelectAndFinish #buttons #selectButton"
-    );
-    let lockInButton = getQuerySelector(
-      "#pathfinderSelectAndFinish #buttons #lockInPartyButton"
-    );
-    let finalizeButton = getQuerySelector(
-      "#pathfinderSelectAndFinish #buttons #finalizeButton"
-    );
-
-    /*
-    selectButton.addEventListener("click", () => {
-      this.pushToParty("")
-    })
-    */
-  },
   pushToParty: function (char, index) {
+    if (this.party.length === 4) {
+      // If party length is already 4, do nothing
+      return;
+    }
     let existingIndex = this.party.indexOf(char);
     if (existingIndex === -1) {
       // If the character is not already in the party, simply add it to the specified slot
@@ -477,8 +457,21 @@ const PartySelection = {
     }
     this.updateButtons();
     this.updatePartyIcons();
+    console.log(this.party);
+    // Show or hide the "finalize" button based on the party length
+    if (this.party.length === 4) {
+      let finalizeButton = getQuerySelector(
+        "#pathfinderSelectAndFinish #buttons #finalizeButton"
+      );
+      finalizeButton.display = "flex";
+      let selectButton = getQuerySelector(
+        "#pathfinderSelectAndFinish #buttons #selectButton"
+      );
+      selectButton.style.display = "none";
+    }
     //console.log(this.party);
   },
+
   updatePartyIcons: function () {
     this.party.forEach((slot, index) => {
       let e = PathfinderCharLib.find((e) => e.name === slot);
