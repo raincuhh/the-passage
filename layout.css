@@ -373,6 +373,31 @@
     }
   }
 }
+#introView {
+  display: flex;
+  justify-content: end;
+  height: 100%;
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    .header {
+      display: flex;
+      padding-bottom: 0.25rem;
+      user-select: none;
+      .title {
+        font-size: 3rem;
+        text-align: end;
+      }
+    }
+    .seperator {
+      border-bottom: 2px solid var(--text-base);
+    }
+    .description {
+      padding-top: 0.5rem;
+      padding-bottom: 1rem;
+    }
+  }
+}
 
 /* components */
 .button {

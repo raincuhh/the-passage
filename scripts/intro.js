@@ -12,15 +12,7 @@ const Intro = {
   },
   render: function () {
     this.createView();
-
-    let introButton = new Button.custom({
-      id: "intro",
-      text: "begin.",
-      click: Intro.begin,
-    });
-
-    let parent = getID("introView");
-    parent.appendChild(introButton);
+    this.createContent();
   },
   begin: function () {
     Main.changeModule(SinSelection);
@@ -31,6 +23,41 @@ const Intro = {
     const parent = getID("view"); // the parent that all "views" will get appended to
     parent.appendChild(view);
   },
+  createContent: function () {
+    let elem = createEl("div");
+    elem.setAttribute("class", "wrapper");
+    const parent = getID("introView");
+    parent.appendChild(elem);
+
+    let header = createEl("div");
+    header.setAttribute("class", "header");
+    const wrapper = getQuerySelector("#introView .wrapper");
+    wrapper.appendChild(header);
+
+    let title = createEl("div");
+    title.setAttribute("class", "title");
+    title.textContent = "the passage";
+    header.appendChild(title);
+
+    let seperator = createEl("div");
+    seperator.setAttribute("class", "seperator");
+    wrapper.appendChild(seperator);
+
+    let description = createEl("div");
+    description.setAttribute("class", "description");
+    description.textContent =
+      ">> A roguelike textbased rpg with little to no hand holding. <<";
+    wrapper.appendChild(description);
+
+    let introButton = new Button.custom({
+      id: "intro",
+      text: "continue",
+      click: Intro.begin,
+    });
+
+    wrapper.appendChild(introButton);
+  },
+
   setDocumentTitle: function () {
     document.title = "???";
   },
