@@ -12,7 +12,8 @@ let Main = {
   modules: {
     Intro: Intro,
     SinSelection: SinSelection,
-    PartySelection: PartySelection,
+    Region: Region,
+    Interstice: Interstice,
   },
 
   init: function () {
@@ -80,8 +81,10 @@ let Main = {
         break;
       case Region:
         Region.init();
+        break;
       case Interstice:
         Interstice.init();
+        break;
       default:
         Intro.init();
         break;
@@ -95,6 +98,7 @@ let Main = {
       return;
     }
     this.clearModuleView();
+    console.log(module);
     this.activeModule = module;
     this.update();
     module.launch();

@@ -85,6 +85,8 @@ const RegionGen = {
     this.assignTypesToPaths(map.paths, PathTypesPool);
     this.lastMinAssignCheck(map);
     console.log(map);
+
+    return { map, name };
     //console.log(name);
   },
   genMap: function (depth) {
@@ -178,13 +180,16 @@ const RegionGen = {
     }
   },
   lastMinAssignCheck: function (map) {
-    //checking nodes
     map.nodes.forEach((node) => {
       if (node.type === undefined) {
         node.type = "encounter";
       }
     });
-    //checking paths
+    map.paths.forEach((path) => {
+      if (path.type === undefined) {
+        path.type = "nothing";
+      }
+    });
   },
 
   createNode: function (id, depth, type) {

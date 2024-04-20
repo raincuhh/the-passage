@@ -1,7 +1,12 @@
 const Region = {
   name: "Region",
+
+  currentNode: null,
   init: function () {
     this.render();
+  },
+  launch: function () {
+    this.setDocumentTitle();
   },
   render: function () {
     this.createView();
@@ -11,13 +16,13 @@ const Region = {
     view.setAttribute("id", "regionView");
     const parent = getID("view"); // the parent that all "views" will get appended to
     parent.appendChild(view);
-  },
-  launch: function () {
-    console.log(Main.activeModule);
-    this.setDocumentTitle();
+
+    let elem = createEl("div");
+    elem.setAttribute("class", "wrapper");
+    view.appendChild(elem);
   },
   setDocumentTitle: function () {
     //this will get currentRegions name
-    document.title = "placeholder region";
+    document.title = this.currentNode;
   },
 };

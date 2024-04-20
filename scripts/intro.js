@@ -3,11 +3,7 @@ const Intro = {
   init: function () {
     this.render();
   },
-
   launch: function () {
-    console.log("active module is:");
-    console.log(Main.activeModule);
-    //console.log("active module is: " + Main.activeModule);
     this.setDocumentTitle();
   },
   render: function () {
@@ -55,7 +51,7 @@ const Intro = {
       click: Intro.begin,
     });
 
-    wrapper.appendChild(introButton);
+    wrapper.appendChild(introButton.element);
   },
 
   setDocumentTitle: function () {

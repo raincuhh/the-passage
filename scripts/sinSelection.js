@@ -10,16 +10,17 @@
  */
 let SinSelection = {
   name: "SinSelection",
+  confessButton: null,
+
   init: function () {
     this.render();
   },
   launch: function () {
-    console.log(Main.activeModule);
     this.setDocumentTitle();
+    PM.ping("confess your sins, this will greatly influence the run");
   },
   render: function () {
     this.createView();
-    this.createContent();
     this.createHeader();
     this.createSins();
     this.createButtons();
@@ -29,12 +30,10 @@ let SinSelection = {
     view.setAttribute("id", "sinSelectionView");
     const parent = getID("view");
     parent.appendChild(view);
-  },
-  createContent: function () {
+
     let elem = createEl("div");
     elem.setAttribute("class", "wrapper");
-    const parent = getID("sinSelectionView");
-    parent.appendChild(elem);
+    view.appendChild(elem);
   },
   createHeader: function () {
     const parent = getQuerySelector("#sinSelectionView .wrapper");
@@ -68,23 +67,26 @@ let SinSelection = {
     buttonsWrapper.setAttribute("id", "buttonsWrapper");
     parent.appendChild(buttonsWrapper);
 
-    let confessButton = new Button.custom({
+    this.confessButton = new Button.custom({
       id: "confessButton",
-      text: "confess",
-      click: this.selectParty,
+      text: "continue.",
+      click: this.confess,
+      disabled: true,
       width: "100%",
     });
-    Button.disabled(confessButton, { disabled: false });
-    buttonsWrapper.appendChild(confessButton);
+
+    buttonsWrapper.appendChild(this.confessButton.element);
+    this.confessButton.listener();
   },
-  selectParty: function () {
+  confess: function () {
     console.log("clicking");
-    Main.changeModule(PartySelection);
+    Main.changeModule(Region);
   },
   updateUnlockedSins: function () {
     let persistentStorageSin = SM.get("meta.sinsUnlocked");
-    let arr = Object.entries(persistentStorageSin);
-    for (const i of arr) {
+    let sins = Object.entries(persistentStorageSin);
+
+    for (const i of sins) {
       if (i[1] === true) {
         let elem = createEl("div");
         elem.setAttribute("id", i[0]);
@@ -98,11 +100,11 @@ let SinSelection = {
     }
   },
   selectSin: function (sin) {
-    let confessButton = getID("confessButton");
     this.clearSelected();
     let sinText = getQuerySelector("#sinsWrapper #" + sin);
-    sinText.style.color = "var(--text-base)";
-    Button.disabled(confessButton, { disabled: false });
+    sinText.style.textDecoration = "underline";
+    Button.disabled(this.confessButton.element, false);
+    this.confessButton.listener();
     //SM.set("run.sin." + sin, true);
     // calc sin stuff later, gonna change enemy hp and stuff "slightly", as in like a 1.05x boost
     // increases incrementally with each sin, 1.05x > 1.1x > 1.15x > 1.2x > 1.25x > 1.3x > 1.35x
@@ -111,7 +113,7 @@ let SinSelection = {
     let sinsWrapper = getID("sinsWrapper");
     let sins = sinsWrapper.querySelectorAll(".sin");
     sins.forEach((sin) => {
-      sin.style.color = "var(--text-subdued)";
+      sin.style.textDecoration = "none";
     });
   },
   unlockSin: function (sin) {
