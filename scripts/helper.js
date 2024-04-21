@@ -29,6 +29,23 @@ function uppercaseify(str) {
   }
   return str;
 }
+function undercaseifyString(str) {
+  let PARTS = str.split(" ");
+  PARTS.forEach((part, index) => {
+    PARTS[index] = undercaseify(part);
+  });
+}
+function undercaseify(str) {
+  let firstChar = str.charAt(0);
+  if (firstChar !== firstChar.toLowerCase()) {
+    str = str.charAt(0).toLowerCase() + str.slice(1);
+  }
+  return str;
+}
+function uppercaseToArray(str) {
+  let result = str.replace(/([A-Z]+)/g, ",$1").replace(/^,/, "");
+  return result.split(",");
+}
 function periodify(str) {
   if (str.slice(-1) != ".") {
     str += ".";

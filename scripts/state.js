@@ -9,15 +9,14 @@ let SM = {
   init: function () {
     let categories = [
       "location", // locations, regions explored etc.
-      "features", // more specific stuff,
       "entity", // generated enemies will be instantiated inside the entities category
       "char", // PathfinderCharLib, boons, flaws, perks, health, stats and such.
-      "resources", // will have inventory, etc, intitiated in it.
+      "resources", // will have inventory, and currencies made in it
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression, kept between runs.
-      "currentRegion", // where currentRegion attr will be kept, as in nodes, paths, connections, how far in, which depth or road, etc.
       "run", // run specific stuff
-      //"cooldown", // cooldown on different situations handling
+      "battle", // battle related stuff, specifically enemies made and their stats,
+      //rewards for battle, etc.
     ];
     for (const category of categories) {
       if (!this.get(category)) {

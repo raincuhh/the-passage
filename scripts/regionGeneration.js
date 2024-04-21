@@ -243,7 +243,6 @@ class Node {
     this.id = id;
     this.depth = typeof depth !== "undefined" ? depth : undefined;
     this.type = type;
-    this.children = [];
   }
 }
 class Path {
