@@ -30,7 +30,7 @@ const Button = {
       elem.classList.add("disabled");
     }
 
-    const updateListener = () => {
+    const listener = () => {
       if (
         typeof param.click !== "undefined" &&
         typeof param.click === "function"
@@ -42,18 +42,17 @@ const Button = {
         }
       }
     };
-    //this.updateListener(elem, param);
+    //this.listener(elem, param);
     if (typeof param.width !== "undefined") {
       elem.style.width = param.width;
     }
 
-    updateListener();
+    listener();
 
-    return { element: elem, listener: updateListener };
+    return { element: elem, updateListener: listener };
   },
   disabled: function (btn, disabled) {
     if (btn) {
-      console.log("disabledButton");
       if (disabled) {
         btn.classList.add("disabled");
       } else {

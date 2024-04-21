@@ -11,6 +11,7 @@
 let SinSelection = {
   name: "SinSelection",
   confessButton: null,
+  chosenSin: "",
 
   init: function () {
     this.render();
@@ -59,6 +60,12 @@ let SinSelection = {
     parent.appendChild(sinsWrapper);
 
     this.unlockSin("sloth");
+    /*
+    this.unlockSin("gluttony");
+    this.unlockSin("lust");
+    this.unlockSin("greed");
+    this.unlockSin("envy");
+    */
     this.updateUnlockedSins();
   },
   createButtons: function () {
@@ -70,16 +77,17 @@ let SinSelection = {
     this.confessButton = new Button.custom({
       id: "confessButton",
       text: "continue.",
-      click: this.confess,
+      click: this.confess.bind(this),
       disabled: true,
       width: "100%",
     });
 
     buttonsWrapper.appendChild(this.confessButton.element);
-    this.confessButton.listener();
+    this.confessButton.updateListener();
   },
   confess: function () {
-    console.log("clicking");
+    let name = this.chosenSin.trim();
+    SM.set("run.activeSin", name);
     Main.changeModule(Region);
   },
   updateUnlockedSins: function () {
@@ -88,12 +96,13 @@ let SinSelection = {
 
     for (const i of sins) {
       if (i[1] === true) {
+        let sinName = i[0];
         let elem = createEl("div");
-        elem.setAttribute("id", i[0]);
+        elem.setAttribute("id", sinName);
         elem.setAttribute("class", "sin");
-        elem.textContent = "The sin of " + i[0] + ".";
+        elem.textContent = "The sin of " + sinName + ".";
         elem.addEventListener("click", () => {
-          this.selectSin(i[0]);
+          this.selectSin(sinName);
         });
         sinsWrapper.appendChild(elem);
       }
@@ -104,7 +113,10 @@ let SinSelection = {
     let sinText = getQuerySelector("#sinsWrapper #" + sin);
     sinText.style.textDecoration = "underline";
     Button.disabled(this.confessButton.element, false);
-    this.confessButton.listener();
+    this.confessButton.updateListener();
+    this.chosenSin = sin;
+    console.log(this.chosenSin);
+
     //SM.set("run.sin." + sin, true);
     // calc sin stuff later, gonna change enemy hp and stuff "slightly", as in like a 1.05x boost
     // increases incrementally with each sin, 1.05x > 1.1x > 1.15x > 1.2x > 1.25x > 1.3x > 1.35x
@@ -117,8 +129,12 @@ let SinSelection = {
     });
   },
   unlockSin: function (sin) {
+    if (SM.get("meta.sinsUnlocked." + sin)) {
+      return;
+    }
     SM.set("meta.sinsUnlocked." + sin, true);
   },
+
   getSinStatus: function (sin) {
     return SM.get("meta.sinsUnlocked." + sin);
   },

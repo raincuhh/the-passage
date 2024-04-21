@@ -98,7 +98,7 @@ let Main = {
       return;
     }
     this.clearModuleView();
-    console.log(module);
+    //console.log(module);
     this.activeModule = module;
     this.update();
     module.launch();

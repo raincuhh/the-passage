@@ -49,12 +49,13 @@ const Intro = {
       id: "intro",
       text: "continue",
       click: Intro.begin,
+      width: "100%",
     });
 
     wrapper.appendChild(introButton.element);
   },
 
   setDocumentTitle: function () {
-    document.title = "???";
+    document.title = "the passage";
   },
 };

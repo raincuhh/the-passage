@@ -9,7 +9,7 @@
 const PathTypesPool = [
   {
     type: "nothing",
-    probability: 0.4,
+    probability: 0.3,
   },
   {
     type: "rocky",
@@ -17,7 +17,7 @@ const PathTypesPool = [
   },
   {
     type: "roadEncounter",
-    probability: 0.1,
+    probability: 0.2,
   },
   {
     type: "ambush",

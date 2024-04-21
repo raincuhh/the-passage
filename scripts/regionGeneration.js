@@ -22,12 +22,12 @@
 const RegionGen = {
   unexpRegs: [],
   expRegs: [],
-  depth: 5,
+  depth: 4,
   maxDepth: 14,
 
   init: function () {
     let regions = [
-      "theEnamelZone",
+      "theWasteland",
       "theTundra",
       "theFlickeringForest",
       "theLowlands",
@@ -37,7 +37,7 @@ const RegionGen = {
     for (const region of regions) {
       if (!SM.get("location.regions." + region)) {
         SM.set("location.regions." + region, {});
-        console.log("region made: " + region);
+        //console.log("region made: " + region);
       }
     }
     // checking for undefined
@@ -45,7 +45,7 @@ const RegionGen = {
       let region = regions[i];
       if (SM.get("location.regions." + region + ".exp") === undefined) {
         SM.setRegionAttr(region, "exp", false);
-        console.log("region unexplored");
+        //console.log("region unexplored");
       }
     }
     for (const region of regions) {
@@ -58,13 +58,16 @@ const RegionGen = {
           break;
       }
     }
+    //console.log(this.unexpRegs);
   },
   getRegName: function () {
     let namePool = this.unexpRegs;
-    let rng = namePool[Math.floor(Math.random() * namePool.length)];
-    let chosen = this.unexpRegs.pop(rng);
+    let rngIndex = Math.floor(Math.random() * namePool.length);
+    let chosen = namePool.splice(rngIndex, 1)[0];
+
     //SM.setRegionAttr()
     this.expRegs.push(chosen);
+    SM.set("location.regions." + chosen + ".exp", true);
     return chosen;
   },
   getDepth: function () {
@@ -73,7 +76,14 @@ const RegionGen = {
   },
   newReg: function () {
     let name = this.getRegName();
+    if (name === undefined) {
+      name = "theAbyss";
+    }
     let depth = this.getDepth();
+    if (name === "theAbyss") {
+      depth = 3;
+    }
+
     if (depth >= this.maxDepth) {
       depth = this.maxDepth;
       // gonna make the maxdepth be dependent on current sin,
@@ -81,13 +91,12 @@ const RegionGen = {
     }
     // in the future will make the getTypesFromPool more complex
     let map = this.genMap(depth);
-    this.assignTypesToNodes(map.nodes, NodeTypesPool, depth);
+    this.assignTypesToNodes(map.nodes, NodeTypesPool, depth, name);
     this.assignTypesToPaths(map.paths, PathTypesPool);
     this.lastMinAssignCheck(map);
-    console.log(map);
+    console.log(name);
 
     return { map, name };
-    //console.log(name);
   },
   genMap: function (depth) {
     let nodes = this.genNodes(depth);
@@ -98,11 +107,11 @@ const RegionGen = {
     let nodes = [];
     let id = 1;
     //let prevNodesForDepth = -1;
+
     for (let d = 0; d <= depth; d++) {
       let nodesForDepth = 0;
       if (d === 0 || d === depth || d === depth - 1) {
         nodesForDepth = 1;
-        //console.log("fixed");
       } else {
         nodesForDepth = this.randRange(2, 3);
       }
@@ -111,6 +120,7 @@ const RegionGen = {
         nodes.push(node);
       }
     }
+
     return nodes;
   },
   genPaths: function (nodes, depth) {
@@ -139,27 +149,51 @@ const RegionGen = {
     }
     return paths;
   },
-  assignTypesToNodes: function (nodes, pool, depth) {
-    for (const node of nodes) {
-      let type;
-      switch (node.depth) {
-        case 0:
-          type = "shrineOfAbyss";
-          break;
-        case depth:
-          type = "respite";
-          break;
-        case depth - 1:
-          type = "regionCheck";
-          break;
-        default:
-          type = this.selectTypeFromPool(pool);
-          break;
+  assignTypesToNodes: function (nodes, pool, depth, name) {
+    if (name !== "theAbyss") {
+      for (const node of nodes) {
+        let type;
+        switch (node.depth) {
+          case 0:
+            type = "shrineOfAbyss";
+            break;
+          case depth:
+            type = "respite";
+            break;
+          case depth - 1:
+            type = "regionCheck";
+            break;
+          default:
+            type = this.selectTypeFromPool(pool);
+            break;
+        }
+        if (!node.type !== "undefined") {
+          node.type = type;
+        }
+        //console.log(node);
       }
-      if (!node.type !== "undefined") {
-        node.type = type;
+    } else {
+      for (const node of nodes) {
+        let type;
+        switch (node.depth) {
+          case 0:
+            type = "shrineOfAbyss";
+            break;
+          case depth:
+            type = "sinBoss";
+            break;
+          case depth - 1:
+            type = "sinMinions";
+            break;
+          default:
+            type = this.selectTypeFromPool(pool);
+            break;
+        }
+        if (!node.type !== "undefined") {
+          node.type = type;
+        }
+        //console.log(node);
       }
-      console.log(node);
     }
   },
   assignTypesToPaths: function (paths, pool) {

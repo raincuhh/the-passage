@@ -38,7 +38,7 @@ let SaveManager = {
   loadGame: function () {
     let string = localStorage.getItem("save");
     //console.log("statemanager components:");
-    console.log(SM.components);
+    //console.log(SM.components);
     if (string) {
       try {
         let save = JSON.parse(string);

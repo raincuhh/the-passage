@@ -118,7 +118,7 @@ let SM = {
   setStat: function (pathfinder, stat, value) {
     this.set("char." + pathfinder + ".stats." + stat, value);
   },
-  setRegionAttr: function (region, attribute, bool) {
-    this.set("location.regions." + region + "." + attribute, bool);
+  setRegionAttr: function (region, attribute, value) {
+    this.set("location.regions." + region + "." + attribute, value);
   },
 };
