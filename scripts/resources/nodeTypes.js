@@ -44,3 +44,20 @@ const NodeTypesPool = [
     probability: 0.1,
   },
 ];
+const specialNodeTypesPool = [
+  {
+    type: "shrineOfAbyss",
+  },
+  {
+    type: "respite",
+  },
+  {
+    type: "regionCheck",
+  },
+  {
+    type: "sinBoss",
+  },
+  {
+    type: "sinMinions",
+  },
+];

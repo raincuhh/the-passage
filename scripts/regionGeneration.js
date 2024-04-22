@@ -120,7 +120,6 @@ const RegionGen = {
         nodes.push(node);
       }
     }
-
     return nodes;
   },
   genPaths: function (nodes, depth) {

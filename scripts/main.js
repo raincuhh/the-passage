@@ -22,6 +22,7 @@ let Main = {
     SaveManager.loadGame();
     PM.init();
     SM.init();
+    EM.init();
 
     if (!SM.get("run.activeModule")) {
       SM.set("run.activeModule", "Intro");

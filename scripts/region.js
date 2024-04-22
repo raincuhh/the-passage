@@ -42,8 +42,18 @@ const Region = {
     elem.setAttribute("class", "wrapper");
     view.appendChild(elem);
   },
+  createButtons: function () {
+    const parent = getQuerySelector("#regionView .wrapper");
+    let wrapper = createEl("div");
+    wrapper.setAttribute("id", "buttonsWrapper");
+    parent.appendChild(wrapper);
+
+    let exploreButton = new Button.custom({
+      id: "exploreButton",
+      text: "explore",
+    });
+  },
   setDocumentTitle: function () {
-    //this will get currentRegions name
     document.title = this.currentName;
   },
   formatRegionName: function (name) {
@@ -66,11 +76,19 @@ const Region = {
   },
   updateNodeView: function () {
     let node = this.currentNode;
-    //console.log("current node:", node);
-
-    let nodeProperties = NodeTypesPool.find(
-      (properties) => properties.type === node.type
-    );
-    //console.log(nodeProperties);
+    console.log("currentNode:", node);
+    let nodeProperties;
+    let toBeLoaded;
+    if (specialNodeTypesPool.some((e) => e.type === node.type)) {
+      index = specialNodeTypesPool.findIndex((e) => e.type === node.type);
+      toBeLoaded = specialNodeTypesPool[index];
+      EM.startEvent(toBeLoaded);
+      //console.log("node: special:", toBeLoaded);
+    } else {
+      index = NodeTypesPool.findIndex((e) => e.type === node.type);
+      toBeLoaded = NodeTypesPool[index];
+      EM.startEvent(toBeLoaded);
+      //console.log("node: normal:", index);
+    }
   },
 };
