@@ -4,14 +4,18 @@ const Region = {
   currentNode: null,
   currentMap: null,
   currentName: null,
+  currentParty: [],
+  // btns
+  exploreButton: null,
   init: function () {
     this.render();
 
     if (!SM.get("run.activeSin")) {
       SM.set("run.activeSin", "sloth");
     }
-    RegionGen.init();
+
     // checking if there is no active region currently, if so then generates one
+    RegionGen.init();
     if (!SM.get("run.currentMap")) {
       console.log("no active region, making one");
       let region = RegionGen.newReg();
@@ -22,7 +26,22 @@ const Region = {
     }
     this.currentName = this.formatRegionName(SM.get("run.currentName"));
     this.currentMap = SM.get("run.currentMap");
-    console.log(this.currentMap);
+    console.log("map:", this.currentMap);
+
+    // checking characters, if none then makes them.
+    let persistentStorageChars = SM.get("char.characters");
+    if (persistentStorageChars) {
+      let chars = Object.entries(persistentStorageChars);
+      chars.forEach((char) => {
+        this.currentParty.push(char);
+      });
+    }
+
+    if (!persistentStorageChars || this.currentParty.length === 0) {
+      this.choosePathfinders();
+      this.createPathfinders();
+    }
+    console.log("party:", this.currentParty);
   },
   launch: function () {
     this.setDocumentTitle();
@@ -44,14 +63,16 @@ const Region = {
   },
   createButtons: function () {
     const parent = getQuerySelector("#regionView .wrapper");
-    let wrapper = createEl("div");
-    wrapper.setAttribute("id", "buttonsWrapper");
-    parent.appendChild(wrapper);
+    let buttonsWrapper = createEl("div");
+    buttonsWrapper.setAttribute("id", "buttonsWrapper");
+    parent.appendChild(buttonsWrapper);
 
-    let exploreButton = new Button.custom({
+    this.exploreButton = new Button.custom({
       id: "exploreButton",
       text: "explore",
+      click: this.explore.bind(this),
     });
+    buttonsWrapper.appendChild(this.exploreButton.element);
   },
   setDocumentTitle: function () {
     document.title = this.currentName;
@@ -66,6 +87,9 @@ const Region = {
     let formattedName = words ? words.join(" ") : name;
     return formattedName;
   },
+  explore: function () {
+    console.log("exploring new");
+  },
   startExploration: function () {
     if (!SM.get("run.currentNode")) {
       SM.set("run.currentNode", this.currentMap.nodes[0]);
@@ -76,19 +100,49 @@ const Region = {
   },
   updateNodeView: function () {
     let node = this.currentNode;
-    console.log("currentNode:", node);
-    let nodeProperties;
+    //console.log("currentNode:", node);
     let toBeLoaded;
     if (specialNodeTypesPool.some((e) => e.type === node.type)) {
       index = specialNodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = specialNodeTypesPool[index];
       EM.startEvent(toBeLoaded);
-      //console.log("node: special:", toBeLoaded);
     } else {
       index = NodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = NodeTypesPool[index];
       EM.startEvent(toBeLoaded);
-      //console.log("node: normal:", index);
+    }
+    let nextPaths = this.getNextPaths();
+    //console.log(nextPaths);
+  },
+  getNextPaths: function () {
+    let nextPaths = this.currentMap.paths.filter(
+      (path) => path.fromId === this.currentNode.id
+    );
+    return nextPaths;
+  },
+  choosePathfinders: function () {
+    let pathfinderList = PathfinderCharLib;
+    let unseen = [];
+    let seen = [];
+    for (let i = 0; i < pathfinderList.length; i++) {
+      let pathfinder = pathfinderList[i];
+      unseen.push(pathfinder);
+    }
+    for (let i = 0; i < 4; i++) {
+      let rng = Math.floor(Math.random() * unseen.length);
+      let chosen = unseen.splice(rng, 1)[0];
+      let pathfinder = chosen.name;
+      seen.push(pathfinder);
+      this.currentParty.push(pathfinder);
+    }
+    //console.log(this.currentParty);
+  },
+  createPathfinders: function () {
+    for (const pathfinder of this.currentParty) {
+      if (!SM.get("char.characters." + pathfinder)) {
+        SM.set("char.characters." + pathfinder, {});
+        PFM.createPathfinder(pathfinder);
+      }
     }
   },
 };

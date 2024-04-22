@@ -1,0 +1,3 @@
+const Options = {
+  custom: function () {},
+};

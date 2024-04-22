@@ -2,6 +2,8 @@
  * partySelection
  * handles the creation of the party selection view
  * and selecting the pathfinders for the current run.
+ *
+ * ignore this cause im not gonna add this module to the statemachine.. cause work...
  */
 const PartySelection = {
   name: "PartySelection",

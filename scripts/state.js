@@ -15,7 +15,7 @@ let SM = {
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression, kept between runs.
       "run", // run specific stuff
-      "battle", // battle related stuff, specifically enemies made and their stats,
+      "event", // battle related stuff, specifically enemies made and their stats,
       //rewards for battle, etc.
     ];
     for (const category of categories) {
@@ -95,18 +95,21 @@ let SM = {
 
   // specific setter and getters and other methods
   setTrait: function (pathfinder, trait, bool, includePing) {
-    this.set("char." + pathfinder + ".traits." + trait, bool);
+    this.set("char.characters." + pathfinder + ".traits." + trait, bool);
     PFM.includeTraitPing(trait, includePing);
   },
   getTrait: function (pathfinder, trait) {
     try {
-      return SM.get("char." + pathfinder + ".traits." + trait);
+      return SM.get("char.characters." + pathfinder + ".traits." + trait);
     } catch (error) {
       console.error("trait not found" + error);
     }
   },
   setSkill: function (pathfinder, skill, bool, includePing) {
-    this.set("char." + pathfinder + ".skills." + skill.name + ".locked", bool);
+    this.set(
+      "char.characters." + pathfinder + ".skills." + skill.name + ".locked",
+      bool
+    );
     PFM.includeSkillPing(skill, includePing);
   },
   setStats: function (pathfinder, stats) {
@@ -115,7 +118,7 @@ let SM = {
     });
   },
   setStat: function (pathfinder, stat, value) {
-    this.set("char." + pathfinder + ".stats." + stat, value);
+    this.set("char.characters." + pathfinder + ".stats." + stat, value);
   },
   setRegionAttr: function (region, attribute, value) {
     this.set("location.regions." + region + "." + attribute, value);

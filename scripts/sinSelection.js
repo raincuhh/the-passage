@@ -45,7 +45,7 @@ let SinSelection = {
 
     let headerTitle = createEl("div");
     headerTitle.setAttribute("class", "title");
-    headerTitle.textContent = "confess your sins";
+    headerTitle.textContent = "confess your sin";
     header.appendChild(headerTitle);
 
     let seperator = createEl("div");
@@ -60,8 +60,9 @@ let SinSelection = {
     parent.appendChild(sinsWrapper);
 
     this.unlockSin("sloth");
-    /*
+
     this.unlockSin("gluttony");
+    /*
     this.unlockSin("lust");
     this.unlockSin("greed");
     this.unlockSin("envy");
@@ -93,7 +94,7 @@ let SinSelection = {
   updateUnlockedSins: function () {
     let persistentStorageSin = SM.get("meta.sinsUnlocked");
     let sins = Object.entries(persistentStorageSin);
-
+    console.log(sins);
     for (const i of sins) {
       if (i[1] === true) {
         let sinName = i[0];
