@@ -13,6 +13,7 @@ const Region = {
   },
 
   currentRegionPool: [],
+  lookAroundButton: null,
   exploreButton: null,
 
   init: function () {
@@ -62,7 +63,16 @@ const Region = {
   },
   launch: function () {
     this.setDocumentTitle();
-    this.startExploration();
+    if (!SM.get("run.currentNode")) {
+      SM.set("run.currentNode", this.currentMap.nodes[0]);
+      this.currentNode = this.currentMap.nodes[0];
+    }
+    this.currentNode = SM.get("run.currentNode");
+    this.updateNodeView();
+
+    if (SM.get("run.activeState") === this.states.beforeJourney) {
+      PM.ping("you find yourself in an unassuming carriage.");
+    }
   },
   render: function () {
     this.createView();
@@ -84,17 +94,17 @@ const Region = {
     buttonsWrapper.setAttribute("id", "buttonsWrapper");
     parent.appendChild(buttonsWrapper);
 
-    this.createExploreButton();
-    buttonsWrapper.appendChild(this.exploreButton.element);
-    this.exploreButton.updateListener();
-  },
-  createExploreButton: function () {
     this.exploreButton = new Button.custom({
       id: "exploreButton",
       text: "explore.",
       click: this.continue.bind(this),
     });
+
+    buttonsWrapper.appendChild(this.exploreButton.element);
+    this.exploreButton.updateListener();
   },
+  createExploreButton: function () {},
+  createLookAroundButton: function () {},
   setDocumentTitle: function () {
     document.title = this.currentName;
   },
@@ -110,14 +120,6 @@ const Region = {
   },
   continue: function () {
     console.log("exploring new");
-  },
-  startExploration: function () {
-    if (!SM.get("run.currentNode")) {
-      SM.set("run.currentNode", this.currentMap.nodes[0]);
-      this.currentNode = this.currentMap.nodes[0];
-    }
-    this.currentNode = SM.get("run.currentNode");
-    this.updateNodeView();
   },
   updateNodeView: function () {
     let node = this.currentNode;
