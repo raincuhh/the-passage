@@ -28,7 +28,7 @@ let EM = {
   },
   loadEvent: function (event) {
     EM.activeEvent = event;
-    console.log("EM active event:", EM.activeEvent);
+    console.log("events: active:", EM.activeEvent);
 
     if (event.combat) {
       this.enterCombat(event);
@@ -43,6 +43,7 @@ let EM = {
     return null;
   },
   endEvent: function () {
+    EM.activeEvent = null;
     let view = getID("event_" + this.eventId);
     view.remove();
   },

@@ -1,18 +1,20 @@
 const Region = {
   name: "Region",
-
   currentNode: null,
   currentMap: null,
   currentName: null,
   currentParty: [],
   currentState: null,
-
-  states: {},
+  states: {
+    beforeJourney: "beforeJourney",
+    exploring: "exploring",
+    inEvent: "inEvent",
+    partyDead: "partyDead",
+  },
 
   currentRegionPool: [],
-
-  // btns
   exploreButton: null,
+
   init: function () {
     this.render();
     EM.init();
@@ -52,6 +54,11 @@ const Region = {
       "enemyType on abyss, test:",
       RegionEnemies.theAbyss[Math.floor(0)].name
     );
+    // getting state of region,
+    // before exploring > exploring > in event(will load that event) > ...
+    if (!SM.get("run.activeState")) {
+      SM.set("run.activeState", this.states.beforeJourney);
+    }
   },
   launch: function () {
     this.setDocumentTitle();
@@ -126,7 +133,7 @@ const Region = {
       EM.startEvent(toBeLoaded);
     }
     let nextPaths = this.getNextPaths();
-    //console.log(nextPaths);
+    console.log("next paths:", nextPaths);
   },
   getNextPaths: function () {
     let nextPaths = this.currentMap.paths.filter(
@@ -171,7 +178,6 @@ const Region = {
       dark: "dark",
       test: "test",
     };
-
     return enemyTypes;
   },
 };

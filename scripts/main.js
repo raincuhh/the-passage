@@ -76,9 +76,6 @@ let Main = {
       case SinSelection:
         SinSelection.init();
         break;
-      case PartySelection:
-        PartySelection.init();
-        break;
       case Region:
         Region.init();
         break;
@@ -97,8 +94,8 @@ let Main = {
     if (this.activeModule === module) {
       return;
     }
-    this.clearModuleView();
     //console.log(module);
+    this.clearModuleView();
     this.activeModule = module;
     this.update();
     module.launch();
