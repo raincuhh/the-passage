@@ -36,9 +36,10 @@ const Button = {
         typeof param.click === "function"
       ) {
         if (!elem.classList.contains("disabled")) {
-          elem.addEventListener("click", (event) => {
-            param.click(event);
-          });
+          const clickHandler = param.click;
+
+          elem.removeEventListener("click", clickHandler);
+          elem.addEventListener("click", clickHandler);
         }
       }
     };

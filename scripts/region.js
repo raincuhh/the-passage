@@ -60,6 +60,10 @@ const Region = {
     if (!SM.get("run.activeState")) {
       SM.set("run.activeState", this.states.beforeJourney);
     }
+
+    if (SM.get("run.activeState") === this.states.beforeJourney) {
+      PM.ping("you find yourself in a caravan.");
+    }
   },
   launch: function () {
     this.setDocumentTitle();
@@ -69,10 +73,6 @@ const Region = {
     }
     this.currentNode = SM.get("run.currentNode");
     this.updateNodeView();
-
-    if (SM.get("run.activeState") === this.states.beforeJourney) {
-      PM.ping("you find yourself in an unassuming carriage.");
-    }
   },
   render: function () {
     this.createView();
@@ -94,17 +94,32 @@ const Region = {
     buttonsWrapper.setAttribute("id", "buttonsWrapper");
     parent.appendChild(buttonsWrapper);
 
+    this.lookAroundButton = new Button.custom({
+      id: "lookAroundButton",
+      text: "look around.",
+      click: Region.lookAround,
+      //width: "max-content",
+    });
+    buttonsWrapper.appendChild(this.lookAroundButton.element);
+    this.lookAroundButton.updateListener();
+
     this.exploreButton = new Button.custom({
       id: "exploreButton",
       text: "explore.",
-      click: this.continue.bind(this),
+      click: Region.explore, //.bind(this),
     });
-
     buttonsWrapper.appendChild(this.exploreButton.element);
     this.exploreButton.updateListener();
+
+    this.updateButtons();
   },
-  createExploreButton: function () {},
-  createLookAroundButton: function () {},
+  explore: function () {
+    console.log("exploring");
+  },
+  lookAround: function () {
+    console.log("looking around");
+  },
+  updateButtons: function () {},
   setDocumentTitle: function () {
     document.title = this.currentName;
   },
@@ -118,9 +133,7 @@ const Region = {
     let formattedName = words ? words.join(" ") : name;
     return formattedName;
   },
-  continue: function () {
-    console.log("exploring new");
-  },
+
   updateNodeView: function () {
     let node = this.currentNode;
     //console.log("currentNode:", node);

@@ -18,7 +18,7 @@
   --text-active: rgb(140, 140, 140);
 
   --game-height: 100%;
-  --container-width: clamp(800px, 80vw, 900px);
+  --container-width: clamp(800px, 70vw, 950px);
   --pings-width: clamp(250px, 80vw, 370px);
   --view-width: calc(1000px - var(--pings-width));
 
@@ -409,7 +409,7 @@
   padding: 5px 10px;
   border: 1px solid var(--text-base);
   font-size: 1rem;
-  width: 100px;
+  width: 115px;
   text-align: center;
   cursor: pointer;
   margin-bottom: 5px;
