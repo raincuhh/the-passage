@@ -18,8 +18,9 @@
   --text-active: rgb(140, 140, 140);
 
   --game-height: 100%;
-  --pings-width: clamp(35%, 82.5vw, 40%);
-  --view-width: calc(100% - var(--pings-width));
+  --container-width: clamp(800px, 80vw, 900px);
+  --pings-width: clamp(250px, 80vw, 370px);
+  --view-width: calc(1000px - var(--pings-width));
 
   /* z-index */
 
@@ -107,7 +108,7 @@
 #container {
   padding: 2rem 0.5rem 0;
   margin: 0 auto;
-  width: clamp(700px, 80.5vw, 800px);
+  width: var(--container-width);
   max-width: 110rem;
   height: 100%;
   display: flex;
@@ -145,6 +146,7 @@
   height: 100%;
   display: flex;
   flex-direction: row;
+  position: relative;
   #pathfinderList {
     width: max-content;
     .container {
@@ -335,6 +337,7 @@
   .wrapper {
     display: flex;
     flex-direction: column;
+    position: relative;
     .header {
       display: flex;
       padding-bottom: 0.25rem;
@@ -378,6 +381,7 @@
   .wrapper {
     display: flex;
     flex-direction: column;
+    position: relative;
     .header {
       display: flex;
       padding-bottom: 0.25rem;

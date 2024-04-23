@@ -18,7 +18,7 @@ let SinSelection = {
   },
   launch: function () {
     this.setDocumentTitle();
-    PM.ping("confess your sins, this will greatly influence the run");
+    PM.ping("confess your sins..");
   },
   render: function () {
     this.createView();
@@ -94,7 +94,7 @@ let SinSelection = {
   updateUnlockedSins: function () {
     let persistentStorageSin = SM.get("meta.sinsUnlocked");
     let sins = Object.entries(persistentStorageSin);
-    console.log(sins);
+    //console.log(sins);
     for (const i of sins) {
       if (i[1] === true) {
         let sinName = i[0];

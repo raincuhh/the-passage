@@ -24,8 +24,6 @@ let PathfinderCharLib = [
     quote:
       '"In the heat of battle, every blow tells a story of resilience and determination."',
     desc: "A seasoned fighter, the Pugilist thrives in combat, his fists weaving tales of triumph and overcoming adversity with every strike.",
-    effectiveAllyPos: "3,4",
-    effectiveEnemyPos: "1,2",
     available: function () {
       return true;
     },
@@ -90,62 +88,62 @@ let PathfinderCharLib = [
       {
         name: "hp",
         id: "healthpoints",
-        value: "27",
+        value: 27,
         type: "num",
       },
       {
         name: "spd",
         id: "speed",
-        value: "4",
+        value: 4,
         type: "num",
       },
       // resistances/res
       {
         name: "phys res",
         id: "physicalResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "rang res",
         id: "rangedResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "bld res",
         id: "bleedResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "psn res",
         id: "poisonResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "cld res",
         id: "coldResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "fire res",
         id: "fireResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "stun res",
         id: "stunResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "mov res",
         id: "moveResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
     ],
@@ -157,8 +155,6 @@ let PathfinderCharLib = [
     class: "lost",
     quote: '"Discard your identity, peer into the depths of the abyss."',
     desc: "Mysterious and agile, the Faceless strikes swiftly from the shadows, wielding deadly precision and cunning tactics.",
-    effectiveAllyPos: "1,2", // backrow
-    effectiveEnemyPos: "2,3,4", // backrow
     available: function () {
       return true;
     },
@@ -222,62 +218,62 @@ let PathfinderCharLib = [
       {
         name: "hp",
         id: "healthpoints",
-        value: "24",
+        value: 24,
         type: "num",
       },
       {
         name: "spd",
         id: "speed",
-        value: "5",
+        value: 5,
         type: "num",
       },
       // resistances/res
       {
         name: "phys res",
         id: "physicalResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "rang res",
         id: "rangedResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "bld res",
         id: "bleedResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "psn res",
         id: "poisonResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "cld res",
         id: "coldResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "fire res",
         id: "fireResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "stun res",
         id: "stunResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "mov res",
         id: "moveResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
     ],
@@ -290,8 +286,6 @@ let PathfinderCharLib = [
     quote:
       '"Knowledge is power, but forbidden knowledge is a double-edged sword."',
     desc: "Delving into the darkest arts, the Occultist harnesses forbidden powers to manipulate and drain the essence of their foes.",
-    effectiveAllyPos: "1,2", // backrow ally side
-    effectiveEnemyPos: "3,4", // backrow enemy side
     available: function () {
       return true;
     },
@@ -351,62 +345,62 @@ let PathfinderCharLib = [
       {
         name: "hp",
         id: "healthpoints",
-        value: "21",
+        value: 21,
         type: "num",
       },
       {
         name: "spd",
         id: "speed",
-        value: "3",
+        value: 3,
         type: "num",
       },
       // resistances/res
       {
         name: "phys res",
         id: "physicalResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "rang res",
         id: "rangedResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "bld res",
         id: "bleedResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "psn res",
         id: "poisonResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "cld res",
         id: "coldResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "fire res",
         id: "fireResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "stun res",
         id: "stunResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "mov res",
         id: "moveResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
     ],
@@ -418,8 +412,6 @@ let PathfinderCharLib = [
     class: "lost",
     quote: '"Stand proud, for valor and honor are our shields."',
     desc: "A bastion of strength and resilience, the Paragon defends allies with unwavering courage and unmatched determination.",
-    effectiveAllyPos: "3,4",
-    effectiveEnemyPos: "1,2",
     available: function () {
       return true;
     },
@@ -474,26 +466,26 @@ let PathfinderCharLib = [
       {
         name: "hp",
         id: "healthpoints",
-        value: "37",
+        value: 37,
         type: "num",
       },
       {
         name: "spd",
         id: "speed",
-        value: "2",
+        value: 2,
         type: "num",
       },
       // resistances/res
       {
         name: "phys res",
         id: "physicalResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "rang res",
         id: "rangedResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
@@ -505,19 +497,19 @@ let PathfinderCharLib = [
       {
         name: "psn res",
         id: "poisonResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "cld res",
         id: "coldResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "fire res",
         id: "fireResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
@@ -529,7 +521,7 @@ let PathfinderCharLib = [
       {
         name: "mov res",
         id: "moveResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
     ],
@@ -541,8 +533,6 @@ let PathfinderCharLib = [
     class: "lost",
     quote: '"fillThisInWithQuoteLater"',
     desc: "fillThisInWithDescLater",
-    effectiveAllyPos: "3,4",
-    effectiveEnemyPos: "1,2",
     available: function () {
       return false;
     },
@@ -597,50 +587,50 @@ let PathfinderCharLib = [
       {
         name: "hp",
         id: "healthpoints",
-        value: "31",
+        value: 31,
         type: "num",
       },
       {
         name: "spd",
         id: "speed",
-        value: "3",
+        value: 3,
         type: "num",
       },
       // resistances/res
       {
         name: "phys res",
         id: "physicalResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "rang res",
         id: "rangedResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "bld res",
         id: "bleedResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "psn res",
         id: "poisonResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "cld res",
         id: "coldResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "fire res",
         id: "fireResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
@@ -652,7 +642,7 @@ let PathfinderCharLib = [
       {
         name: "mov res",
         id: "moveResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
     ],
@@ -664,8 +654,6 @@ let PathfinderCharLib = [
     class: "lost",
     quote: '"Faith is our shield, and righteousness our sword."',
     desc: "An embodiment of righteousness, the Knight wields the divine power of faith to dispel darkness and protect the innocent from the forces of evil.",
-    effectiveAllyPos: "3,4",
-    effectiveEnemyPos: "1,2",
     available: function () {
       return false;
     },
@@ -724,62 +712,62 @@ let PathfinderCharLib = [
       {
         name: "hp",
         id: "healthpoints",
-        value: "34",
+        value: 34,
         type: "num",
       },
       {
         name: "spd",
         id: "speed",
-        value: "4",
+        value: 4,
         type: "num",
       },
       // resistances/res
       {
         name: "phys res",
         id: "physicalResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "rang res",
         id: "rangedResistance",
-        value: "5%",
+        value: 0.05,
         type: "percent",
       },
       {
         name: "bld res",
         id: "bleedResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "psn res",
         id: "poisonResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "cld res",
         id: "coldResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "fire res",
         id: "fireResistance",
-        value: "20%",
+        value: 0.2,
         type: "percent",
       },
       {
         name: "stun res",
         id: "stunResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
       {
         name: "mov res",
         id: "moveResistance",
-        value: "30%",
+        value: 0.3,
         type: "percent",
       },
     ],

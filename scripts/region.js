@@ -5,16 +5,22 @@ const Region = {
   currentMap: null,
   currentName: null,
   currentParty: [],
+  currentState: null,
+
+  states: {},
+
+  currentRegionPool: [],
+
   // btns
   exploreButton: null,
   init: function () {
     this.render();
+    EM.init();
 
     if (!SM.get("run.activeSin")) {
       SM.set("run.activeSin", "sloth");
     }
-
-    // checking if there is no active region currently, if so then generates one
+    // checking if no active region map, if so then generates one
     RegionGen.init();
     if (!SM.get("run.currentMap")) {
       console.log("no active region, making one");
@@ -36,12 +42,16 @@ const Region = {
         this.currentParty.push(char);
       });
     }
-
     if (!persistentStorageChars || this.currentParty.length === 0) {
       this.choosePathfinders();
       this.createPathfinders();
     }
     console.log("party:", this.currentParty);
+
+    console.log(
+      "enemyType on abyss, test:",
+      RegionEnemies.theAbyss[Math.floor(0)].name
+    );
   },
   launch: function () {
     this.setDocumentTitle();
@@ -54,7 +64,7 @@ const Region = {
   createView: function () {
     let view = createEl("div");
     view.setAttribute("id", "regionView");
-    const parent = getID("view"); // the parent that all "views" will get appended to
+    const parent = getID("view");
     parent.appendChild(view);
 
     let elem = createEl("div");
@@ -67,12 +77,16 @@ const Region = {
     buttonsWrapper.setAttribute("id", "buttonsWrapper");
     parent.appendChild(buttonsWrapper);
 
+    this.createExploreButton();
+    buttonsWrapper.appendChild(this.exploreButton.element);
+    this.exploreButton.updateListener();
+  },
+  createExploreButton: function () {
     this.exploreButton = new Button.custom({
       id: "exploreButton",
-      text: "explore",
-      click: this.explore.bind(this),
+      text: "explore.",
+      click: this.continue.bind(this),
     });
-    buttonsWrapper.appendChild(this.exploreButton.element);
   },
   setDocumentTitle: function () {
     document.title = this.currentName;
@@ -87,7 +101,7 @@ const Region = {
     let formattedName = words ? words.join(" ") : name;
     return formattedName;
   },
-  explore: function () {
+  continue: function () {
     console.log("exploring new");
   },
   startExploration: function () {
@@ -120,6 +134,12 @@ const Region = {
     );
     return nextPaths;
   },
+  moveToNextNode: function (nextNodeId) {
+    this.currentNode = this.currentMap.nodes.find(
+      (node) => node.id === nextNodeId
+    );
+    this.updateNodeView();
+  },
   choosePathfinders: function () {
     let pathfinderList = PathfinderCharLib;
     let unseen = [];
@@ -144,5 +164,14 @@ const Region = {
         PFM.createPathfinder(pathfinder);
       }
     }
+  },
+  enemyEnumTypes: function () {
+    let enemyTypes = {
+      ice: "ice",
+      dark: "dark",
+      test: "test",
+    };
+
+    return enemyTypes;
   },
 };

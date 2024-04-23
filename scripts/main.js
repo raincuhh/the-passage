@@ -20,9 +20,8 @@ let Main = {
     this.ready = true;
     this.render();
     SaveManager.loadGame();
-    PM.init();
-    SM.init();
-    EM.init();
+    PM.init(); // pingsManager
+    SM.init(); // outer stateManager
 
     if (!SM.get("run.activeModule")) {
       SM.set("run.activeModule", "Intro");
@@ -106,13 +105,13 @@ let Main = {
     SM.set("run.activeModule", module.name);
   },
   createGuid: function () {
-    var pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
-    var result = "";
-    for (var i = 0; i < pattern.length; i++) {
-      var c = pattern[i];
+    let pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+    let result = "";
+    for (let i = 0; i < pattern.length; i++) {
+      let c = pattern[i];
       if (c === "x" || c === "y") {
-        var r = Math.floor(Math.random() * 16);
-        var v = c === "x" ? r : (r & 0x3) | 0x8;
+        let r = Math.floor(Math.random() * 16);
+        let v = c === "x" ? r : (r & 0x3) | 0x8;
         result += v.toString(16);
       } else {
         result += c;
@@ -124,8 +123,8 @@ let Main = {
     let navbarInfo = [
       { id: "navbarDelete", text: "delete." },
       { id: "navbarGithub", text: "github." },
-      { id: "navbarAchievements", text: "achievements." },
-      { id: "navbarSettings", text: "settings." },
+      //{ id: "navbarAchievements", text: "achievements." },
+      //{ id: "navbarSettings", text: "settings." },
     ];
 
     function createLinks(id, text) {
@@ -155,21 +154,27 @@ let Main = {
       window.open("https://github.com/raincuhh");
     });
     const LINKACHIEVEMENTS = getID("navbarAchievements");
-    LINKACHIEVEMENTS.addEventListener("click", () => {
-      console.log("achievements");
-    });
+    if (LINKACHIEVEMENTS) {
+      LINKACHIEVEMENTS.addEventListener("click", () => {
+        console.log("achievements");
+      });
+    }
+
     const LINKSETTINGS = getID("navbarSettings");
-    let open = false;
-    LINKSETTINGS.addEventListener("click", () => {
-      const settings = getID("settings");
-      if (!open) {
-        settings.style.display = "block";
-        open = true;
-      } else {
-        settings.style.display = "none";
-        open = false;
-      }
-    });
+    if (LINKSETTINGS) {
+      let open = false;
+      LINKSETTINGS.addEventListener("click", () => {
+        const settings = getID("settings");
+        if (!open) {
+          settings.style.display = "block";
+          open = true;
+        } else {
+          settings.style.display = "none";
+          open = false;
+        }
+      });
+    }
+
     const DELETE = getID("navbarDelete");
     DELETE.addEventListener("click", () => {
       SaveManager.deleteGame();

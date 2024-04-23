@@ -139,9 +139,9 @@ const RegionGen = {
       let nextNodes = nodesByDepth[d + 1] || [];
 
       // todo, make this more complex in the future ig
-      currentNodes.forEach((currentNode) => {
-        nextNodes.forEach((nextNode) => {
-          let path = this.createPath(currentNode.id, nextNode.id, null);
+      currentNodes.forEach((x) => {
+        nextNodes.forEach((y) => {
+          let path = this.createPath(x.id, y.id, null);
           paths.push(path);
         });
       });

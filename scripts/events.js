@@ -4,13 +4,14 @@
  */
 let EM = {
   activeEvent: null,
+  eventId: null,
   init: function () {
     this.render();
   },
   render: function () {
     let event = createEl("div");
-    event.setAttribute("id", "eventView");
-    const parent = getID("main");
+    event.setAttribute("id", "event");
+    const parent = getQuerySelector("#regionView .wrapper");
     parent.appendChild(event);
   },
   startEvent: function (event) {
@@ -18,10 +19,10 @@ let EM = {
       return;
     }
     let view = createEl("div");
-    view.setAttribute("id", "event");
-    let parent = getID("eventView");
+    this.eventId = Main.createGuid();
+    view.setAttribute("id", "event_" + this.eventId);
+    let parent = getID("event");
     parent.appendChild(view);
-    console.log("event started:", event);
 
     this.loadEvent(event);
   },
@@ -42,15 +43,15 @@ let EM = {
     return null;
   },
   endEvent: function () {
-    let view = getID("event");
+    let view = getID("event_" + this.eventId);
     view.remove();
   },
-  battled: null,
+  performed: null,
   won: null,
   enterCombat: function (event) {
-    let parent = getID("event");
+    let parent = getID("event_" + this.eventId);
 
-    this.battled = false;
+    this.performed = false;
     this.won = false;
     let enemyActors = [];
     let partyActors = [];

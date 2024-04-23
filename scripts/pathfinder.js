@@ -102,16 +102,5 @@ const PFM = {
       return;
     }
     SM.setStats(pathfinder, stats);
-    /*
-      let baseNumberStats = stats.filter((stat) => stat.type === "num");
-      let basePercentStats = stats.filter((stat) => stat.type === "percent");
-  
-      baseNumberStats.forEach((stat) => {
-        SM.setStat(pathfinder, stat);
-      });
-      basePercentStats.forEach((stat) => {
-        SM.setStat(pathfinder, stat);
-      });
-      */
   },
 };

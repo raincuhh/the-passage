@@ -2,55 +2,102 @@
  * resource with all region based enemies. gets region enemies on map generation
  */
 const RegionEnemies = {
-  charonsCrossing: [
-    {
-      type: "ghoul",
-      name: "example",
-    },
-    {
-      type: "biggerGhoul",
-      name: "example",
-    },
-  ],
   theLowlands: [
     {
-      type: "mermaid",
-      name: "example",
+      type: "",
+      name: "corrodedSentinel",
     },
     {
-      type: "biggerMermaid",
-      name: "example",
+      type: "",
+      name: "abberation",
     },
   ],
   theEnamelZone: [
     {
-      type: "zombie",
-      name: "example",
+      type: "",
+      name: "",
     },
     {
-      type: "mutatedZombie",
-      name: "example",
+      type: "",
+      name: "",
     },
   ],
-  theTundra: [{}, {}],
-  theFlickeringForest: [
+  theTundra: [
     {
-      type: "ant",
-      name: "example",
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.ice;
+        return type;
+      },
+      name: "frozenRevenant",
     },
     {
-      type: "mutatedAnt",
-      name: "example",
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.ice;
+        return type;
+      },
+      name: "frostbittenLurker",
+    },
+    {
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.ice;
+        return type;
+      },
+      name: "shiveringSpectre",
+    },
+    {
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.ice;
+        return type;
+      },
+      name: "lich",
+    },
+  ],
+  theFlickeringForest: [
+    {
+      type: "grass",
+      name: "thorned abomination",
+    },
+    {
+      type: "grass",
+      name: "wraithwood",
     },
   ],
   theAbyss: [
     {
-      type: "goblin",
-      name: "example",
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.dark;
+        return type;
+      },
+      name: "abyssalSpawn",
     },
     {
-      type: "hobGoblin",
-      name: "example",
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.dark;
+        return type;
+      },
+      name: "voidWalker",
+    },
+    {
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.dark;
+        return type;
+      },
+      name: "lurker",
+    },
+    {
+      type: function () {
+        let types = Region.enemyEnumTypes();
+        let type = types.dark;
+        return type;
+      },
+      name: "crawler",
     },
   ],
 };

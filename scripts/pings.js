@@ -31,7 +31,7 @@ let PM = {
     this.deleteCheck();
   },
   deleteCheck: function () {
-    // checking if there are any overflowing pings to delete, cause memoryleak.
+    // checking if there are any overflowing pings
     const PINGS = getID("pings");
     let viewportHeight = window.innerHeight;
     let pingList = PINGS.getElementsByClassName("ping");
