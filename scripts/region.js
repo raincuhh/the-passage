@@ -11,9 +11,6 @@ const Region = {
     inEvent: "inEvent",
     partyDead: "partyDead",
   },
-  nodeArrivalMsg: "",
-  nodeLeaveMsg: "",
-  nodeInItMsg: "",
 
   currentRegionPool: [],
   timeUntilDim: 3000,
@@ -81,22 +78,34 @@ const Region = {
     );
 
     this.updateButtons();
+
     if (
       SM.get("features.caravan.state") === this.caravanEnum.dim ||
       SM.get("features.caravan.state") === this.caravanEnum.bright
     ) {
-      PM.ping("the caravan is " + SM.get("features.caravan.state"));
+      PM.ping("the candles are " + SM.get("features.caravan.state"));
     } else {
       PM.ping("the room is " + SM.get("features.caravan.state"));
+    }
+    let isInEvent = EM.isActiveEvent();
+    console.log("is in a event:", isInEvent);
+
+    if (isInEvent) {
+      PM.ping(EM.activeEvent.inItPing);
     }
     //PM.ping("you find yourself in a caravan" + afterFirstDeath);
   },
   launch: function () {
     this.setDocumentTitle();
+    if (SM.get("run.activeEvent") !== undefined) {
+      EM.startEvent(SM.get("run.activeEvent"));
+    }
+    /*
     if (!SM.get("run.currentNode")) {
       SM.set("run.currentNode", this.currentMap.nodes[0]);
       this.currentNode = this.currentMap.nodes[0];
     }
+    */
     this.currentNode = SM.get("run.currentNode");
     this.updateNodeView();
   },
@@ -214,29 +223,21 @@ const Region = {
     if (this.currentNode === null) {
       return;
     }
-
     let node = this.currentNode;
 
-    this.nodeArrivalMsg = "";
-    this.nodeLeaveMsg = "";
-    this.nodeInItMsg = "";
     //console.log("currentNode:", node);
+    //console.log(this.nodeArrivalMsg, this.nodeLeaveMsg, this.nodeInItMsg);
     let toBeLoaded;
     if (specialNodeTypesPool.some((e) => e.type === node.type)) {
       index = specialNodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = specialNodeTypesPool[index];
-      this.nodeArrivalMsg = toBeLoaded.arrivalPing;
-      this.nodeLeaveMsg = toBeLoaded.leavePing;
-      this.nodeInItMsg = toBeLoaded.inItPing;
       EM.startEvent(toBeLoaded);
     } else {
       index = NodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = NodeTypesPool[index];
-      this.nodeArrivalMsg = toBeLoaded.arrivalPing;
-      this.nodeLeaveMsg = toBeLoaded.leavePing;
-      this.nodeInItMsg = toBeLoaded.inItPing;
       EM.startEvent(toBeLoaded);
     }
+    //console.log(this.nodeArrivalMsg, this.nodeLeaveMsg, this.nodeInItMsg);
     let nextPaths = this.getNextPaths();
     console.log("next paths:", nextPaths);
   },

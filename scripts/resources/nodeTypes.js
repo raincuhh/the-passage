@@ -8,107 +8,95 @@ const NodeTypesPool = [
     type: "encounter",
     probability: 0.5,
     combat: true,
-    arrivalPing: "the caravan stops, some creatures are lurking",
-    leavePing: "your party prevails against the creatures.",
-    inItPing: "the battle continues, the creatures are getting closer",
+    arrivalPing:
+      "As the caravan halts, ominous figures emerge in the distance.",
+    leavePing: "Triumphant, your party emerges victorious from the encounter.",
+    inItPing: "The battle rages on as the creatures draw nearer.",
   },
   {
     type: "goblinMarket",
     probability: 0.125,
     combat: false,
     arrivalPing:
-      "the caravan stops, infront is a market, a goblin walks up and offers goods",
-    leavePing:
-      "your party leaves the market, content with or without your goods",
-    inItPing: "you look around in the market, hoping to find something",
+      "The caravan comes to a halt before a bustling market. A goblin approaches, offering goods.",
+    leavePing: "Satisfied or not, your party departs from the market.",
+    inItPing: "You scour the market in search of treasures.",
   },
   {
     type: "fortuneCache",
     probability: 0.125,
     combat: false,
-    arrivalPing: "the caravan stops infront of a inconspicuous crate",
+    arrivalPing: "In front of the caravan lies an inconspicuous crate.",
     leavePing:
-      "the caravan leaves with the goods, not knowing where it came from or who placed it there",
-    inItPing: "you look towards the old crate",
+      "Departing with the newfound goods, the caravan remains oblivious to their origin.",
+    inItPing: "Curiosity piqued, you inspect the old crate.",
   },
   {
     type: "wanderingMerchant",
     probability: 0.125,
     combat: false,
-    arrivalPing: "",
-    leavePing: "",
-    inItPing: "",
+    arrivalPing:
+      "A mysterious stranger halts before the caravan, proposing a trade.",
+    leavePing: "With the trade complete, the caravan resumes its journey.",
+    inItPing: "You peruse a selection of intriguing items.",
   },
   {
     type: "samaritansAid",
     probability: 0.125,
     combat: false,
-    arrivalPing: "",
-    leavePing: "",
-    inItPing: "",
+    arrivalPing:
+      "In the distance, some individuals beckon for assistance, a mix of worry and relief on their faces.",
+    leavePing: "Continuing onward, the caravan lightens its load.",
+    inItPing:
+      "The weary travelers gaze at the pathfinders with hopeful anticipation.",
   },
-  /*
-  {
-    type: "dungeon",
-    probability: 0.05,
-    combat: true,
-  },
-  {
-    type: "sanctum",
-    probability: 0.05,
-    combat: false,
-  },
-  {
-    type: "cryptOfTheUndead",
-    probability: 0.05,
-    combat: true,
-  },
-  {
-    type: "theObservatory",
-    probability: 0.05,
-    combat: false,
-  },
-  {
-    type: "theLibrary",
-    probability: 0.05,
-    combat: false,
-  },
-  */
 ];
+
 const specialNodeTypesPool = [
   {
     type: "shrineOfAbyss",
     combat: false,
-    arrivalPing: "",
-    leavePing: "",
-    inItPing: "",
+    arrivalPing:
+      "As the caravan halts, you find yourself before the imposing shrine of the abyss.",
+    leavePing:
+      "With your business concluded, you bid farewell to the shrine of the abyss.",
+    inItPing:
+      "You stand within the solemn halls of the shrine of the abyss, contemplating your choices.",
   },
   {
     type: "respite",
     combat: false,
-    arrivalPing: "",
-    leavePing: "",
-    inItPing: "",
+    arrivalPing: "The caravan comes to a peaceful stop at a restful oasis.",
+    leavePing:
+      "Refreshed and reinvigorated, the caravan resumes its journey from the respite.",
+    inItPing: "You take a moment to unwind and recover at the restful respite.",
   },
   {
     type: "regionCheck",
     combat: true,
-    arrivalPing: "",
-    leavePing: "",
-    inItPing: "",
+    arrivalPing:
+      "As you venture into the new region, the air crackles with tension. infront of you lies the abyss's test",
+    leavePing:
+      "Leaving behind the trials of the region, the caravan pushes forwards.",
+    inItPing:
+      "You steel yourself for the trials ahead as you travel further towards the abyss.",
   },
   {
     type: "sinBoss",
     combat: true,
-    arrivalPing: "",
-    leavePing: "",
-    inItPing: "",
+    arrivalPing: "A sinister presence looms as you approach the abyss.",
+    leavePing:
+      "Victorious, you emerge from the abyss, triumphant over darkness.",
+    inItPing: "With resolve, you peer into the abyss.",
   },
   {
     type: "sinMinions",
     combat: true,
-    arrivalPing: "",
-    leavePing: "",
-    inItPing: "",
+    arrivalPing:
+      "The creatures of the abyss swarm you, heralding danger and chaos.",
+    leavePing:
+      "Defeating the creatures of the abyss, you press onward, determined to confront greater evils.",
+    inItPing:
+      "Surrounded by the creatures of the abyss, you brace yourself for the impending battle.",
   },
 ];

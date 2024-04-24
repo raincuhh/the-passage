@@ -4,6 +4,11 @@
  */
 let EM = {
   activeEvent: null,
+  states: {
+    noEvent: "noEvent",
+    inEvent: "inEvent",
+  },
+  state: null,
   eventId: null,
   init: function () {
     this.render();
@@ -19,16 +24,18 @@ let EM = {
       return;
     }
     let view = createEl("div");
+    this.eventId = null;
     this.eventId = Main.createGuid();
     view.setAttribute("id", "event_" + this.eventId);
     let parent = getID("event");
     parent.appendChild(view);
-
     this.loadEvent(event);
   },
   loadEvent: function (event) {
     EM.activeEvent = event;
-    console.log("events: active:", EM.activeEvent);
+    PM.ping(event.arrivalPing);
+    SM.set("run.activeEvent", event);
+    //console.log("events: active:", EM.activeEvent);
 
     if (event.combat) {
       this.enterCombat(event);
@@ -38,12 +45,15 @@ let EM = {
   },
   isActiveEvent: function () {
     if (this.activeEvent && this.activeEvent !== null) {
-      return this.activeEvent;
+      return true;
+    } else {
+      return false;
     }
-    return null;
   },
   endEvent: function () {
+    PM.ping(EM.activeEvent.leavePing);
     EM.activeEvent = null;
+    SM.delete("run.activeEvent");
     let view = getID("event_" + this.eventId);
     view.remove();
   },
