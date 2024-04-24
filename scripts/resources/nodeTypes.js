@@ -57,9 +57,8 @@ const specialNodeTypesPool = [
     type: "shrineOfAbyss",
     combat: false,
     arrivalPing:
-      "As the caravan halts, you find yourself before the imposing shrine of the abyss.",
-    leavePing:
-      "With your business concluded, you bid farewell to the shrine of the abyss.",
+      "As the caravan halts, you find yourself before an imposing shrine.",
+    leavePing: "With your business concluded, you leave the shrine.",
     inItPing:
       "You stand within the solemn halls of the shrine of the abyss, contemplating your choices.",
   },

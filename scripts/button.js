@@ -35,7 +35,8 @@ const Button = {
         typeof param.click !== "undefined" &&
         typeof param.click === "function"
       ) {
-        if (!elem.classList.contains("disabled")) {
+        if (elem.classList.contains("disabled") === false) {
+          //console.log("updating listener:", elem);
           const clickHandler = param.click;
 
           elem.removeEventListener("click", clickHandler);
@@ -56,8 +57,10 @@ const Button = {
     if (btn) {
       if (disabled) {
         btn.classList.add("disabled");
+        console.log("disabled:", btn);
       } else {
         btn.classList.remove("disabled");
+        console.log("not disabled:", btn);
       }
       btn.setAttribute("data-disabled", disabled);
     }
@@ -69,5 +72,10 @@ const Button = {
       return false;
     }
   },
-  onCooldown: function (btn, cd) {},
+  onCooldown: function (btn, cd) {
+    Button.disabled(btn, true); // Disable the button
+    setTimeout(function () {
+      Button.disabled(btn, false); // Enable the button after the cooldown
+    }, cd);
+  },
 };

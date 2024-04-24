@@ -4,12 +4,14 @@
  */
 let EM = {
   activeEvent: null,
-  states: {
-    noEvent: "noEvent",
-    inEvent: "inEvent",
-  },
-  state: null,
   eventId: null,
+
+  eventStatesEnum: {
+    arrived: "arrived",
+    executing: "executing",
+    finished: "finished",
+  },
+
   init: function () {
     this.render();
   },
@@ -23,6 +25,10 @@ let EM = {
     if (!event) {
       return;
     }
+    if (event === EM.activeEvent) {
+      console.log("duplicate event. returning");
+      return;
+    }
     let view = createEl("div");
     this.eventId = null;
     this.eventId = Main.createGuid();
@@ -32,9 +38,12 @@ let EM = {
     this.loadEvent(event);
   },
   loadEvent: function (event) {
-    EM.activeEvent = event;
     PM.ping(event.arrivalPing);
+    //let temp = getEnumFromEvent(event);
+    //console.log("tempEvent:", temp);
+    EM.activeEvent = event;
     SM.set("run.activeEvent", event);
+    console.log("activeEvent:", event);
     //console.log("events: active:", EM.activeEvent);
 
     if (event.combat) {
@@ -42,6 +51,23 @@ let EM = {
     } else {
       this.enterNonCombat(event);
     }
+  },
+  nodeTypeEnums: [
+    { encounter: "encounter" },
+    { goblinMarket: "goblinMarket" },
+    { fortuneCache: "fortuneCache" },
+    { wanderingMerchant: "wanderingMerchant" },
+    { samaritansAid: "samaritansAid" },
+    { shrineOfAbyss: "shrineOfAbyss" },
+    { respite: "respite" },
+    { regionCheck: "regionCheck" },
+    { sinBoss: "sinBoss" },
+    { sinMinions: "sinMinions" },
+  ],
+  getEnumFromEvent: function (name) {
+    let nodeTypeEnums = this.nodeTypeEnums;
+    let type = nodeTypeEnums.find((e) => Object.values(e)[0] === name);
+    return type ? Object.keys(type) : null;
   },
   isActiveEvent: function () {
     if (this.activeEvent && this.activeEvent !== null) {
@@ -56,6 +82,8 @@ let EM = {
     SM.delete("run.activeEvent");
     let view = getID("event_" + this.eventId);
     view.remove();
+    Button.disabled(Region.exploreButton.element, false);
+    Region.exploreButton.updateListener();
   },
   performed: null,
   won: null,
@@ -67,6 +95,9 @@ let EM = {
     let enemyActors = [];
     let partyActors = [];
   },
+
+  nonCombatEnum: {},
+
   enterNonCombat: function (event) {
     let parent = getID("event");
   },

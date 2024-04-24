@@ -13,9 +13,10 @@ const Region = {
   },
 
   currentRegionPool: [],
-  timeUntilDim: 3000,
+  timeUntilDim: 2500,
   timeUntilCandleSeen: 4500,
-  timeUntilCharactersSeen: 1500,
+  timeUntilCharactersSeen: 2500,
+  timeUntilEventBegin: 2500,
   //btns
   lookAroundButton: null,
   lightCandleButton: null,
@@ -81,33 +82,27 @@ const Region = {
 
     if (
       SM.get("features.caravan.state") === this.caravanEnum.dim ||
-      SM.get("features.caravan.state") === this.caravanEnum.bright
+      SM.get("features.caravan.state") === this.caravanEnum.warm
     ) {
       PM.ping("the candles are " + SM.get("features.caravan.state"));
     } else {
       PM.ping("the room is " + SM.get("features.caravan.state"));
     }
-    let isInEvent = EM.isActiveEvent();
-    console.log("is in a event:", isInEvent);
-
-    if (isInEvent) {
-      PM.ping(EM.activeEvent.inItPing);
-    }
     //PM.ping("you find yourself in a caravan" + afterFirstDeath);
   },
   launch: function () {
     this.setDocumentTitle();
+    /*
     if (SM.get("run.activeEvent") !== undefined) {
       EM.startEvent(SM.get("run.activeEvent"));
     }
-    /*
     if (!SM.get("run.currentNode")) {
       SM.set("run.currentNode", this.currentMap.nodes[0]);
       this.currentNode = this.currentMap.nodes[0];
     }
-    */
     this.currentNode = SM.get("run.currentNode");
     this.updateNodeView();
+    */
   },
   render: function () {
     this.createView();
@@ -132,7 +127,7 @@ const Region = {
     this.lookAroundButton = new Button.custom({
       id: "lookAroundButton",
       text: "look around.",
-      click: Region.lookAround, //.bind(this)
+      click: this.lookAround.bind(this),
       //width: "max-content",
     });
     buttonsWrapper.appendChild(this.lookAroundButton.element);
@@ -140,20 +135,16 @@ const Region = {
     this.lightCandleButton = new Button.custom({
       id: "lightCandleButton",
       text: "light candle.",
-      click: Region.lightCandle,
+      click: this.lightCandle.bind(this),
     });
     buttonsWrapper.appendChild(this.lightCandleButton.element);
 
     this.exploreButton = new Button.custom({
       id: "exploreButton",
       text: "explore.",
-      click: Region.explore, //.bind(this),
+      click: this.explore.bind(this),
     });
     buttonsWrapper.appendChild(this.exploreButton.element);
-
-    this.lookAroundButton.updateListener();
-    this.lightCandleButton.updateListener();
-    this.exploreButton.updateListener();
 
     this.updateButtons();
   },
@@ -174,36 +165,62 @@ const Region = {
       exploreButton.style.display = "none";
     }
 
-    if (SM.get("features.caravan.state") === this.caravanEnum.bright) {
+    if (SM.get("features.caravan.state") === this.caravanEnum.warm) {
       lookAroundButton.style.display = "none";
       lightCandleButton.style.display = "none";
       exploreButton.style.display = "block";
     }
   },
   lookAround: function () {
-    PM.ping("you find an old lighter.");
+    Button.disabled(Region.lookAroundButton.element, true);
+    Region.lookAroundButton.updateListener();
+    PM.ping("You find an old lighter nearby, its metal casing worn with age.");
     setTimeout(() => {
       PM.ping("through the blinds, the moonlight reflects along the walls");
     }, Region.timeUntilDim);
     setTimeout(() => {
-      PM.ping("you see a candle close to you");
+      PM.ping("you see a candle close to you, its wick untouched by flame");
       SM.set("features.caravan.state", Region.caravanEnum.dim);
+      Button.disabled(Region.lookAroundButton.element, false);
+      Region.lookAroundButton.updateListener();
       Region.updateButtons();
     }, Region.timeUntilCandleSeen);
   },
   lightCandle: function () {
-    SM.set("features.caravan.state", Region.caravanEnum.bright);
+    Button.disabled(Region.lightCandleButton.element, true);
+    Region.lightCandleButton.updateListener();
+    SM.set("features.caravan.state", Region.caravanEnum.warm);
     setTimeout(() => {
-      PM.ping("the caravan is shaky, looking around, you see 3 strangers");
+      PM.ping(
+        "as the candlelight fills the space, you notice three strangers nearby, their faces partially obscured in the shadows."
+      );
+      Region.onCandleChange();
     }, Region.timeUntilCharactersSeen);
-    Region.onCandleChange();
   },
   onCandleChange: function () {
     PM.ping("the caravan is " + SM.get("features.caravan.state"));
     this.updateButtons();
   },
   explore: function () {
+    Button.disabled(Region.exploreButton.element, true);
+    console.log("event:", EM.activeEvent);
+    setTimeout(() => {
+      Region.beginExploring();
+      if (!SM.get("run.currentNode")) {
+        Button.disabled(Region.exploreButton.element, false);
+        Region.exploreButton.updateListener();
+      }
+    }, Region.timeUntilEventBegin);
     console.log("exploring");
+  },
+  beginExploring: function () {
+    //this.currentNode = SM.get("run.currentNode");
+    if (!SM.get("run.currentNode")) {
+      SM.set("run.currentNode", this.currentMap.nodes[0]);
+      this.currentNode = this.currentMap.nodes[0];
+    }
+    this.currentNode = SM.get("run.currentNode");
+    this.updateNodeView();
   },
   setDocumentTitle: function () {
     document.title = this.currentName;
@@ -225,13 +242,14 @@ const Region = {
     }
     let node = this.currentNode;
 
-    //console.log("currentNode:", node);
+    console.log("currentNode:", node);
     //console.log(this.nodeArrivalMsg, this.nodeLeaveMsg, this.nodeInItMsg);
     let toBeLoaded;
     if (specialNodeTypesPool.some((e) => e.type === node.type)) {
       index = specialNodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = specialNodeTypesPool[index];
       EM.startEvent(toBeLoaded);
+      Button.disabled(Region.exploreButton.element, true);
     } else {
       index = NodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = NodeTypesPool[index];
@@ -247,7 +265,7 @@ const Region = {
     );
     return nextPaths;
   },
-  moveToNextNode: function (nextNodeId) {
+  moveToNode: function (nextNodeId) {
     this.currentNode = this.currentMap.nodes.find(
       (node) => node.id === nextNodeId
     );
@@ -289,6 +307,6 @@ const Region = {
   caravanEnum: {
     dark: "dark",
     dim: "dim",
-    bright: "bright",
+    warm: "warm",
   },
 };

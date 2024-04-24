@@ -91,6 +91,7 @@ let SinSelection = {
     SM.set("run.activeSin", name);
     PM.ping("...");
     Main.changeModule(Region);
+    console.log("awdawdwadaw");
   },
   updateUnlockedSins: function () {
     let persistentStorageSin = SM.get("meta.sinsUnlocked");
