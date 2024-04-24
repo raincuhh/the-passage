@@ -11,9 +11,17 @@ const Region = {
     inEvent: "inEvent",
     partyDead: "partyDead",
   },
+  nodeArrivalMsg: "",
+  nodeLeaveMsg: "",
+  nodeInItMsg: "",
 
   currentRegionPool: [],
+  timeUntilDim: 3000,
+  timeUntilCandleSeen: 4500,
+  timeUntilCharactersSeen: 1500,
+  //btns
   lookAroundButton: null,
+  lightCandleButton: null,
   exploreButton: null,
 
   init: function () {
@@ -51,19 +59,37 @@ const Region = {
     }
     console.log("party:", this.currentParty);
 
+    /*
     console.log(
       "enemyType on abyss, test:",
       RegionEnemies.theAbyss[Math.floor(0)].name
     );
-    // getting state of region,
-    // before exploring > exploring > in event(will load that event) > ...
-    if (!SM.get("run.activeState")) {
-      SM.set("run.activeState", this.states.beforeJourney);
-    }
+    */
 
-    if (SM.get("run.activeState") === this.states.beforeJourney) {
-      PM.ping("you find yourself in a caravan.");
+    // before exploring > exploring > in event > ...
+    SM.set(
+      "run.activeState",
+      SM.get("run.activeState") === undefined
+        ? this.states.beforeJourney
+        : SM.get("run.activeState")
+    );
+    SM.set(
+      "features.caravan.state",
+      SM.get("features.caravan.state") === undefined
+        ? this.caravanEnum.dark
+        : SM.get("features.caravan.state")
+    );
+
+    this.updateButtons();
+    if (
+      SM.get("features.caravan.state") === this.caravanEnum.dim ||
+      SM.get("features.caravan.state") === this.caravanEnum.bright
+    ) {
+      PM.ping("the caravan is " + SM.get("features.caravan.state"));
+    } else {
+      PM.ping("the room is " + SM.get("features.caravan.state"));
     }
+    //PM.ping("you find yourself in a caravan" + afterFirstDeath);
   },
   launch: function () {
     this.setDocumentTitle();
@@ -97,11 +123,17 @@ const Region = {
     this.lookAroundButton = new Button.custom({
       id: "lookAroundButton",
       text: "look around.",
-      click: Region.lookAround,
+      click: Region.lookAround, //.bind(this)
       //width: "max-content",
     });
     buttonsWrapper.appendChild(this.lookAroundButton.element);
-    this.lookAroundButton.updateListener();
+
+    this.lightCandleButton = new Button.custom({
+      id: "lightCandleButton",
+      text: "light candle.",
+      click: Region.lightCandle,
+    });
+    buttonsWrapper.appendChild(this.lightCandleButton.element);
 
     this.exploreButton = new Button.custom({
       id: "exploreButton",
@@ -109,17 +141,61 @@ const Region = {
       click: Region.explore, //.bind(this),
     });
     buttonsWrapper.appendChild(this.exploreButton.element);
+
+    this.lookAroundButton.updateListener();
+    this.lightCandleButton.updateListener();
     this.exploreButton.updateListener();
 
+    this.updateButtons();
+  },
+  updateButtons: function () {
+    let lookAroundButton = getID("lookAroundButton");
+    let lightCandleButton = getID("lightCandleButton");
+    let exploreButton = getID("exploreButton");
+
+    if (SM.get("features.caravan.state") === this.caravanEnum.dark) {
+      lookAroundButton.style.display = "block";
+      lightCandleButton.style.display = "none";
+      exploreButton.style.display = "none";
+    }
+
+    if (SM.get("features.caravan.state") === this.caravanEnum.dim) {
+      lookAroundButton.style.display = "none";
+      lightCandleButton.style.display = "block";
+      exploreButton.style.display = "none";
+    }
+
+    if (SM.get("features.caravan.state") === this.caravanEnum.bright) {
+      lookAroundButton.style.display = "none";
+      lightCandleButton.style.display = "none";
+      exploreButton.style.display = "block";
+    }
+  },
+  lookAround: function () {
+    PM.ping("you find an old lighter.");
+    setTimeout(() => {
+      PM.ping("through the blinds, the moonlight reflects along the walls");
+    }, Region.timeUntilDim);
+    setTimeout(() => {
+      PM.ping("you see a candle close to you");
+      SM.set("features.caravan.state", Region.caravanEnum.dim);
+      Region.updateButtons();
+    }, Region.timeUntilCandleSeen);
+  },
+  lightCandle: function () {
+    SM.set("features.caravan.state", Region.caravanEnum.bright);
+    setTimeout(() => {
+      PM.ping("the caravan is shaky, looking around, you see 3 strangers");
+    }, Region.timeUntilCharactersSeen);
+    Region.onCandleChange();
+  },
+  onCandleChange: function () {
+    PM.ping("the caravan is " + SM.get("features.caravan.state"));
     this.updateButtons();
   },
   explore: function () {
     console.log("exploring");
   },
-  lookAround: function () {
-    console.log("looking around");
-  },
-  updateButtons: function () {},
   setDocumentTitle: function () {
     document.title = this.currentName;
   },
@@ -135,16 +211,30 @@ const Region = {
   },
 
   updateNodeView: function () {
+    if (this.currentNode === null) {
+      return;
+    }
+
     let node = this.currentNode;
+
+    this.nodeArrivalMsg = "";
+    this.nodeLeaveMsg = "";
+    this.nodeInItMsg = "";
     //console.log("currentNode:", node);
     let toBeLoaded;
     if (specialNodeTypesPool.some((e) => e.type === node.type)) {
       index = specialNodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = specialNodeTypesPool[index];
+      this.nodeArrivalMsg = toBeLoaded.arrivalPing;
+      this.nodeLeaveMsg = toBeLoaded.leavePing;
+      this.nodeInItMsg = toBeLoaded.inItPing;
       EM.startEvent(toBeLoaded);
     } else {
       index = NodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = NodeTypesPool[index];
+      this.nodeArrivalMsg = toBeLoaded.arrivalPing;
+      this.nodeLeaveMsg = toBeLoaded.leavePing;
+      this.nodeInItMsg = toBeLoaded.inItPing;
       EM.startEvent(toBeLoaded);
     }
     let nextPaths = this.getNextPaths();
@@ -194,5 +284,10 @@ const Region = {
       test: "test",
     };
     return enemyTypes;
+  },
+  caravanEnum: {
+    dark: "dark",
+    dim: "dim",
+    bright: "bright",
   },
 };

@@ -10,15 +10,15 @@
  */
 let SinSelection = {
   name: "SinSelection",
-  confessButton: null,
   chosenSin: "",
+  confessButton: null,
 
   init: function () {
     this.render();
   },
   launch: function () {
     this.setDocumentTitle();
-    PM.ping("confess your sins..");
+    PM.ping("confess your sins");
   },
   render: function () {
     this.createView();
@@ -89,6 +89,7 @@ let SinSelection = {
   confess: function () {
     let name = this.chosenSin.trim();
     SM.set("run.activeSin", name);
+    PM.ping("...");
     Main.changeModule(Region);
   },
   updateUnlockedSins: function () {

@@ -16,6 +16,7 @@ let SM = {
       "meta", // meta-progression, kept between runs.
       "run", // run specific stuff
       "event", // battle related stuff, specifically enemies made and their stats,
+      "features",
       //rewards for battle, etc.
     ];
     for (const category of categories) {
