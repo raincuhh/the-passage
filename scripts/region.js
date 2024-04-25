@@ -2,7 +2,7 @@ const Region = {
   name: "Region",
   currentNode: null,
   currentMap: null,
-  currentName: null,
+  currentFormattedName: null,
   currentParty: [],
   currentState: null,
   states: {
@@ -17,6 +17,7 @@ const Region = {
   timeUntilCandleSeen: 4500,
   timeUntilCharactersSeen: 2500,
   timeUntilEventBegin: 2500,
+
   //btns
   lookAroundButton: null,
   lightCandleButton: null,
@@ -26,22 +27,36 @@ const Region = {
     this.render();
     EM.init();
 
+    // getting sin (for sinboss)
     if (!SM.get("run.activeSin")) {
       SM.set("run.activeSin", "sloth");
     }
+
     // checking if no active region map, if so then generates one
     RegionGen.init();
     if (!SM.get("run.currentMap")) {
-      console.log("no active region, making one");
+      //console.log("no active region, making one");
       let region = RegionGen.newReg();
       SM.set("run.currentMap", region.map);
       SM.set("run.currentName", region.name);
       this.currentMap = region.map;
-      this.currentName = region.name;
+      this.currentFormattedName = region.name;
     }
-    this.currentName = this.formatRegionName(SM.get("run.currentName"));
+
+    this.currentFormattedName = this.formatRegionName(
+      SM.get("run.currentName")
+    );
     this.currentMap = SM.get("run.currentMap");
-    console.log("map:", this.currentMap);
+    //console.log("map:", this.currentMap);
+
+    // getting the regions enemypool for combat purposes
+    let regionName = SM.get("run.currentName");
+    let pool = RegionEnemyPool[regionName];
+    pool.forEach((region) => {
+      this.currentRegionPool.push(region);
+    });
+
+    //console.log("regionPool:", this.currentRegionPool);
 
     // checking characters, if none then makes them.
     let persistentStorageChars = SM.get("char.characters");
@@ -55,14 +70,6 @@ const Region = {
       this.choosePathfinders();
       this.createPathfinders();
     }
-    console.log("party:", this.currentParty);
-
-    /*
-    console.log(
-      "enemyType on abyss, test:",
-      RegionEnemies.theAbyss[Math.floor(0)].name
-    );
-    */
 
     // before exploring > exploring > in event > ...
     SM.set(
@@ -203,7 +210,7 @@ const Region = {
   },
   explore: function () {
     Button.disabled(Region.exploreButton.element, true);
-    console.log("event:", EM.activeEvent);
+    //console.log("event:", EM.activeEvent);
     setTimeout(() => {
       Region.beginExploring();
       if (!SM.get("run.currentNode")) {
@@ -211,7 +218,7 @@ const Region = {
         Region.exploreButton.updateListener();
       }
     }, Region.timeUntilEventBegin);
-    console.log("exploring");
+    //console.log("exploring");
   },
   beginExploring: function () {
     //this.currentNode = SM.get("run.currentNode");
@@ -223,7 +230,7 @@ const Region = {
     this.updateNodeView();
   },
   setDocumentTitle: function () {
-    document.title = this.currentName;
+    document.title = this.currentFormattedName;
   },
   formatRegionName: function (name) {
     let words = name.match(/[A-Z]*[^A-Z]+/g);
@@ -296,14 +303,14 @@ const Region = {
       }
     }
   },
-  enemyEnumTypes: function () {
-    let enemyTypes = {
-      ice: "ice",
-      dark: "dark",
-      test: "test",
-    };
-    return enemyTypes;
+
+  enemyTypes: {
+    ice: "ice",
+    dark: "dark",
+    undead: "undead",
+    toxic: "toxic",
   },
+
   caravanEnum: {
     dark: "dark",
     dim: "dim",

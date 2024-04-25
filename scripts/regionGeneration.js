@@ -29,7 +29,7 @@ const RegionGen = {
     let regions = [
       "theWasteland",
       "theTundra",
-      "theFlickeringForest",
+      "theForest",
       "theLowlands",
       "theForgottenValley",
     ];

@@ -57,10 +57,10 @@ const Button = {
     if (btn) {
       if (disabled) {
         btn.classList.add("disabled");
-        console.log("disabled:", btn);
+        //console.log("disabled:", btn);
       } else {
         btn.classList.remove("disabled");
-        console.log("not disabled:", btn);
+        //console.log("not disabled:", btn);
       }
       btn.setAttribute("data-disabled", disabled);
     }

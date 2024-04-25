@@ -16,7 +16,7 @@
   --text-base: rgb(95, 95, 95);
   --text-highlight: rgb(125, 125, 125);
   --text-active: rgb(140, 140, 140);
-  --text-red: rgb(255, 0, 0);
+  --text-red: rgb(102, 0, 0);
 
   --game-height: 100%;
   --container-width: clamp(800px, 70vw, 950px);
@@ -422,8 +422,8 @@
   cursor: pointer;
   pointer-events: none;
   user-select: none;
-  border: 1px solid var(--text-red);
-  color: var(--text-red);
+  border: 1px solid var(--text-subdued);
+  color: var(--text-subdued);
 }
 .button.disabled:hover {
   text-decoration: none;

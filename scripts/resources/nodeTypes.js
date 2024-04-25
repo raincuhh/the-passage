@@ -55,12 +55,12 @@ const NodeTypesPool = [
 const specialNodeTypesPool = [
   {
     type: "shrineOfAbyss",
-    combat: false,
+    combat: true,
     arrivalPing:
       "As the caravan halts, you find yourself before an imposing shrine.",
     leavePing: "With your business concluded, you leave the shrine.",
     inItPing:
-      "You stand within the solemn halls of the shrine of the abyss, contemplating your choices.",
+      "You stand within the solemn halls of the shrine, contemplating your choices.",
   },
   {
     type: "respite",
