@@ -102,7 +102,12 @@ let EM = {
     SM.set("event.state", this.eventStatesEnum.finished);
     PM.ping(EM.activeEvent.leavePing);
     EM.activeEvent = null;
+
     SM.delete("event.activeEvent");
+    SM.delete("event.enemyActors");
+    SM.delete("event.eventId");
+    SM.delete("event.state");
+
     let view = getID("event_" + this.eventId);
     view.remove();
     Button.disabled(Region.exploreButton.element, false);
@@ -117,14 +122,16 @@ let EM = {
 
     this.performed = false;
     this.won = false;
-    //this.enemyActors = [];
+    this.enemyActors = [];
     this.partyActors = [];
     let enemyPool = Region.currentRegionPool;
+
     if (!SM.get("event.enemyActors")) {
       let temp = [];
       for (let i = 0; i < 4; i++) {
-        let enemy = "enemy_" + i;
-        temp.push(enemy);
+        let chosen = this.weightedEnemySelection(enemyPool);
+        temp.push(chosen);
+        console.log(chosen);
       }
       SM.set("event.enemyActors", temp);
     }
@@ -133,27 +140,7 @@ let EM = {
     for (const i of enems) {
       this.enemyActors.push(i);
     }
-    function setEnemyActors() {
-      let temp = [];
-      for (let i = 0; i < 4; i++) {
-        let enemy = enemyPool[Math.floor(Math.random() * enemyPool.length)];
-        temp.push(enemy);
-      }
-      try {
-        SM.set("event.enemyActors", temp);
-        console.log("sucessfully set enemies");
-      } catch (err) {
-        console.error("error setting enemies:", err);
-      }
-    }
-    //enemyActors = SM.get("event.enemyActors");
-    //console.log("enemyActors:", enemyActors);
-    //let enemies = Object.entries(enemyActors);
-    ///console.log("enemies:", enemies);
 
-    // characters will always be the same depending on run so i just grab that
-    // then the stats of the characters (health, resistances, etc),
-    // will always be the same throughout, so any health/stats lost wont get reset when new event.
     let party = SM.get("char.characters");
     let chars = Object.entries(party);
     for (const i of chars) {
@@ -173,6 +160,21 @@ let EM = {
       }
     }
     //console.log(enemyPool);
+  },
+  weightedEnemySelection(pool) {
+    const totalProbabilty = pool.reduce(
+      (acc, enemy) => acc + enemy.probability,
+      0
+    );
+    const randomNum = Math.random() * totalProbabilty;
+
+    let culminativeProbability = 0;
+    for (const enemy of pool) {
+      culminativeProbability += enemy.probability;
+      if (randomNum <= culminativeProbability) {
+        return enemy;
+      }
+    }
   },
 
   enterNonCombat: function (event) {

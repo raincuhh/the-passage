@@ -52,8 +52,8 @@ const Region = {
     // getting the regions enemypool for combat purposes
     let regionName = SM.get("run.currentName");
     let pool = RegionEnemyPool[regionName];
-    pool.forEach((region) => {
-      this.currentRegionPool.push(region);
+    pool.forEach((e) => {
+      this.currentRegionPool.push(e);
     });
 
     //console.log("regionPool:", this.currentRegionPool);
