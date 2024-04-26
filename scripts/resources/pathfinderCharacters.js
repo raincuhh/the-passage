@@ -1,15 +1,4 @@
 /**
- * pathfinder are the selectable characters you can choose 4 of
- * before the start of the game.
- * im gonna change the available functions
- * to return a SM.get skill and available value later
- *
- * ally layout
- * 1-br, 2-br, 3-fr, 4-fr
- *
- * enemy layout
- * 1-fr, 2-fr, 3-br, 4-br
- *
  * base stats that get made for each char.
  * name is name of stat
  * value is base % or num of that stat

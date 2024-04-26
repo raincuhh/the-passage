@@ -18,11 +18,11 @@ let SinSelection = {
   },
   launch: function () {
     this.setDocumentTitle();
+    Main.changeLocationHeader("choose your sin");
     PM.ping("confess your sins");
   },
   render: function () {
     this.createView();
-    this.createHeader();
     this.createSins();
     this.createButtons();
   },
@@ -36,22 +36,7 @@ let SinSelection = {
     elem.setAttribute("class", "wrapper");
     view.appendChild(elem);
   },
-  createHeader: function () {
-    const parent = getQuerySelector("#sinSelectionView .wrapper");
 
-    let header = createEl("header");
-    header.setAttribute("class", "header");
-    parent.appendChild(header);
-
-    let headerTitle = createEl("div");
-    headerTitle.setAttribute("class", "title");
-    headerTitle.textContent = "confess your sin";
-    header.appendChild(headerTitle);
-
-    let seperator = createEl("div");
-    seperator.setAttribute("class", "seperator");
-    parent.appendChild(seperator);
-  },
   createSins: function () {
     const parent = getQuerySelector("#sinSelectionView .wrapper");
 
@@ -79,7 +64,7 @@ let SinSelection = {
       text: "continue.",
       click: this.confess.bind(this),
       disabled: true,
-      width: "100%",
+      //width: "100%",
     });
 
     buttonsWrapper.appendChild(this.confessButton.element);

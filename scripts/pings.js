@@ -6,8 +6,8 @@ let PM = {
   init: function () {
     let elem = createEl("div");
     elem.setAttribute("id", "pings");
-    const CONTAINER = getID("container");
-    CONTAINER.insertBefore(elem, CONTAINER.firstChild);
+    const container = getID("container");
+    container.insertBefore(elem, container.firstChild);
 
     let fade = createEl("div");
     fade.setAttribute("id", "fade");
@@ -26,30 +26,30 @@ let PM = {
     let ping = createEl("div");
     ping.className = "ping";
     ping.textContent = e;
-    const PINGS = getID("pings");
-    PINGS.insertBefore(ping, PINGS.firstChild);
+    const pings = getID("pings");
+    pings.insertBefore(ping, pings.firstChild);
     this.deleteCheck();
   },
   deleteCheck: function () {
     // checking if there are any overflowing pings
-    const PINGS = getID("pings");
+    const pings = getID("pings");
     let viewportHeight = window.innerHeight;
-    let pingList = PINGS.getElementsByClassName("ping");
+    let pingList = pings.getElementsByClassName("ping");
     for (let i = 0; i < pingList.length; i++) {
       let ping = pingList[i];
       let pingRect = ping.getBoundingClientRect();
       if (pingRect.bottom < 0 || pingRect.top > viewportHeight) {
-        PINGS.removeChild(ping);
+        pings.removeChild(ping);
       }
     }
   },
   clear: function () {
-    const PINGS = getID("pings");
-    let pingList = PINGS.getElementsByClassName("ping");
+    const pings = getID("pings");
+    let pingList = pings.getElementsByClassName("ping");
 
     let pingListArray = Array.from(pingList);
     pingListArray.forEach((e) => {
-      PINGS.removeChild(e);
+      pings.removeChild(e);
     });
   },
 };

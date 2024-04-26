@@ -16,7 +16,8 @@ const Region = {
   timeUntilDim: 2500,
   timeUntilCandleSeen: 4500,
   timeUntilCharactersSeen: 2500,
-  timeUntilEventBegin: 2500,
+  timeUntilCandleChange: 4500,
+  timeUntilEventBegin: 1000,
 
   caravanEnum: {
     dark: "dark",
@@ -34,6 +35,7 @@ const Region = {
   lookAroundButton: null,
   lightCandleButton: null,
   exploreButton: null,
+  continueButton: null,
 
   init: function () {
     this.render();
@@ -104,18 +106,23 @@ const Region = {
       SM.get("features.caravan.state") === this.caravanEnum.warm
     ) {
       PM.ping("the candles are " + SM.get("features.caravan.state"));
+      Main.changeLocationHeader("the caravan");
     } else {
       PM.ping("the room is " + SM.get("features.caravan.state"));
     }
+
     //PM.ping("you find yourself in a caravan" + afterFirstDeath);
   },
+
   launch: function () {
     this.setDocumentTitle();
   },
+
   render: function () {
     this.createView();
     this.createButtons();
   },
+
   createView: function () {
     let view = createEl("div");
     view.setAttribute("id", "regionView");
@@ -125,9 +132,20 @@ const Region = {
     let elem = createEl("div");
     elem.setAttribute("class", "wrapper");
     view.appendChild(elem);
+
+    Main.changeLocationHeader("???");
+
+    let topView = createEl("div");
+    topView.setAttribute("class", "topView");
+
+    let botView = createEl("div");
+    botView.setAttribute("class", "botView");
+    elem.appendChild(topView);
+    elem.appendChild(botView);
   },
+
   createButtons: function () {
-    const parent = getQuerySelector("#regionView .wrapper");
+    const parent = getQuerySelector("#regionView .wrapper .topView");
     let buttonsWrapper = createEl("div");
     buttonsWrapper.setAttribute("id", "buttonsWrapper");
     parent.appendChild(buttonsWrapper);
@@ -154,31 +172,46 @@ const Region = {
     });
     buttonsWrapper.appendChild(this.exploreButton.element);
 
+    this.continueButton = new Button.custom({
+      id: "continueButton",
+      text: "continue.",
+      click: EM.endEvent,
+      disabled: false,
+    });
+    buttonsWrapper.appendChild(this.continueButton.element);
     this.updateButtons();
   },
+
   updateButtons: function () {
     let lookAroundButton = getID("lookAroundButton");
     let lightCandleButton = getID("lightCandleButton");
     let exploreButton = getID("exploreButton");
+    let continueButton = getID("continueButton");
 
     if (SM.get("features.caravan.state") === this.caravanEnum.dark) {
       lookAroundButton.style.display = "block";
       lightCandleButton.style.display = "none";
       exploreButton.style.display = "none";
+      continueButton.style.display = "none";
     }
 
     if (SM.get("features.caravan.state") === this.caravanEnum.dim) {
       lookAroundButton.style.display = "none";
       lightCandleButton.style.display = "block";
       exploreButton.style.display = "none";
+      continueButton.style.display = "none";
     }
 
     if (SM.get("features.caravan.state") === this.caravanEnum.warm) {
       lookAroundButton.style.display = "none";
       lightCandleButton.style.display = "none";
       exploreButton.style.display = "block";
+      continueButton.style.display = "none";
     }
+
+    // exploration button and continue button will get hidden and unhidden in eventManager
   },
+
   lookAround: function () {
     Button.disabled(Region.lookAroundButton.element, true);
     Region.lookAroundButton.updateListener();
@@ -194,6 +227,7 @@ const Region = {
       Region.updateButtons();
     }, Region.timeUntilCandleSeen);
   },
+
   lightCandle: function () {
     Button.disabled(Region.lightCandleButton.element, true);
     Region.lightCandleButton.updateListener();
@@ -202,13 +236,18 @@ const Region = {
       PM.ping(
         "as the candlelight fills the space, you notice three strangers nearby, their faces partially obscured in the shadows."
       );
-      Region.onCandleChange();
     }, Region.timeUntilCharactersSeen);
+    setTimeout(() => {
+      Region.onCandleChange();
+    }, Region.timeUntilCandleChange);
   },
+
   onCandleChange: function () {
     PM.ping("the caravan is " + SM.get("features.caravan.state"));
+    Main.changeLocationHeader("the caravan");
     this.updateButtons();
   },
+
   explore: function () {
     Button.disabled(Region.exploreButton.element, true);
     //console.log("event:", EM.activeEvent);
@@ -221,6 +260,7 @@ const Region = {
     }, Region.timeUntilEventBegin);
     //console.log("exploring");
   },
+
   beginExploring: function () {
     //this.currentNode = SM.get("run.currentNode");
     if (!SM.get("run.currentNode")) {
@@ -230,9 +270,11 @@ const Region = {
     this.currentNode = SM.get("run.currentNode");
     this.updateNodeView();
   },
+
   setDocumentTitle: function () {
     document.title = this.currentFormattedName;
   },
+
   formatRegionName: function (name) {
     let words = name.match(/[A-Z]*[^A-Z]+/g);
     if (words) {
@@ -251,7 +293,6 @@ const Region = {
     let node = this.currentNode;
 
     console.log("currentNode:", node);
-    //console.log(this.nodeArrivalMsg, this.nodeLeaveMsg, this.nodeInItMsg);
     let toBeLoaded;
     if (specialNodeTypesPool.some((e) => e.type === node.type)) {
       index = specialNodeTypesPool.findIndex((e) => e.type === node.type);
@@ -262,21 +303,24 @@ const Region = {
       index = NodeTypesPool.findIndex((e) => e.type === node.type);
       toBeLoaded = NodeTypesPool[index];
       EM.startEvent(toBeLoaded);
+      Button.disabled(Region.exploreButton.element, true);
     }
-    //console.log(this.nodeArrivalMsg, this.nodeLeaveMsg, this.nodeInItMsg);
     let nextPaths = this.getNextPaths();
-    console.log("next paths:", nextPaths);
+    //console.log("next paths:", nextPaths);
   },
+
   getNextPaths: function () {
     let nextPaths = this.currentMap.paths.filter(
       (path) => path.fromId === this.currentNode.id
     );
     return nextPaths;
   },
+
   moveToNode: function (nodeId) {
     this.currentNode = this.currentMap.nodes.find((node) => node.id === nodeId);
     this.updateNodeView();
   },
+
   choosePathfinders: function () {
     let pathfinderList = PathfinderCharLib;
     let unseen = [];
@@ -294,8 +338,8 @@ const Region = {
       seen.push(pathfinder);
       this.currentParty.push(pathfinder);
     }
-    //console.log(this.currentParty);
   },
+
   createPathfinders: function () {
     for (const pathfinder of this.currentParty) {
       if (!SM.get("char.characters." + pathfinder)) {

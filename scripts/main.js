@@ -57,13 +57,27 @@ const Main = {
     }
   },
   render: function () {
+    const container = getID("container");
+
+    let content = createEl("div");
+    content.setAttribute("id", "content");
+    container.appendChild(content);
+
+    let locationHeader = createEl("div");
+    locationHeader.setAttribute("id", "locationHeader");
+    content.appendChild(locationHeader);
+
     let view = createEl("div");
     view.id = "view";
-    const container = getID("container");
-    container.appendChild(view);
+    content.appendChild(view);
 
     this.createNavbar();
     SaveManager.createSaved();
+  },
+  changeLocationHeader: function (string) {
+    let locationHeader = getID("locationHeader");
+    string = uppercaseify(string);
+    locationHeader.textContent = string;
   },
   clearModuleView: function () {
     const parent = getID("view");

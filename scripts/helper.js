@@ -59,3 +59,14 @@ function loc(str) {
 function randomNumberBetween2Values(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+function splitByUppercase(str) {
+  let result = "";
+  for (let i = 0; i < str.length; i++) {
+    if (i > 0 && str[i] === str[i].toUpperCase()) {
+      result += " " + str[i];
+    } else {
+      result += str[i];
+    }
+  }
+  return result;
+}

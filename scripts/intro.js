@@ -9,6 +9,7 @@ const Intro = {
   render: function () {
     this.createView();
     this.createContent();
+    this.createButtons();
   },
   begin: function () {
     Main.changeModule(SinSelection);
@@ -25,34 +26,27 @@ const Intro = {
     const parent = getID("introView");
     parent.appendChild(elem);
 
-    let header = createEl("div");
-    header.setAttribute("class", "header");
-    const wrapper = getQuerySelector("#introView .wrapper");
-    wrapper.appendChild(header);
-
-    let title = createEl("div");
-    title.setAttribute("class", "title");
-    title.textContent = "the passage";
-    header.appendChild(title);
-
-    let seperator = createEl("div");
-    seperator.setAttribute("class", "seperator");
-    wrapper.appendChild(seperator);
+    Main.changeLocationHeader("the passage");
 
     let description = createEl("div");
     description.setAttribute("class", "description");
     description.textContent =
-      ">> A roguelike textbased rpg with little to no hand holding. <<";
-    wrapper.appendChild(description);
+      ">> Experience this minimalist text-based roguelike with little to no hand holding. <<";
+    elem.appendChild(description);
+  },
+  createButtons: function () {
+    const parent = getQuerySelector("#introView .wrapper");
+    let buttonsWrapper = createEl("div");
+    buttonsWrapper.setAttribute("id", "buttonsWrapper");
+    parent.appendChild(buttonsWrapper);
 
     let introButton = new Button.custom({
       id: "intro",
       text: "continue",
       click: Intro.begin,
-      width: "100%",
     });
 
-    wrapper.appendChild(introButton.element);
+    buttonsWrapper.appendChild(introButton.element);
   },
 
   setDocumentTitle: function () {

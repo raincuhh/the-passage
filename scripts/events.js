@@ -18,7 +18,7 @@ let EM = {
   render: function () {
     let event = createEl("div");
     event.setAttribute("id", "event");
-    const parent = getQuerySelector("#regionView .wrapper");
+    const parent = getQuerySelector("#regionView .wrapper .topView");
     parent.appendChild(event);
   },
   startEvent: function (event) {
@@ -29,30 +29,33 @@ let EM = {
       console.log("duplicate event");
       return;
     }
-    this.eventId = null;
     if (!SM.get("event.eventId")) {
       let id = Main.createGuid();
-      SM.set("event.eventId", "event_" + id);
+      let fullId = "event_" + id;
+      SM.set("event.eventId", fullId);
     }
     this.eventId = SM.get("event.eventId");
 
+    const parent = getID("event");
     let view = createEl("div");
     view.setAttribute("id", this.eventId);
-    const parent = getID("event");
+    view.setAttribute("class", "eventView");
     parent.appendChild(view);
+
+    let exploreButton = getID("exploreButton");
+    let continueButton = getID("continueButton");
+    exploreButton.style.display = "none";
+    continueButton.style.display = "block";
+
     this.loadEvent(event);
   },
   loadEvent: function (event) {
-    //let temp = getEnumFromEvent(event);
-    //console.log("tempEvent:", temp);
     EM.activeEvent = event;
     SM.set("event.activeEvent", event);
     if (!SM.get("event.state")) {
       SM.set("event.state", this.eventStatesEnum.arrived);
     }
     this.pingEventState();
-    //console.log("activeEvent:", event);
-    //console.log("events: active:", EM.activeEvent);
 
     if (event.combat) {
       this.enterCombat(event);
@@ -87,13 +90,15 @@ let EM = {
     }
   },
   endEvent: function () {
-    SM.set("event.state", this.eventStatesEnum.finished);
-    this.pingEventState();
+    SM.set("event.state", EM.eventStatesEnum.finished);
+    EM.pingEventState();
     EM.activeEvent = null;
 
-    let view = getID(this.eventId);
+    Main.changeLocationHeader("the caravan");
+
+    let view = getID(EM.eventId);
     view.remove();
-    this.eventId = null;
+    EM.eventId = null;
 
     let eventProperties = Object.entries(SM.get("event"));
     for (let i = 0; i < eventProperties.length; i++) {
@@ -108,6 +113,10 @@ let EM = {
     SM.delete("event.eventId");
     SM.delete("event.state");
     */
+    let exploreButton = getID("exploreButton");
+    let continueButton = getID("continueButton");
+    exploreButton.style.display = "block";
+    continueButton.style.display = "none";
 
     Button.disabled(Region.exploreButton.element, false);
     Region.exploreButton.updateListener();
@@ -146,7 +155,6 @@ let EM = {
         } else {
           chosen = this.weightedEnemySelection(worldPool);
         }
-
         temp.push(chosen);
         console.log(chosen);
       }
@@ -202,7 +210,7 @@ let EM = {
     //const parent = getID(this.eventId);
     SM.set("event.state", this.eventStatesEnum.executing);
 
-    this.clearModuleView();
+    this.clearEventView();
     let name;
     name = event.type;
     name = uppercaseify(name);
@@ -210,10 +218,8 @@ let EM = {
     this.updateNonCombatView();
 
     //console.log(this.activeNonCombatModule);
-
-    //this.matchNonCombatEvents(event);
   },
-  clearModuleView: function () {
+  clearEventView: function () {
     const parent = getID(this.eventId);
     while (parent.firstChild) {
       parent.removeChild(parent.firstChild);
