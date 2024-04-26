@@ -18,6 +18,18 @@ const Region = {
   timeUntilCharactersSeen: 2500,
   timeUntilEventBegin: 2500,
 
+  caravanEnum: {
+    dark: "dark",
+    dim: "dim",
+    warm: "warm",
+  },
+  enemyTypes: {
+    ice: "ice",
+    dark: "dark",
+    undead: "undead",
+    toxic: "toxic",
+  },
+
   //btns
   lookAroundButton: null,
   lightCandleButton: null,
@@ -52,8 +64,8 @@ const Region = {
     // getting the regions enemypool for combat purposes
     let regionName = SM.get("run.currentName");
     let pool = RegionEnemyPool[regionName];
-    pool.forEach((e) => {
-      this.currentRegionPool.push(e);
+    pool.forEach((enemy) => {
+      this.currentRegionPool.push(enemy);
     });
 
     //console.log("regionPool:", this.currentRegionPool);
@@ -99,17 +111,6 @@ const Region = {
   },
   launch: function () {
     this.setDocumentTitle();
-    /*
-    if (SM.get("run.activeEvent") !== undefined) {
-      EM.startEvent(SM.get("run.activeEvent"));
-    }
-    if (!SM.get("run.currentNode")) {
-      SM.set("run.currentNode", this.currentMap.nodes[0]);
-      this.currentNode = this.currentMap.nodes[0];
-    }
-    this.currentNode = SM.get("run.currentNode");
-    this.updateNodeView();
-    */
   },
   render: function () {
     this.createView();
@@ -272,20 +273,20 @@ const Region = {
     );
     return nextPaths;
   },
-  moveToNode: function (nextNodeId) {
-    this.currentNode = this.currentMap.nodes.find(
-      (node) => node.id === nextNodeId
-    );
+  moveToNode: function (nodeId) {
+    this.currentNode = this.currentMap.nodes.find((node) => node.id === nodeId);
     this.updateNodeView();
   },
   choosePathfinders: function () {
     let pathfinderList = PathfinderCharLib;
     let unseen = [];
     let seen = [];
+    // first of all putting all characters in the unseen arr
     for (let i = 0; i < pathfinderList.length; i++) {
       let pathfinder = pathfinderList[i];
       unseen.push(pathfinder);
     }
+    // then choosing based on the unseen list, chosen gets pushed to seen
     for (let i = 0; i < 4; i++) {
       let rng = Math.floor(Math.random() * unseen.length);
       let chosen = unseen.splice(rng, 1)[0];
@@ -302,18 +303,5 @@ const Region = {
         PFM.createPathfinder(pathfinder);
       }
     }
-  },
-
-  enemyTypes: {
-    ice: "ice",
-    dark: "dark",
-    undead: "undead",
-    toxic: "toxic",
-  },
-
-  caravanEnum: {
-    dark: "dark",
-    dim: "dim",
-    warm: "warm",
   },
 };

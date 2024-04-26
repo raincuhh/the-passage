@@ -24,12 +24,3 @@ const PathTypesPool = [
     probability: 0.2,
   },
 ];
-
-/*
-
-{
-    type: "",
-    probability: 0.0,
-  },
-
-*/

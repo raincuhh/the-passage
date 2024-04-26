@@ -2,7 +2,7 @@
  * main
  * handles gameloop
  */
-let Main = {
+const Main = {
   version: 0.29,
   beta: true,
   autoSaveDelay: 60000,
@@ -37,10 +37,10 @@ let Main = {
       try {
         this.changeModule(module);
       } catch (err) {
-        console.error("error loading module: " + err);
+        console.error("error loading module:", err);
       }
     } else {
-      console.error("module undefined: ", moduleName);
+      console.error("module undefined:", moduleName);
     }
 
     this.setDefaultPreferences();

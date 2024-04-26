@@ -135,3 +135,22 @@ const RegionEnemyPool = {
     },
   ],
 };
+
+const NonRegionEnemyPool = [
+  {
+    name: "brawler",
+    probability: 0.4,
+  },
+  {
+    name: "wanderer",
+    probability: 0.3,
+  },
+  {
+    name: "vagrant",
+    probability: 0.2,
+  },
+  {
+    name: "lost",
+    probability: 0.1,
+  },
+];

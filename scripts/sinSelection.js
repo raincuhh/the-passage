@@ -60,7 +60,6 @@ let SinSelection = {
     parent.appendChild(sinsWrapper);
 
     this.unlockSin("sloth");
-
     this.unlockSin("gluttony");
     /*
     this.unlockSin("lust");
