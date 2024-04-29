@@ -1,5 +1,6 @@
 /**
  * every pathfinder got atleast 1 equippable item for them,
+ * respite items, artifacts and
  */
 const EquippableItems = {
   thePugilist: [],

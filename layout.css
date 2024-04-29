@@ -404,6 +404,34 @@
         display: flex;
         width: 100%;
         justify-content: end;
+        .eventView {
+          width: 100%;
+          height: 100%;
+
+          /* individual event is styled under  */
+
+          /* shrine of the abyss */
+          #shrineHeader {
+            display: flex;
+            gap: 0.25rem;
+            padding-bottom: 0.5rem;
+            justify-content: end;
+
+            .shrineSectionHeader:hover {
+              color: var(--text-active);
+              text-decoration: underline;
+              cursor: pointer;
+            }
+            .seperator {
+              pointer-events: none;
+              user-select: none;
+            }
+          }
+          #shrineView {
+            height: 100%;
+          }
+          /* shrine of the abyss */
+        }
       }
     }
     .botView {
@@ -427,6 +455,8 @@
   margin-bottom: 5px;
 }
 .button:hover {
+  border: 1px solid var(--text-active);
+  color: var(--text-active);
   text-decoration: underline;
 }
 .button.disabled {

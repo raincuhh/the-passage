@@ -36,20 +36,20 @@ const RegionGen = {
     // making the regions
     for (const region of regions) {
       if (!SM.get("location.regions." + region)) {
-        SM.set("location.regions." + region, {});
+        SM.set("location.regions." + region, false);
         //console.log("region made: " + region);
       }
     }
     // checking for undefined
     for (let i = 0; i < regions.length; i++) {
       let region = regions[i];
-      if (SM.get("location.regions." + region + ".exp") === undefined) {
+      if (SM.get("location.regions." + region) === undefined) {
         SM.setRegionAttr(region, "exp", false);
         //console.log("region unexplored");
       }
     }
     for (const region of regions) {
-      switch (SM.get("location.regions." + region + ".exp")) {
+      switch (SM.get("location.regions." + region)) {
         case true:
           this.expRegs.push(region);
           break;
@@ -67,7 +67,7 @@ const RegionGen = {
 
     //SM.setRegionAttr()
     this.expRegs.push(chosen);
-    SM.set("location.regions." + chosen + ".exp", true);
+    SM.set("location.regions." + chosen, true);
     return chosen;
   },
   getDepth: function () {
