@@ -405,8 +405,8 @@
         width: 100%;
         justify-content: end;
         .eventView {
-          width: 100%;
           height: 100%;
+          width: 100%;
 
           /* individual event is styled under  */
 
@@ -414,7 +414,7 @@
           #shrineHeader {
             display: flex;
             gap: 0.25rem;
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
             justify-content: end;
 
             .shrineSectionHeader:hover {
@@ -428,14 +428,29 @@
             }
           }
           #shrineView {
-            height: 100%;
+            padding-left: 1rem;
+            display: flex;
+            flex-direction: column;
+
+            #currencyPanel {
+              display: flex;
+              width: 100%;
+              padding-bottom: 0.25rem;
+              #currencyPanelDesc {
+                margin-right: auto;
+                text-decoration: underline;
+              }
+              #tokenCurrencyPreview {
+                text-decoration: underline;
+              }
+            }
           }
-          /* shrine of the abyss */
         }
       }
     }
     .botView {
       display: flex;
+      height: 100%;
     }
   }
 }

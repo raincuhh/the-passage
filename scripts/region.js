@@ -178,7 +178,7 @@ const Region = {
       click: EM.endEvent,
       disabled: false,
     });
-    buttonsWrapper.appendChild(this.continueButton.element);
+    //buttonsWrapper.appendChild(this.continueButton.element);
     this.updateButtons();
   },
 
@@ -186,27 +186,27 @@ const Region = {
     let lookAroundButton = getID("lookAroundButton");
     let lightCandleButton = getID("lightCandleButton");
     let exploreButton = getID("exploreButton");
-    let continueButton = getID("continueButton");
+    //let continueButton = getID("continueButton");
 
     if (SM.get("features.caravan.state") === this.caravanEnum.dark) {
       lookAroundButton.style.display = "block";
       lightCandleButton.style.display = "none";
       exploreButton.style.display = "none";
-      continueButton.style.display = "none";
+      //continueButton.style.display = "none";
     }
 
     if (SM.get("features.caravan.state") === this.caravanEnum.dim) {
       lookAroundButton.style.display = "none";
       lightCandleButton.style.display = "block";
       exploreButton.style.display = "none";
-      continueButton.style.display = "none";
+      //continueButton.style.display = "none";
     }
 
     if (SM.get("features.caravan.state") === this.caravanEnum.warm) {
       lookAroundButton.style.display = "none";
       lightCandleButton.style.display = "none";
       exploreButton.style.display = "block";
-      continueButton.style.display = "none";
+      //continueButton.style.display = "none";
     }
 
     // exploration button and continue button will get hidden and unhidden in eventManager
@@ -251,13 +251,21 @@ const Region = {
   explore: function () {
     Button.disabled(Region.exploreButton.element, true);
     //console.log("event:", EM.activeEvent);
-    setTimeout(() => {
-      Region.beginExploring();
-      if (!SM.get("run.currentNode")) {
+
+    if (EM.isActiveEvent()) {
+      EM.endEvent();
+      Button.disabled(Region.exploreButton.element, true);
+    } else {
+      setTimeout(() => {
+        Region.beginExploring();
         Button.disabled(Region.exploreButton.element, false);
-        Region.exploreButton.updateListener();
-      }
-    }, Region.timeUntilEventBegin);
+        if (!SM.get("run.currentNode")) {
+          Button.disabled(Region.exploreButton.element, false);
+          Region.exploreButton.updateListener();
+        }
+      }, Region.timeUntilEventBegin);
+    }
+
     //console.log("exploring");
   },
 
@@ -267,8 +275,57 @@ const Region = {
       SM.set("run.currentNode", this.currentMap.nodes[0]);
       this.currentNode = this.currentMap.nodes[0];
     }
+
     this.currentNode = SM.get("run.currentNode");
+
     this.updateNodeView();
+
+    this.handlePathOptions();
+  },
+
+  handlePathOptions: function () {
+    const availablePaths = this.currentMap.paths.filter(
+      (path) => path.fromId === this.currentNode.id
+    );
+
+    if (availablePaths.length === 0) {
+      console.log("No available paths");
+      return;
+    }
+
+    if (availablePaths.length === 1) {
+      console.log("Only one available path");
+      return;
+    }
+
+    const pathsByDirection = {};
+    availablePaths.forEach((path) => {
+      let fromNode = this.currentMap.nodes.find(
+        (node) => node.id === path.fromId
+      );
+      let toNode = this.currentMap.nodes.find((node) => node.id === path.toId);
+      let direction = this.getPathDirection(fromNode, toNode);
+
+      if (!pathsByDirection[direction]) {
+        pathsByDirection[direction] = [];
+      }
+      pathsByDirection[direction].push(path);
+    });
+
+    for (const direction in pathsByDirection) {
+      console.log(direction);
+    }
+    console.log(pathsByDirection);
+  },
+
+  getPathDirection: function (from, to) {
+    if (to.depth > from.depth) {
+      return "right";
+    } else if (to.depth < from.depth) {
+      return "left";
+    } else {
+      return "middle";
+    }
   },
 
   setDocumentTitle: function () {
@@ -290,9 +347,10 @@ const Region = {
     if (this.currentNode === null) {
       return;
     }
-    let node = this.currentNode;
 
+    let node = this.currentNode;
     console.log("currentNode:", node);
+
     let toBeLoaded;
     if (specialNodeTypesPool.some((e) => e.type === node.type)) {
       index = specialNodeTypesPool.findIndex((e) => e.type === node.type);
@@ -305,7 +363,13 @@ const Region = {
       EM.startEvent(toBeLoaded);
       Button.disabled(Region.exploreButton.element, true);
     }
+
     let nextPaths = this.getNextPaths();
+
+    if (nextPaths.length === 0) {
+      Button.disabled(Region.exploreButton.element, false);
+      Region.exploreButton.updateListener();
+    }
     //console.log("next paths:", nextPaths);
   },
 

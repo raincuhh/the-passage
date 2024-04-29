@@ -12,11 +12,26 @@ const ShrineOfAbyss = {
       SM.set("meta.tokens", this.tokens);
     }
     this.tokens = SM.get("meta.tokens");
-    console.log("tokens:", this.tokens);
+    //console.log("tokens:", this.tokens);
+    const tokenCurrencyPreview = getQuerySelector(
+      "#shrineView #currencyPanel #tokenCurrencyPreview"
+    );
+    tokenCurrencyPreview.textContent = this.tokens + " Tokens";
+
+    this.updateCurrency();
   },
+
+  updateCurrency: function () {
+    const tokenCurrencyPreview = getQuerySelector(
+      "#shrineView #currencyPanel #tokenCurrencyPreview"
+    );
+    tokenCurrencyPreview.textContent = this.tokens + " Tokens";
+  },
+
   render: function () {
     this.createContent();
   },
+
   createContent: function () {
     const parent = getID(EM.eventId);
 
@@ -34,6 +49,7 @@ const ShrineOfAbyss = {
       section = createHeaderSection(section.title, index);
       header.appendChild(section);
     });
+
     function createHeaderSection(title, index) {
       let elem = createEl("div");
       elem.setAttribute("id", "shrineHeader" + title);
@@ -46,67 +62,67 @@ const ShrineOfAbyss = {
       return elem;
     }
 
-    // then add the metaprogression stuff, make you sacrifice tokens to unlock different items
-    // and unlock skills on different characters for example.
-    // have characters not yet unlocked as "???"
-
     let body = createEl("div");
     body.setAttribute("id", "shrineView");
     parent.appendChild(body);
+
+    let currencyPanel = createEl("div");
+    currencyPanel.setAttribute("id", "currencyPanel");
+    body.appendChild(currencyPanel);
+
+    let currencyPanelDesc = createEl("div");
+    currencyPanelDesc.setAttribute("id", "currencyPanelDesc");
+    currencyPanelDesc.textContent = "peer into the abyss.";
+    currencyPanel.appendChild(currencyPanelDesc);
+
+    let tokenCurrencyPreview = createEl("div");
+    tokenCurrencyPreview.setAttribute("id", "tokenCurrencyPreview");
+    currencyPanel.appendChild(tokenCurrencyPreview);
+
+    let itemsUnlockedPreview = createEl("div");
+    itemsUnlockedPreview.setAttribute("id", "itemsUnlockedPreview");
+    currencyPanel.appendChild(itemsUnlockedPreview);
 
     let itemsPanel = createEl("div");
     itemsPanel.setAttribute("id", "itemsPanel");
     itemsPanel.setAttribute("class", "shrinePanel");
     body.appendChild(itemsPanel);
 
+    let demoWarning = createEl("div");
+    demoWarning.setAttribute("id", "sorryNothingHere");
+    demoWarning.textContent = "not added for demo";
+    itemsPanel.appendChild(demoWarning);
+
     let skillsPanel = createEl("div");
     skillsPanel.setAttribute("id", "skillsPanel");
     skillsPanel.setAttribute("class", "shrinePanel");
     body.appendChild(skillsPanel);
 
-    // hiding both panels at first
-    // then setting default panel
+    skillsPanel.appendChild(demoWarning);
+
     ShrineOfAbyss.hidePanel();
     this.changePanel(1);
   },
+
   changePanel: function (index) {
-    // hiding panels
+    // hiding panels, kinda hardcoded
     ShrineOfAbyss.hidePanel();
-    console.log("changing panel to" + index);
+    //console.log("changing panel to" + index);
     const itemsPanel = getQuerySelector("#shrineView #itemsPanel");
     const skillsPanel = getQuerySelector("#shrineView #skillsPanel");
-
-    const itemsPanelHeader = getQuerySelector(
-      "#shrineHeader #shrineHeaderSkills"
-    );
-    const skillsPanelHeader = getQuerySelector(
-      "#shrineHeader #shrineHeaderItems"
-    );
-
     if (index === 0) {
       skillsPanel.style.display = "flex";
-      skillsPanelHeader.classList.add("selected");
     } else if (index === 1) {
       itemsPanel.style.display = "flex";
-      itemsPanelHeader.classList.add("selected");
     } else {
       console.warn("index not defined");
     }
   },
+
   hidePanel: function () {
     const itemsPanel = getQuerySelector("#shrineView #itemsPanel");
     const skillsPanel = getQuerySelector("#shrineView #skillsPanel");
-
-    const itemPanelHeader = getQuerySelector(
-      "#shrineHeader #shrineHeaderSkills"
-    );
-    const skillsPanelHeader = getQuerySelector(
-      "#shrineHeader #shrineHeaderItems"
-    );
-
     itemsPanel.style.display = "none";
     skillsPanel.style.display = "none";
-    itemPanelHeader.classList.remove("selected");
-    skillsPanelHeader.classList.remove("selected");
   },
 };

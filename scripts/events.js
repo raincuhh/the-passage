@@ -42,10 +42,10 @@ let EM = {
     view.setAttribute("class", "eventView");
     parent.appendChild(view);
 
-    let exploreButton = getID("exploreButton");
-    let continueButton = getID("continueButton");
-    exploreButton.style.display = "none";
-    continueButton.style.display = "block";
+    //let exploreButton = getID("exploreButton");
+    //let continueButton = getID("continueButton");
+    //exploreButton.style.display = "none";
+    //continueButton.style.display = "block";
 
     this.loadEvent(event);
   },
@@ -107,16 +107,11 @@ let EM = {
       SM.delete("event." + toDelete);
     }
     //eventProperties.forEach((property) => SM.delete("event." + property));
-    /*
-    SM.delete("event.activeEvent");
-    SM.delete("event.enemyActors");
-    SM.delete("event.eventId");
-    SM.delete("event.state");
-    */
-    let exploreButton = getID("exploreButton");
-    let continueButton = getID("continueButton");
-    exploreButton.style.display = "block";
-    continueButton.style.display = "none";
+
+    //let exploreButton = getID("exploreButton");
+    //let continueButton = getID("continueButton");
+    //exploreButton.style.display = "block";
+    //continueButton.style.display = "none";
 
     Button.disabled(Region.exploreButton.element, false);
     Region.exploreButton.updateListener();

@@ -1,9 +1,9 @@
 /**
- * base stats that get made for each char.
- * name is name of stat
- * value is base % or num of that stat
- * stats can be either % or a number.
+ * stats are not added in game for demo, i mean specifically the resistances
+ * cause not enough time, same with the debuff/buff stuff.
+ *
  */
+
 let PathfinderCharLib = [
   {
     name: "the pugilist",

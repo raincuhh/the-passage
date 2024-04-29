@@ -31,7 +31,7 @@ const Intro = {
     let description = createEl("div");
     description.setAttribute("class", "description");
     description.textContent =
-      ">> Experience this minimalist text-based roguelike with little to no hand holding. <<";
+      "Experience this minimalist text-based roguelike with little to no hand holding.";
     elem.appendChild(description);
   },
   createButtons: function () {

@@ -11,6 +11,7 @@ let SaveManager = {
     const MAIN = getID("main");
     MAIN.insertBefore(elem, MAIN.firstChild);
   },
+
   saveNotif: function () {
     const ELEM = getID("saved");
     ELEM.style.opacity = 1;
@@ -19,6 +20,7 @@ let SaveManager = {
       ELEM.style.opacity = 0;
     }, 10);
   },
+
   saveGame: function () {
     try {
       //console.log(SM.components);
@@ -28,13 +30,14 @@ let SaveManager = {
     } catch (error) {
       if (error === DOMException.QUOTA_EXCEEDED_ERR) {
         console.log(
-          "Quota exceeded error. Tried to save data through localstorage but we dont have enough space to save all data."
+          "Quota exceeded err. Tried to save data through localstorage but not enough space to save all data."
         );
       }
       console.error("error occured: ", error);
       alert("tried to save, attempt failed, view error in console");
     }
   },
+
   loadGame: function () {
     let string = localStorage.getItem("save");
     //console.log("statemanager components:");
@@ -54,6 +57,7 @@ let SaveManager = {
       console.log("no save found");
     }
   },
+
   deleteGame: function (/*reload*/) {
     this.saveGame();
     localStorage.removeItem("save");
@@ -65,6 +69,7 @@ let SaveManager = {
     }
     */
   },
+
   export: function () {
     this.saveGame();
     let string = this.gen64();
@@ -78,12 +83,14 @@ let SaveManager = {
     console.log(string);
     return string;
   },
+
   gen64: function () {
     let save = SM.components;
     save = JSON.stringify(save);
     save = btoa(save);
     return save;
   },
+
   import: function () {
     const IMPORTDIV = getID("changethiswhenyoumaketheimportdiv");
     let string = IMPORTDIV.textContent;
