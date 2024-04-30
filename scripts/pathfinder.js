@@ -8,10 +8,13 @@ const PFM = {
   createPathfinder: function (pathfinder) {
     let charList = PathfinderCharLib;
     let index = charList.findIndex((e) => e.name === pathfinder);
-    this.randomizeTraits(pathfinder, this.baseTraitNum);
-    this.setBaseSkills(pathfinder, index);
+
+    // disabled for demo
+    //this.randomizeTraits(pathfinder, this.baseTraitNum);
+    //this.setBaseSkills(pathfinder, index);
     this.setBaseStats(pathfinder, index);
   },
+
   randomizeTraits: function (pathfinder, numberOfTraits) {
     let positiveTraitList = PathfinderTraitsLib[0];
     let negativeTraitList = PathfinderTraitsLib[1];
@@ -31,16 +34,19 @@ const PFM = {
       //console.log("trait added: " + trait);
     }
   },
+
   getRandPositiveTrait: function () {
     let traitList = PathfinderTraitsLib[0];
     let trait = this.getTraitPool(traitList);
     return trait;
   },
+
   getRandNegativeTrait: function () {
     let traitList = PathfinderTraitsLib[1];
     let trait = this.getTraitPool(traitList);
     return trait;
   },
+
   getTraitPool: function (traitList) {
     let rareTreshold = 0.3;
     let commonTraits = traitList.filter((e) => e.rarity === "common");
@@ -58,6 +64,7 @@ const PFM = {
 
     return selectedTrait;
   },
+
   includeTraitPing: function (trait, bool) {
     let matchedTrait;
     for (let i = 0; i < PathfinderTraitsLib.length; i++) {
@@ -77,6 +84,7 @@ const PFM = {
       console.error();
     }
   },
+
   setBaseSkills: function (pathfinder, index) {
     let charListSkills = PathfinderCharLib[index].skills;
 
@@ -94,6 +102,7 @@ const PFM = {
       SM.setSkill(pathfinder, skill, false);
     });
   },
+
   includeSkillPing: function (skill, bool) {},
   setBaseStats: function (pathfinder, index) {
     let stats = PathfinderCharLib[index].stats;

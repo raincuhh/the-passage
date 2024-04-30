@@ -15,12 +15,14 @@ let EM = {
   init: function () {
     this.render();
   },
+
   render: function () {
     let event = createEl("div");
     event.setAttribute("id", "event");
     const parent = getQuerySelector("#regionView .wrapper .topView");
     parent.appendChild(event);
   },
+
   startEvent: function (event) {
     if (!event) {
       return;
@@ -49,6 +51,7 @@ let EM = {
 
     this.loadEvent(event);
   },
+
   loadEvent: function (event) {
     EM.activeEvent = event;
     SM.set("event.activeEvent", event);
@@ -63,6 +66,7 @@ let EM = {
       this.enterNonCombat(event);
     }
   },
+
   pingEventState: function () {
     let e = EM.activeEvent;
     switch (SM.get("event.state")) {
@@ -77,11 +81,13 @@ let EM = {
         break;
     }
   },
+
   getEnumFromEvent: function (name) {
     let nodeTypeEnums = this.nodeTypeEnums;
     let type = nodeTypeEnums.find((e) => Object.values(e)[0] === name.type);
     return type ? Object.keys(type) : null;
   },
+
   isActiveEvent: function () {
     if (this.activeEvent && this.activeEvent !== null) {
       return true;
@@ -89,6 +95,7 @@ let EM = {
       return false;
     }
   },
+
   endEvent: function () {
     SM.set("event.state", EM.eventStatesEnum.finished);
     EM.pingEventState();
@@ -116,10 +123,12 @@ let EM = {
     Button.disabled(Region.exploreButton.element, false);
     Region.exploreButton.updateListener();
   },
+
   performed: null,
   won: null,
   enemyActors: [],
   partyActors: [],
+
   enterCombat: function (event) {
     const parent = getID(this.eventId);
     console.log(event);
@@ -168,6 +177,7 @@ let EM = {
     console.log("party:", this.partyActors);
     SM.set("event.state", this.eventStatesEnum.executing);
   },
+
   weightedEnemySelection(pool) {
     const totalProbabilty = pool.reduce(
       (acc, enemy) => acc + enemy.probability,
@@ -183,6 +193,7 @@ let EM = {
       }
     }
   },
+
   /**
    * Active non combat mobule doesnt really need
    * to be saved in the sm cause when i
@@ -193,7 +204,9 @@ let EM = {
    * its gonna create a list of random items. But if not first time
    * then its just gonna load the list of items that were created.
    */
+
   activeNonCombatModule: null,
+
   nonCombatModuleEnums: {
     FortuneCache: "FortuneCache",
     Respite: "Respite",
@@ -201,6 +214,7 @@ let EM = {
     ShrineOfAbyss: "ShrineOfAbyss",
     WanderingMerchant: "WanderingMerchant",
   },
+
   enterNonCombat: function (event) {
     //const parent = getID(this.eventId);
     SM.set("event.state", this.eventStatesEnum.executing);
@@ -214,12 +228,14 @@ let EM = {
 
     //console.log(this.activeNonCombatModule);
   },
+
   clearEventView: function () {
     const parent = getID(this.eventId);
     while (parent.firstChild) {
       parent.removeChild(parent.firstChild);
     }
   },
+
   updateNonCombatView: function () {
     switch (this.activeNonCombatModule) {
       case this.nonCombatModuleEnums.FortuneCache:

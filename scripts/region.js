@@ -85,13 +85,6 @@ const Region = {
       this.createPathfinders();
     }
 
-    // before exploring > exploring > in event > ...
-    SM.set(
-      "run.activeState",
-      SM.get("run.activeState") === undefined
-        ? this.states.beforeJourney
-        : SM.get("run.activeState")
-    );
     SM.set(
       "features.caravan.state",
       SM.get("features.caravan.state") === undefined
@@ -106,9 +99,11 @@ const Region = {
       SM.get("features.caravan.state") === this.caravanEnum.warm
     ) {
       PM.ping("the candles are " + SM.get("features.caravan.state"));
-      Main.changeLocationHeader("the caravan");
     } else {
       PM.ping("the room is " + SM.get("features.caravan.state"));
+    }
+    if (SM.get("features.caravan.state") === this.caravanEnum.warm) {
+      Main.changeLocationHeader("the caravan");
     }
 
     //PM.ping("you find yourself in a caravan" + afterFirstDeath);
@@ -210,6 +205,7 @@ const Region = {
     }
 
     // exploration button and continue button will get hidden and unhidden in eventManager
+    // scratch that
   },
 
   lookAround: function () {
@@ -280,9 +276,10 @@ const Region = {
 
     this.updateNodeView();
 
-    this.handlePathOptions();
+    //this.handlePathOptions();
   },
 
+  /*
   handlePathOptions: function () {
     const availablePaths = this.currentMap.paths.filter(
       (path) => path.fromId === this.currentNode.id
@@ -317,16 +314,7 @@ const Region = {
     }
     console.log(pathsByDirection);
   },
-
-  getPathDirection: function (from, to) {
-    if (to.depth > from.depth) {
-      return "right";
-    } else if (to.depth < from.depth) {
-      return "left";
-    } else {
-      return "middle";
-    }
-  },
+  */
 
   setDocumentTitle: function () {
     document.title = this.currentFormattedName;
@@ -364,13 +352,12 @@ const Region = {
       Button.disabled(Region.exploreButton.element, true);
     }
 
-    let nextPaths = this.getNextPaths();
-
+    /*
     if (nextPaths.length === 0) {
       Button.disabled(Region.exploreButton.element, false);
       Region.exploreButton.updateListener();
     }
-    //console.log("next paths:", nextPaths);
+    */
   },
 
   getNextPaths: function () {
@@ -389,12 +376,12 @@ const Region = {
     let pathfinderList = PathfinderCharLib;
     let unseen = [];
     let seen = [];
-    // first of all putting all characters in the unseen arr
+    // putting all characters in unseen
     for (let i = 0; i < pathfinderList.length; i++) {
       let pathfinder = pathfinderList[i];
       unseen.push(pathfinder);
     }
-    // then choosing based on the unseen list, chosen gets pushed to seen
+    // then choosing based on the unseen list
     for (let i = 0; i < 4; i++) {
       let rng = Math.floor(Math.random() * unseen.length);
       let chosen = unseen.splice(rng, 1)[0];

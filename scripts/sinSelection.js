@@ -1,7 +1,7 @@
 /**
  * sin selection
  * this is where you will pick your sin boss, each sin corresponds to a different finale boss,
- * for the beta ig only the first will be made
+ * for the demo ig only the first will be made
  *
  * order from easiest to hardest
  * sloth > gluttony > lust > greed > envy > pride > wrath
@@ -16,16 +16,19 @@ let SinSelection = {
   init: function () {
     this.render();
   },
+
   launch: function () {
     this.setDocumentTitle();
     Main.changeLocationHeader("choose your sin");
     PM.ping("confess your sins");
   },
+
   render: function () {
     this.createView();
     this.createSins();
     this.createButtons();
   },
+
   createView: function () {
     let view = createEl("div");
     view.setAttribute("id", "sinSelectionView");
@@ -45,14 +48,15 @@ let SinSelection = {
     parent.appendChild(sinsWrapper);
 
     this.unlockSin("sloth");
-    this.unlockSin("gluttony");
     /*
+    this.unlockSin("gluttony");
     this.unlockSin("lust");
     this.unlockSin("greed");
     this.unlockSin("envy");
     */
     this.updateUnlockedSins();
   },
+
   createButtons: function () {
     const parent = getQuerySelector("#sinSelectionView .wrapper");
     let buttonsWrapper = createEl("div");
@@ -70,12 +74,14 @@ let SinSelection = {
     buttonsWrapper.appendChild(this.confessButton.element);
     this.confessButton.updateListener();
   },
+
   confess: function () {
     let name = this.chosenSin.trim();
     SM.set("run.activeSin", name);
     PM.ping("...");
     Main.changeModule(Region);
   },
+
   updateUnlockedSins: function () {
     let persistentStorageSin = SM.get("meta.sinsUnlocked");
     let sins = Object.entries(persistentStorageSin);
@@ -94,6 +100,7 @@ let SinSelection = {
       }
     }
   },
+
   selectSin: function (sin) {
     this.clearSelected();
     let sinText = getQuerySelector("#sinsWrapper #" + sin);
@@ -107,6 +114,7 @@ let SinSelection = {
     // calc sin stuff later, gonna change enemy hp and stuff "slightly", as in like a 1.05x boost
     // increases incrementally with each sin, 1.05x > 1.1x > 1.15x > 1.2x > 1.25x > 1.3x > 1.35x
   },
+
   clearSelected: function () {
     let sinsWrapper = getID("sinsWrapper");
     let sins = sinsWrapper.querySelectorAll(".sin");
@@ -114,6 +122,7 @@ let SinSelection = {
       sin.style.textDecoration = "none";
     });
   },
+
   unlockSin: function (sin) {
     if (SM.get("meta.sinsUnlocked." + sin)) {
       return;
@@ -124,7 +133,8 @@ let SinSelection = {
   getSinStatus: function (sin) {
     return SM.get("meta.sinsUnlocked." + sin);
   },
+
   setDocumentTitle: function () {
-    document.title = "a sin?";
+    document.title = "???";
   },
 };

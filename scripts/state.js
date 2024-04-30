@@ -9,15 +9,13 @@ let SM = {
   init: function () {
     let categories = [
       "location", // locations, regions explored etc.
-      "entity", // generated enemies will be instantiated inside the entities category
       "char", // PathfinderCharLib, boons, flaws, perks, health, stats and such.
       "resources", // will have inventory, and currencies made in it
       "prefs", // gamepreferences, stuff like exitWarning, lightmode, autosave, etc.
       "meta", // meta-progression, kept between runs.
       "run", // run specific stuff
       "event", // battle related stuff, specifically enemies made and their stats,
-      "features",
-      //rewards for battle, etc.
+      "features", //rewards for battle, etc.
     ];
     for (const category of categories) {
       if (!this.get(category)) {
@@ -56,7 +54,7 @@ let SM = {
       value = this.maxValue;
     }
     let currentState = this.components;
-    // regExp to check for ".", "[", "]", ", and '.
+    // regexp to check for ".", "[", "]", ", and '.
     const PARTS = stateName.split(/[.\[\]'"]+/);
     for (let i = 0; i < PARTS.length - 1; i++) {
       if (!currentState.hasOwnProperty(PARTS[i])) {

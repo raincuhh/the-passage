@@ -22,8 +22,8 @@
 const RegionGen = {
   unexpRegs: [],
   expRegs: [],
-  depth: 4,
-  maxDepth: 14,
+  depth: 7,
+  maxDepth: 20,
 
   init: function () {
     let regions = [
@@ -92,7 +92,7 @@ const RegionGen = {
     // in the future will make the getTypesFromPool more complex
     let map = this.genMap(depth);
     this.assignTypesToNodes(map.nodes, NodeTypesPool, depth, name);
-    this.assignTypesToPaths(map.paths, PathTypesPool);
+    //this.assignTypesToPaths(map.paths, PathTypesPool);
     this.lastMinAssignCheck(map);
     console.log(name);
 
@@ -100,8 +100,8 @@ const RegionGen = {
   },
   genMap: function (depth) {
     let nodes = this.genNodes(depth);
-    let paths = this.genPaths(nodes, depth);
-    return { nodes, paths };
+    //let paths = this.genPaths(nodes, depth);
+    return { nodes /*, paths*/ };
   },
   genNodes: function (depth) {
     let nodes = [];
@@ -218,11 +218,13 @@ const RegionGen = {
         node.type = "encounter";
       }
     });
+    /*
     map.paths.forEach((path) => {
       if (path.type === undefined) {
         path.type = "nothing";
       }
     });
+    */
   },
 
   createNode: function (id, depth, type) {
@@ -236,7 +238,6 @@ const RegionGen = {
   },
 };
 
-//
 class Node {
   constructor(id, depth, type) {
     this.id = id;
@@ -251,90 +252,3 @@ class Path {
     this.type = type;
   }
 }
-
-/*
-const Regions = {
-  generateMap: function (depth) {
-    
-    let nodes = [];
-    let paths = [];
-
-    // first node will always be a shrine of the abyss
-    let startNode = this.createNode(
-      nodes.length + 1,
-      undefined,
-      "shrineOfAbyss"
-    );
-    nodes.push(startNode);
-
-    // making the inbetween Nodes based on depth,
-    for (let d = 1; d <= depth; d++) {
-      let numOfNodes = randomNumberBetween2Values(1, 3); // number of nodes between 1-3
-      let dCounter = d;
-      for (let i = 1; i <= numOfNodes; i++) {
-        let nodeType = this.getNodeType();
-        let node = this.createNode(nodes.length + 1, dCounter, nodeType);
-        nodes.push(node);
-      }
-    }
-
-    let endNode = this.createNode(
-      nodes.length + 1,
-      undefined,
-      "pathfinderRespite"
-    );
-    nodes.push(endNode);
-    //console.log(nodes);
-    
-
-    // making paths
-    
-    for (let d = 1; d < depth; d++) {
-      let currentNodes = nodes.filter(
-        (node) => Math.ceil(node.id / Math.pow(2, d - 1)) === 1
-      );
-      let nextNodes = nodes.filter(
-        (node) => Math.ceil(node.id / Math.pow(2, d)) === 1
-      );
-
-      let numConnections = Math.floor(Math.random() * 3) + 1; // Randomly connect to 1-3 next nodes
-      if (numConnections === nextNodes.length) {
-        currentNodes.forEach((currentNode) => {
-          nextNodes.forEach((nextNode) => {
-            paths.push(new Path(currentNode.id, nextNode.id));
-          });
-        });
-      } else {
-        currentNodes.forEach((currentNode) => {
-          let connectedNodes = [];
-          for (let i = 0; i < numConnections; i++) {
-            let nextNode =
-              nextNodes[Math.floor(Math.random() * nextNodes.length)];
-            while (connectedNodes.includes(nextNode)) {
-              nextNode =
-                nextNodes[Math.floor(Math.random() * nextNodes.length)];
-            }
-            connectedNodes.push(nextNode);
-            paths.push(new Path(currentNode.id, nextNode.id));
-          }
-        });
-      }
-    }
-    
-    return { nodes, paths };
-  },
-};
-*/
-
-/*
-  genPaths: function (nodes, depth) {
-    let paths = [];
-    for (let d = 0; d <= depth; d++) {
-      let currentNodes = nodes.filter((node) => node.depth === d);
-      let nextNodes = nodes.filter((node) => node.depth + 1 === d + 1);
-
-      console.log("Nodes at Depth", d, ": " + currentNodes);
-    }
-    return paths;
-  },
-  */

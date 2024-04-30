@@ -16,7 +16,7 @@ const ShrineOfAbyss = {
     const tokenCurrencyPreview = getQuerySelector(
       "#shrineView #currencyPanel #tokenCurrencyPreview"
     );
-    tokenCurrencyPreview.textContent = this.tokens + " Tokens";
+    tokenCurrencyPreview.textContent = this.tokens + " tokens";
 
     this.updateCurrency();
   },
@@ -25,7 +25,7 @@ const ShrineOfAbyss = {
     const tokenCurrencyPreview = getQuerySelector(
       "#shrineView #currencyPanel #tokenCurrencyPreview"
     );
-    tokenCurrencyPreview.textContent = this.tokens + " Tokens";
+    tokenCurrencyPreview.textContent = this.tokens + " tokens";
   },
 
   render: function () {
@@ -72,7 +72,7 @@ const ShrineOfAbyss = {
 
     let currencyPanelDesc = createEl("div");
     currencyPanelDesc.setAttribute("id", "currencyPanelDesc");
-    currencyPanelDesc.textContent = "peer into the abyss.";
+    currencyPanelDesc.textContent = "abyss shop";
     currencyPanel.appendChild(currencyPanelDesc);
 
     let tokenCurrencyPreview = createEl("div");
@@ -107,7 +107,7 @@ const ShrineOfAbyss = {
   changePanel: function (index) {
     // hiding panels, kinda hardcoded
     ShrineOfAbyss.hidePanel();
-    //console.log("changing panel to" + index);
+    //console.log("changing panel to:", index);
     const itemsPanel = getQuerySelector("#shrineView #itemsPanel");
     const skillsPanel = getQuerySelector("#shrineView #skillsPanel");
     if (index === 0) {

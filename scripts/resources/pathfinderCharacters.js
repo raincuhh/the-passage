@@ -76,7 +76,7 @@ let PathfinderCharLib = [
     stats: [
       {
         name: "hp",
-        id: "healthpoints",
+        id: "hp",
         value: 27,
         type: "num",
       },
@@ -206,7 +206,7 @@ let PathfinderCharLib = [
     stats: [
       {
         name: "hp",
-        id: "healthpoints",
+        id: "hp",
         value: 24,
         type: "num",
       },
@@ -333,7 +333,7 @@ let PathfinderCharLib = [
     stats: [
       {
         name: "hp",
-        id: "healthpoints",
+        id: "hp",
         value: 21,
         type: "num",
       },
@@ -454,7 +454,7 @@ let PathfinderCharLib = [
     stats: [
       {
         name: "hp",
-        id: "healthpoints",
+        id: "hp",
         value: 37,
         type: "num",
       },
@@ -575,7 +575,7 @@ let PathfinderCharLib = [
     stats: [
       {
         name: "hp",
-        id: "healthpoints",
+        id: "hp",
         value: 31,
         type: "num",
       },
@@ -625,7 +625,7 @@ let PathfinderCharLib = [
       {
         name: "stun res",
         id: "stunResistance",
-        value: "25%",
+        value: 0.25,
         type: "percent",
       },
       {
@@ -700,7 +700,7 @@ let PathfinderCharLib = [
     stats: [
       {
         name: "hp",
-        id: "healthpoints",
+        id: "hp",
         value: 34,
         type: "num",
       },
