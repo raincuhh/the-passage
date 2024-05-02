@@ -134,6 +134,7 @@ const Main = {
     let navbarInfo = [
       { id: "navbarDelete", text: "delete." },
       { id: "navbarGithub", text: "github." },
+      { id: "navbarResetRun", text: "reset run." },
       //{ id: "navbarAchievements", text: "achievements." },
       //{ id: "navbarSettings", text: "settings." },
     ];
@@ -160,53 +161,19 @@ const Main = {
       navbarLinks.appendChild(link);
     });
 
-    const LINKGITHUB = getID("navbarGithub");
-    LINKGITHUB.addEventListener("click", () => {
+    const github = getID("navbarGithub");
+    github.addEventListener("click", () => {
       window.open("https://github.com/raincuhh");
     });
-    const LINKACHIEVEMENTS = getID("navbarAchievements");
-    if (LINKACHIEVEMENTS) {
-      LINKACHIEVEMENTS.addEventListener("click", () => {
-        console.log("achievements");
-      });
-    }
 
-    const LINKSETTINGS = getID("navbarSettings");
-    if (LINKSETTINGS) {
-      let open = false;
-      LINKSETTINGS.addEventListener("click", () => {
-        const settings = getID("settings");
-        if (!open) {
-          settings.style.display = "block";
-          open = true;
-        } else {
-          settings.style.display = "none";
-          open = false;
-        }
-      });
-    }
-
-    const DELETE = getID("navbarDelete");
-    DELETE.addEventListener("click", () => {
+    const deleteSave = getID("navbarDelete");
+    deleteSave.addEventListener("click", () => {
       SaveManager.deleteGame();
     });
-
-    function createSettings() {
-      let settings = createEl("div");
-      settings.setAttribute("id", "settings");
-
-      const MAIN = getID("main");
-      MAIN.insertAdjacentElement("afterend", settings);
-    }
-    createSettings();
-    function createAchievements() {
-      let achievements = createEl("div");
-      achievements.setAttribute("id", "achievements");
-
-      const MAIN = getID("main");
-      MAIN.insertAdjacentElement("afterend", achievements);
-    }
-    createAchievements();
+    const resetRun = getID("navbarResetRun");
+    resetRun.addEventListener("click", () => {
+      Region.resetRun();
+    });
   },
   error: function () {
     console.log("error");

@@ -74,15 +74,17 @@ const Region = {
 
     // checking characters, if none then makes them.
     let persistentStorageChars = SM.get("char.characters");
+
+    if (!persistentStorageChars || this.currentParty.length === 0) {
+      this.choosePathfinders();
+      this.createPathfinders();
+    }
+
     if (persistentStorageChars) {
       let chars = Object.entries(persistentStorageChars);
       chars.forEach((char) => {
         this.currentParty.push(char);
       });
-    }
-    if (!persistentStorageChars || this.currentParty.length === 0) {
-      this.choosePathfinders();
-      this.createPathfinders();
     }
 
     SM.set(
@@ -102,6 +104,7 @@ const Region = {
     } else {
       PM.ping("the room is " + SM.get("features.caravan.state"));
     }
+
     if (SM.get("features.caravan.state") === this.caravanEnum.warm) {
       Main.changeLocationHeader("the caravan");
     }
@@ -266,7 +269,7 @@ const Region = {
     //console.log("exploring");
   },
   moveToRandomNextNode: function () {
-    console.log("moving to next random node");
+    //console.log("moving to next random node");
 
     // Check if the current node is a "respite" node
     if (this.currentNode.type === "respite") {
@@ -283,12 +286,12 @@ const Region = {
       let nextNode = nodesAtNextDepth[randIndex];
 
       if (!nextNode) {
-        console.log("no next nodewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+        console.log("no next nodeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
         SM.set("engine.hasWon", true);
         this.resetRun();
       } else {
         SM.set("run.currentNode", nextNode);
-        console.log(nextNode);
+        //console.log(nextNode);
       }
     }
   },
@@ -318,28 +321,62 @@ const Region = {
   },
 
   resetRun: function () {
-    // resetting everything except metaprogress
-    SM.delete("char.characters");
-    SM.delete("features.caravan");
-    SM.delete("location.regions");
-
-    function iterOverToDeleteList(properties, stateString) {
+    function iterOverToDeleteList(properties, state) {
       if (!Array.isArray(properties)) {
         console.error("Properties must be an array.");
         return;
       }
 
       for (let i = 0; i < properties.length; i++) {
-        let toDelete = properties[i];
-        if (typeof toDelete !== "string") {
+        let property = properties[i];
+        if (typeof property !== "string") {
           console.error("Property names must be strings.");
-          continue; // Skip non-string properties
+          continue;
         }
-        SM.delete(stateString + "." + toDelete);
+
+        let stateValue = SM.get(state + "." + property);
+
+        // if an object then use recursion
+        if (typeof stateValue === "object" && stateValue !== null) {
+          let nestedProperties = Object.keys(stateValue);
+          iterOverToDeleteList(nestedProperties, state + "." + property);
+        }
+
+        SM.delete(state + "." + property);
       }
     }
 
-    // unlocking next sin before deleting run properties
+    // resetting everything except metaprogress
+    SM.delete("features.caravan");
+    SM.delete("location.regions");
+    SM.delete("char.characters");
+
+    let charactersCreated = 0;
+    Region.choosePathfinders();
+    for (const character of Region.currentParty) {
+      if (charactersCreated < 4) {
+        if (!SM.get("char.characters." + character)) {
+          SM.set("char.characters." + character, {});
+          PFM.createPathfinder(character);
+          charactersCreated++;
+        }
+      } else {
+        console.log("above 4 characters, breaking");
+        break;
+      }
+    }
+    //console.log("party before > 4 check:", Region.currentParty);
+
+    let currentCharacters = Object.keys(SM.get("char.characters"));
+    if (currentCharacters.length > 4) {
+      let charactersToDelete = currentCharacters.slice(4);
+      for (const character of charactersToDelete) {
+        SM.delete("char.characters." + character);
+      }
+    }
+    //console.log("party after > 4 check:", Region.currentParty);
+
+    // unlocking next sin before deleting run properties (Includes run sin)
     let currentSin = SM.get("run.activeSin");
     let currentSinIndex = Object.values(SinSelection.sinsEnum).indexOf(
       currentSin
@@ -351,18 +388,26 @@ const Region = {
       SM.set("meta.sinsUnlocked." + nextSin, true);
     }
 
+    // deleting the current runs' properties
     let runProperties = Object.keys(SM.get("run"));
     iterOverToDeleteList(runProperties, "run");
 
+    // then deleting inventory and non metaprogress resources(like currency)
     let resourcesProperties = Object.keys(SM.get("resources"));
     iterOverToDeleteList(resourcesProperties, "resources");
 
     // depending on if you have won or died, will send to different modules
     if (SM.get("engine.hasWon")) {
+      PM.ping("you complete your journey");
+      PM.ping("...");
       Main.changeModule(Main.modules.SinSelection);
+
       console.log("wonRun, wil change module sent later");
     } else {
+      PM.ping("the world fades");
+      PM.ping("...");
       Main.changeModule(Main.modules.Interstice);
+
       console.log("lost run, resetting");
     }
   },
@@ -379,12 +424,11 @@ const Region = {
     this.currentNode = SM.get("run.currentNode");
 
     this.updateNodeView();
-
-    // this gonna take to long, fuck that
-    // this.handlePathOptions();
   },
 
   /*
+  // having paths inlcuded made exploring way more weird, i could probably figure it out but its a pain
+  // + it includes new "types" i gotta make
   handlePathOptions: function () {
     const availablePaths = this.currentMap.paths.filter(
       (path) => path.fromId === this.currentNode.id
@@ -442,7 +486,7 @@ const Region = {
     }
 
     let node = this.currentNode;
-    console.log("currentNode:", node);
+    //console.log("currentNode:", node);
 
     let toBeLoaded;
     if (specialNodeTypesPool.some((e) => e.type === node.type)) {
@@ -479,20 +523,24 @@ const Region = {
 
   choosePathfinders: function () {
     let pathfinderList = PathfinderCharLib;
-    let unseen = [];
-    let seen = [];
-    // putting all characters in unseen
-    for (let i = 0; i < pathfinderList.length; i++) {
-      let pathfinder = pathfinderList[i];
-      unseen.push(pathfinder);
-    }
-    // then choosing based on the unseen list
-    for (let i = 0; i < 4; i++) {
-      let rng = Math.floor(Math.random() * unseen.length);
-      let chosen = unseen.splice(rng, 1)[0];
-      let pathfinder = chosen.name;
-      seen.push(pathfinder);
-      this.currentParty.push(pathfinder);
+    let maxCharacters = 4;
+    let charactersChosen = 0;
+
+    pathfinderList.sort(() => Math.random() - 0.5);
+
+    for (
+      let i = 0;
+      i < pathfinderList.length && charactersChosen < maxCharacters;
+      i++
+    ) {
+      let pathfinder = pathfinderList[i].name;
+      let characterExists = !!SM.get("char.characters." + pathfinder);
+
+      // If the character doesn't exist, add them to the current party
+      if (!characterExists) {
+        this.currentParty.push(pathfinder);
+        charactersChosen++;
+      }
     }
   },
 

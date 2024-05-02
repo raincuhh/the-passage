@@ -87,6 +87,7 @@ let PathfinderCharLib = [
         type: "num",
       },
       // resistances/res
+      /* 
       {
         name: "phys res",
         id: "physicalResistance",
@@ -135,6 +136,7 @@ let PathfinderCharLib = [
         value: 0.2,
         type: "percent",
       },
+      */
     ],
   },
   {
@@ -217,6 +219,7 @@ let PathfinderCharLib = [
         type: "num",
       },
       // resistances/res
+      /*
       {
         name: "phys res",
         id: "physicalResistance",
@@ -265,6 +268,7 @@ let PathfinderCharLib = [
         value: 0.2,
         type: "percent",
       },
+      */
     ],
   },
   {
@@ -344,6 +348,7 @@ let PathfinderCharLib = [
         type: "num",
       },
       // resistances/res
+      /*
       {
         name: "phys res",
         id: "physicalResistance",
@@ -392,6 +397,7 @@ let PathfinderCharLib = [
         value: 0.2,
         type: "percent",
       },
+      */
     ],
   },
   {
@@ -465,6 +471,7 @@ let PathfinderCharLib = [
         type: "num",
       },
       // resistances/res
+      /*
       {
         name: "phys res",
         id: "physicalResistance",
@@ -480,7 +487,7 @@ let PathfinderCharLib = [
       {
         name: "bld res",
         id: "bleedResistance",
-        value: "35%",
+        value: 0.35,
         type: "percent",
       },
       {
@@ -504,7 +511,7 @@ let PathfinderCharLib = [
       {
         name: "stun res",
         id: "stunResistance",
-        value: "35%",
+        value: 0.35,
         type: "percent",
       },
       {
@@ -513,6 +520,7 @@ let PathfinderCharLib = [
         value: 0.3,
         type: "percent",
       },
+      */
     ],
   },
   {
@@ -586,6 +594,7 @@ let PathfinderCharLib = [
         type: "num",
       },
       // resistances/res
+      /*
       {
         name: "phys res",
         id: "physicalResistance",
@@ -634,6 +643,7 @@ let PathfinderCharLib = [
         value: 0.2,
         type: "percent",
       },
+      */
     ],
   },
   {
@@ -711,6 +721,7 @@ let PathfinderCharLib = [
         type: "num",
       },
       // resistances/res
+      /*
       {
         name: "phys res",
         id: "physicalResistance",
@@ -759,6 +770,7 @@ let PathfinderCharLib = [
         value: 0.3,
         type: "percent",
       },
+      */
     ],
   },
 ];

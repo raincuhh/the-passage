@@ -131,7 +131,7 @@ let EM = {
 
   enterCombat: function (event) {
     const parent = getID(this.eventId);
-    console.log(event);
+    //console.log(event);
     this.performed = false;
     this.won = false;
     this.enemyActors = [];
@@ -160,7 +160,7 @@ let EM = {
           chosen = this.weightedEnemySelection(worldPool);
         }
         temp.push(chosen);
-        console.log(chosen);
+        //console.log(chosen);
       }
       SM.set("event.enemyActors", temp);
     }
@@ -174,7 +174,7 @@ let EM = {
     for (const i of pathfinders) {
       this.partyActors.push(i);
     }
-    console.log("party:", this.partyActors);
+    //console.log("party:", this.partyActors);
     SM.set("event.state", this.eventStatesEnum.executing);
   },
 

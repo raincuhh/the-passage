@@ -86,7 +86,7 @@ let SM = {
     }
     if (currentState && currentState.hasOwnProperty(PARTS[PARTS.length - 1])) {
       delete currentState[PARTS[PARTS.length - 1]];
-      console.log("state deleted");
+      //console.log("state deleted");
     } else {
       console.log("state not found");
     }

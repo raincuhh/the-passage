@@ -29,10 +29,10 @@ const ShrineOfAbyss = {
   },
 
   render: function () {
-    this.createContent();
+    this.createView();
   },
 
-  createContent: function () {
+  createView: function () {
     const parent = getID(EM.eventId);
 
     let header = createEl("div");
@@ -88,17 +88,20 @@ const ShrineOfAbyss = {
     itemsPanel.setAttribute("class", "shrinePanel");
     body.appendChild(itemsPanel);
 
-    let demoWarning = createEl("div");
-    demoWarning.setAttribute("id", "sorryNothingHere");
-    demoWarning.textContent = "not added for demo";
-    itemsPanel.appendChild(demoWarning);
+    let demoWarning1 = createEl("div");
+    demoWarning1.setAttribute("id", "sorryNothingHere");
+    demoWarning1.textContent = "not added for demo";
+    itemsPanel.appendChild(demoWarning1);
 
     let skillsPanel = createEl("div");
     skillsPanel.setAttribute("id", "skillsPanel");
     skillsPanel.setAttribute("class", "shrinePanel");
     body.appendChild(skillsPanel);
 
-    skillsPanel.appendChild(demoWarning);
+    let demoWarning2 = createEl("div");
+    demoWarning2.setAttribute("id", "sorryNothingHere");
+    demoWarning2.textContent = "not added for demo";
+    skillsPanel.appendChild(demoWarning2);
 
     ShrineOfAbyss.hidePanel();
     this.changePanel(1);
