@@ -374,42 +374,35 @@ const Region = {
         SM.delete("char.characters." + character);
       }
     }
-    //console.log("party after > 4 check:", Region.currentParty);
-
-    // unlocking next sin before deleting run properties (Includes run sin)
-    let currentSin = SM.get("run.activeSin");
-    let currentSinIndex = Object.values(SinSelection.sinsEnum).indexOf(
-      currentSin
-    );
-    let nextSinIndex = currentSinIndex + 1;
-    let nextSin = Object.values(SinSelection.sinsEnum)[nextSinIndex];
-
-    if (nextSin && !SM.get("meta.sinsUnlocked." + nextSin)) {
-      SM.set("meta.sinsUnlocked." + nextSin, true);
-    }
-
-    // deleting the current runs' properties
-    let runProperties = Object.keys(SM.get("run"));
-    iterOverToDeleteList(runProperties, "run");
-
     // then deleting inventory and non metaprogress resources(like currency)
     let resourcesProperties = Object.keys(SM.get("resources"));
     iterOverToDeleteList(resourcesProperties, "resources");
 
     // depending on if you have won or died, will send to different modules
     if (SM.get("engine.hasWon")) {
+      // unlocking next sin before deleting run properties (Includes run sin)
+      let currentSin = SM.get("run.activeSin");
+      let currentSinIndex = Object.values(SinSelection.sinsEnum).indexOf(
+        currentSin
+      );
+      let nextSinIndex = currentSinIndex + 1;
+      let nextSin = Object.values(SinSelection.sinsEnum)[nextSinIndex];
+
+      if (nextSin && !SM.get("meta.sinsUnlocked." + nextSin)) {
+        SM.set("meta.sinsUnlocked." + nextSin, true);
+      }
       PM.ping("you complete your journey");
       PM.ping("...");
       Main.changeModule(Main.modules.SinSelection);
-
-      console.log("wonRun, wil change module sent later");
     } else {
       PM.ping("the world fades");
       PM.ping("...");
       Main.changeModule(Main.modules.Interstice);
-
-      console.log("lost run, resetting");
     }
+
+    // deleting the current runs' properties
+    let runProperties = Object.keys(SM.get("run"));
+    iterOverToDeleteList(runProperties, "run");
   },
 
   beginExploring: function () {
@@ -536,11 +529,15 @@ const Region = {
       let pathfinder = pathfinderList[i].name;
       let characterExists = !!SM.get("char.characters." + pathfinder);
 
-      // If the character doesn't exist, add them to the current party
       if (!characterExists) {
         this.currentParty.push(pathfinder);
         charactersChosen++;
       }
+    }
+
+    if (charactersChosen > maxCharacters) {
+      let overflow = charactersChosen - maxCharacters;
+      this.currentParty.splice(-overflow);
     }
   },
 

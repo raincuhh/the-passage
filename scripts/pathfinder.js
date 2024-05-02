@@ -12,7 +12,7 @@ const PFM = {
     // disabled for demo
     //this.randomizeTraits(pathfinder, this.baseTraitNum);
     //this.setBaseSkills(pathfinder, index);
-    //this.setBaseStats(pathfinder, index);
+    this.setBaseStats(pathfinder, index);
   },
 
   randomizeTraits: function (pathfinder, numberOfTraits) {

@@ -15,6 +15,7 @@ const Interstice = {
   lookAroundButton: null,
   openDoorButton: null,
   talkButton: null,
+  finishTalkButton: null,
 
   //timers
   lookAroundTimer: 1000,
@@ -29,6 +30,8 @@ const Interstice = {
         ? this.roomEnum.lookAround
         : SM.get("features.room.state")
     );
+
+    this.updateButtons();
 
     if (SM.get("features.room.state") === this.roomEnum.lookAround) {
       PM.ping("you find yourself in lobby");
@@ -80,6 +83,13 @@ const Interstice = {
       click: this.talk.bind(this),
     });
     buttonsWrapper.appendChild(this.talkButton.element);
+
+    this.finishTalkButton = new Button.custom({
+      id: "finishTalkButton",
+      text: "leave.",
+      click: this.finishTalk.bind(this),
+    });
+    buttonsWrapper.appendChild(this.finishTalkButton.element);
   },
 
   updateButtons: function () {
@@ -88,6 +98,32 @@ const Interstice = {
     );
     let openDoorButton = getID("openDoorButton");
     let talkButton = getID("talkButton");
+    let finishTalkButton = getID("finishTalkButton");
+
+    if (SM.get("features.room.state") === Interstice.roomEnum.lookAround) {
+      lookAroundButton.style.display = "block";
+      openDoorButton.style.display = "none";
+      talkButton.style.display = "none";
+      finishTalkButton.style.display = "none";
+    }
+    if (SM.get("features.room.state") === Interstice.roomEnum.beforeTalk) {
+      lookAroundButton.style.display = "none";
+      openDoorButton.style.display = "block";
+      talkButton.style.display = "none";
+      finishTalkButton.style.display = "none";
+    }
+    if (SM.get("features.room.state") === Interstice.roomEnum.talk) {
+      lookAroundButton.style.display = "none";
+      openDoorButton.style.display = "none";
+      talkButton.style.display = "block";
+      finishTalkButton.style.display = "none";
+    }
+    if (SM.get("features.room.state") === Interstice.roomEnum.finishTalk) {
+      lookAroundButton.style.display = "none";
+      openDoorButton.style.display = "none";
+      talkButton.style.display = "none";
+      finishTalkButton.style.display = "block";
+    }
   },
 
   lookAround: function () {
@@ -123,9 +159,9 @@ const Interstice = {
       PM.ping(
         "with a slight push, the door opens, revealing a man sitting behind a desk."
       );
+      SM.set("features.room.state", Interstice.roomEnum.talk);
       Button.disabled(Interstice.openDoorButton.element, false);
       Interstice.openDoorButton.updateListener();
-      SM.set("features.room.state", Interstice.roomEnum.talk);
       Interstice.updateButtons();
     }, 1500);
   },
@@ -133,10 +169,18 @@ const Interstice = {
   talk: function () {
     Button.disabled(Interstice.talkButton.element, true);
     Interstice.talkButton.updateListener();
-    PM.ping(
-      "walking up to the man, he tells you this place is called the interstice"
-    );
+    PM.ping("walking up to the man, he tells you that you must go back");
     SM.set("features.room.state", Interstice.roomEnum.finishTalk);
+    Button.disabled(Interstice.talkButton.element, false);
+    Interstice.talkButton.updateListener();
+    Interstice.updateButtons();
+  },
+
+  finishTalk: function () {
+    Button.disabled(Interstice.finishTalkButton.element, true);
+    Interstice.finishTalkButton.updateListener();
+    Main.changeModule(SinSelection);
+    SM.delete("features.room");
   },
 
   launch: function () {

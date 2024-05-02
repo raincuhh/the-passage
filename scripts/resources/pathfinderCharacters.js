@@ -35,6 +35,7 @@ let PathfinderCharLib = [
         },
         // hit enemy 1 time with a fire fist, low-medium dmg
       },
+      /*
       {
         name: "crushing uppercut",
         id: "crushingUppercut",
@@ -45,6 +46,7 @@ let PathfinderCharLib = [
         // hit enemy 1 time with a uppercut,
         // 25% chance of concussion which gives the "confused" buff on target
       },
+      
       {
         name: "burst combo",
         id: "burstCombo",
@@ -54,6 +56,7 @@ let PathfinderCharLib = [
         },
         // hits enemy 2-5 times, low damage
       },
+      */
       {
         name: "meteor strike",
         id: "meteorStrike",
@@ -151,14 +154,15 @@ let PathfinderCharLib = [
     },
     skills: [
       {
-        name: "blade flurry",
-        id: "bladeFlurry",
+        name: "blade slice",
+        id: "bladeSlice",
         icon: "./img/placeholderSkillIcon.png",
         locked: function () {
-          return true;
+          return false;
         },
         // hits an enemy 3-5 times, low dmg
       },
+      /*
       {
         name: "set your sights",
         id: "setYourSights",
@@ -168,24 +172,28 @@ let PathfinderCharLib = [
         },
         // sets a sight on an enemy, increasing hit accuracy by +80% for that enemy for 1 turn
       },
+      */
+
       {
         name: "vanishing strike",
         id: "vanishingStrike",
         icon: "./img/placeholderSkillIcon.png",
         locked: function () {
-          return true;
+          return false;
         },
         // you disappear for 1 round charging up and attacking in the 2nd round
       },
+
       {
         name: "blinding dagger",
         id: "blindingDagger",
         icon: "./img/placeholderSkillIcon.png",
         locked: function () {
-          return true;
+          return false;
         },
         // 45% chance of target reciving the "blind" buff.
       },
+      /*
       {
         name: "mirage step",
         id: "mirageStep",
@@ -195,6 +203,7 @@ let PathfinderCharLib = [
         },
         // makes you invunerable for 1 turn
       },
+      */
       {
         name: "eviscerate",
         id: "eviscerate",

@@ -154,3 +154,72 @@ const NonRegionEnemyPool = [
     probability: 0.1,
   },
 ];
+
+const regionCheckPool = [
+  {
+    name: "chasmalHowler",
+    probability: 0.2,
+  },
+  {
+    name: "eldritchOoze",
+    probability: 0.3,
+  },
+  {
+    name: "shadowedStalker",
+    probability: 0.2,
+  },
+  {
+    name: "corruptedGuardian",
+    probability: 0.3,
+  },
+];
+
+const abyssMinionsPool = [
+  {
+    name: "abyssalCrawler",
+    probability: 0.25,
+  },
+  {
+    name: "dreadWretch",
+    probability: 0.2,
+  },
+  {
+    name: "spectralLasher",
+    probability: 0.3,
+  },
+  {
+    name: "abyssalWraith",
+    probability: 0.25,
+  },
+];
+
+const sinBossPool = [
+  {
+    name: "sloth",
+    fullName: "Belial, The Demon of Sloth",
+  },
+  {
+    name: "gluttony",
+    fullName: "Beelzebub, The Lord of Gluttony",
+  },
+  {
+    name: "lust",
+    fullName: "Lilith, The Temptress of Desires",
+  },
+  {
+    name: "greed",
+    fullName: "Plutus, The Prince of Greed",
+  },
+  {
+    name: "envy",
+    fullName: "Leviathan, The Serpent of Envy",
+  },
+  {
+    name: "pride",
+    fullName: "Lucifer, The Angel of Pride",
+  },
+  {
+    name: "wrath",
+    fullName: "Satan, The Bringer of Wrath",
+  },
+];

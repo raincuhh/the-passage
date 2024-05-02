@@ -129,52 +129,106 @@ let EM = {
   enemyActors: [],
   partyActors: [],
 
+  turnBasedGameState: {
+    playerTurn: "playerTurn",
+    enemyTurn: "enemyTurn",
+    won: "won",
+    lost: "lost",
+  },
+
   enterCombat: function (event) {
     const parent = getID(this.eventId);
     //console.log(event);
     this.performed = false;
     this.won = false;
+
     this.enemyActors = [];
     this.partyActors = [];
+
+    // defining enemy pool from which enemies are picked from
     let regionPool = Region.currentRegionPool;
     let worldPool = NonRegionEnemyPool;
+
     let enemyScopeEnum = {
       regionScope: "regionScope",
       worldScope: "worldScope",
+      regionCheckScope: "regionCheckScope",
+      sinMinionsScope: "sinMinionsScope",
+      sinBossScope: "sinBossScope",
     };
+
     let scope;
 
-    if (event.type === "ambush") {
-      scope === enemyScopeEnum.worldScope;
-    } else {
-      scope === enemyScopeEnum.regionScope;
+    // getting enemy scope
+    switch (event.type) {
+      case "ambush":
+        scope === enemyScopeEnum.worldScope;
+        break;
+      case "regionCheck":
+        scope === enemyScopeEnum.regionCheckScope;
+        break;
+      case "sinMinions":
+        scope === enemyScopeEnum.sinMinionsScope;
+        break;
+      case "sinBoss":
+        scope === enemyScopeEnum.sinBossScope;
+        break;
+      default:
+        scope === enemyScopeEnum.regionScope;
+        break;
     }
 
+    // getting random amountof enemy actors
     if (!SM.get("event.enemyActors")) {
       let temp = [];
-      for (let i = 0; i < 4; i++) {
+      let enemiesAmount = EM.randRange(1, 4);
+
+      if (scope !== enemyScopeEnum.sinBossScope) {
+        for (let i = 0; i < enemiesAmount; i++) {
+          let chosen;
+          switch (scope) {
+            case enemyScopeEnum.regionScope:
+              chosen = this.weightedEnemySelection(regionPool);
+              break;
+            case enemyScopeEnum.regionCheckScope:
+              chosen = this.weightedEnemySelection(regionCheckPool);
+              break;
+            case enemyScopeEnum.sinMinionsScope:
+              chosen = this.weightedEnemySelection(abyssMinionsPool);
+              break;
+            default:
+              chosen = this.weightedEnemySelection(worldPool);
+              break;
+          }
+
+          temp.push(chosen);
+          //console.log(chosen);
+        }
+      } else {
+        let sinBoss = SM.get("run.activeSin");
         let chosen;
-        if (scope === enemyScopeEnum.regionScope) {
-          chosen = this.weightedEnemySelection(regionPool);
-        } else {
-          chosen = this.weightedEnemySelection(worldPool);
+        for (const boss of sinBossPool) {
+          if (boss.name === sinBoss) {
+            chosen = boss;
+            break;
+          }
         }
         temp.push(chosen);
-        //console.log(chosen);
       }
+
       SM.set("event.enemyActors", temp);
     }
-
+    // putting enemies in the events enemyactor pool
     let enemies = Object.entries(SM.get("event.enemyActors"));
     for (const i of enemies) {
       this.enemyActors.push(i);
     }
 
+    // same with the pathfinders
     let pathfinders = Object.entries(SM.get("char.characters"));
     for (const i of pathfinders) {
       this.partyActors.push(i);
     }
-    //console.log("party:", this.partyActors);
     SM.set("event.state", this.eventStatesEnum.executing);
   },
 
@@ -193,10 +247,13 @@ let EM = {
       }
     }
   },
+  randRange: function (min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
 
   /**
    * Active non combat mobule doesnt really need
-   * to be saved in the sm cause when i
+   * to be saved in sm cause when i
    * make the module view, its gonna create the different
    * values if it hasnt already been created.
    *
