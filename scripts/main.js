@@ -23,10 +23,10 @@ const Main = {
     PM.init(); // pingsManager
     SM.init(); // outer stateManager
 
-    if (!SM.get("run.activeModule")) {
-      SM.set("run.activeModule", "Intro");
+    if (!SM.get("engine.activeModule")) {
+      SM.set("engine.activeModule", "Intro");
     }
-    let moduleName = SM.get("run.activeModule");
+    let moduleName = SM.get("engine.activeModule");
     let module;
     if (typeof moduleName === "string") {
       module = moduleName.split(".").reduce(this.indexModule, this.modules);
@@ -113,7 +113,7 @@ const Main = {
     this.activeModule = module;
     this.update();
     module.launch();
-    SM.set("run.activeModule", module.name);
+    SM.set("engine.activeModule", module.name);
   },
   createGuid: function () {
     let pattern = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";

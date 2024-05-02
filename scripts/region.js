@@ -13,11 +13,11 @@ const Region = {
   },
 
   currentRegionPool: [],
-  timeUntilDim: 2500,
-  timeUntilCandleSeen: 4500,
-  timeUntilCharactersSeen: 2500,
-  timeUntilCandleChange: 4500,
-  timeUntilEventBegin: 1000,
+  timeUntilDim: 500, //2500,
+  timeUntilCandleSeen: 500, //4500,
+  timeUntilCharactersSeen: 500, //2500,
+  timeUntilCandleChange: 500, //4500,
+  timeUntilEventBegin: 100,
 
   caravanEnum: {
     dark: "dark",
@@ -41,7 +41,7 @@ const Region = {
     this.render();
     EM.init();
 
-    // getting sin (for sinboss)
+    // getting sin (for sinboss) otherwise set default
     if (!SM.get("run.activeSin")) {
       SM.set("run.activeSin", "sloth");
     }
@@ -162,7 +162,7 @@ const Region = {
 
     this.exploreButton = new Button.custom({
       id: "exploreButton",
-      text: "explore.",
+      text: "continue.",
       click: this.explore.bind(this),
     });
     buttonsWrapper.appendChild(this.exploreButton.element);
@@ -250,7 +250,8 @@ const Region = {
 
     if (EM.isActiveEvent()) {
       EM.endEvent();
-      Button.disabled(Region.exploreButton.element, true);
+      this.moveToRandomNextNode();
+      Button.disabled(Region.exploreButton.element, false);
     } else {
       setTimeout(() => {
         Region.beginExploring();
@@ -264,10 +265,113 @@ const Region = {
 
     //console.log("exploring");
   },
+  moveToRandomNextNode: function () {
+    console.log("moving to next random node");
+
+    // Check if the current node is a "respite" node
+    if (this.currentNode.type === "respite") {
+      this.generateNewMap();
+    } else {
+      // If not at a respite node, proceed as before
+      let nextDepth = this.currentNode.depth + 1;
+
+      let nodesAtNextDepth = this.currentMap.nodes.filter(
+        (node) => node.depth === nextDepth
+      );
+
+      let randIndex = Math.floor(Math.random() * nodesAtNextDepth.length);
+      let nextNode = nodesAtNextDepth[randIndex];
+
+      if (!nextNode) {
+        console.log("no next nodewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+        SM.set("engine.hasWon", true);
+        this.resetRun();
+      } else {
+        SM.set("run.currentNode", nextNode);
+        console.log(nextNode);
+      }
+    }
+  },
+
+  generateNewMap: function () {
+    console.log("reached the respite, generating a new map");
+
+    let region = RegionGen.newReg();
+    SM.set("run.currentMap", region.map);
+    SM.set("run.currentName", region.name);
+    this.currentMap = region.map;
+
+    SM.set("run.currentNode", this.currentMap.nodes[0]);
+    this.currentNode = this.currentMap.nodes[0];
+
+    this.currentFormattedName = this.formatRegionName(
+      SM.get("run.currentName")
+    );
+
+    let regionName = SM.get("run.currentName");
+    let pool = RegionEnemyPool[regionName];
+    pool.forEach((enemy) => {
+      this.currentRegionPool.push(enemy);
+    });
+
+    this.setDocumentTitle();
+  },
+
+  resetRun: function () {
+    // resetting everything except metaprogress
+    SM.delete("char.characters");
+    SM.delete("features.caravan");
+    SM.delete("location.regions");
+
+    function iterOverToDeleteList(properties, stateString) {
+      if (!Array.isArray(properties)) {
+        console.error("Properties must be an array.");
+        return;
+      }
+
+      for (let i = 0; i < properties.length; i++) {
+        let toDelete = properties[i];
+        if (typeof toDelete !== "string") {
+          console.error("Property names must be strings.");
+          continue; // Skip non-string properties
+        }
+        SM.delete(stateString + "." + toDelete);
+      }
+    }
+
+    // unlocking next sin before deleting run properties
+    let currentSin = SM.get("run.activeSin");
+    let currentSinIndex = Object.values(SinSelection.sinsEnum).indexOf(
+      currentSin
+    );
+    let nextSinIndex = currentSinIndex + 1;
+    let nextSin = Object.values(SinSelection.sinsEnum)[nextSinIndex];
+
+    if (nextSin && !SM.get("meta.sinsUnlocked." + nextSin)) {
+      SM.set("meta.sinsUnlocked." + nextSin, true);
+    }
+
+    let runProperties = Object.keys(SM.get("run"));
+    iterOverToDeleteList(runProperties, "run");
+
+    let resourcesProperties = Object.keys(SM.get("resources"));
+    iterOverToDeleteList(resourcesProperties, "resources");
+
+    // depending on if you have won or died, will send to different modules
+    if (SM.get("engine.hasWon")) {
+      Main.changeModule(Main.modules.SinSelection);
+      console.log("wonRun, wil change module sent later");
+    } else {
+      Main.changeModule(Main.modules.Interstice);
+      console.log("lost run, resetting");
+    }
+  },
 
   beginExploring: function () {
-    //this.currentNode = SM.get("run.currentNode");
-    if (!SM.get("run.currentNode")) {
+    let TempCurrentNode = SM.get("run.currentNode");
+
+    // first of all checking if no current node
+    if (!TempCurrentNode) {
       SM.set("run.currentNode", this.currentMap.nodes[0]);
       this.currentNode = this.currentMap.nodes[0];
     }
@@ -276,7 +380,8 @@ const Region = {
 
     this.updateNodeView();
 
-    //this.handlePathOptions();
+    // this gonna take to long, fuck that
+    // this.handlePathOptions();
   },
 
   /*
@@ -398,5 +503,8 @@ const Region = {
         PFM.createPathfinder(pathfinder);
       }
     }
+  },
+  randRange: function (min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   },
 };

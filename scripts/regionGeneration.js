@@ -22,7 +22,7 @@
 const RegionGen = {
   unexpRegs: [],
   expRegs: [],
-  depth: 7,
+  depth: null,
   maxDepth: 20,
 
   init: function () {
@@ -58,6 +58,15 @@ const RegionGen = {
           break;
       }
     }
+
+    let tempDepth = SM.get("run.depth");
+
+    if (!tempDepth) {
+      SM.set("run.depth", 7);
+      this.depth = 7;
+    }
+
+    this.depth = SM.get("run.depth");
     //console.log(this.unexpRegs);
   },
   getRegName: function () {
@@ -72,6 +81,7 @@ const RegionGen = {
   },
   getDepth: function () {
     this.depth += this.randRange(1, 2);
+    SM.set("run.depth", this.depth);
     return this.depth;
   },
   newReg: function () {
@@ -79,6 +89,7 @@ const RegionGen = {
     if (name === undefined) {
       name = "theAbyss";
     }
+
     let depth = this.getDepth();
     if (name === "theAbyss") {
       depth = 3;
@@ -86,8 +97,6 @@ const RegionGen = {
 
     if (depth >= this.maxDepth) {
       depth = this.maxDepth;
-      // gonna make the maxdepth be dependent on current sin,
-      // with each subsequent sin having a longer maxDepth.
     }
     // in the future will make the getTypesFromPool more complex
     let map = this.genMap(depth);

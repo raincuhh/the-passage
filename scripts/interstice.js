@@ -17,7 +17,6 @@ const Interstice = {
     parent.appendChild(view);
   },
   launch: function () {
-    console.log(Main.activeModule);
     this.setDocumentTitle();
   },
   setDocumentTitle: function () {

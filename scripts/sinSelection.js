@@ -13,6 +13,16 @@ let SinSelection = {
   chosenSin: "",
   confessButton: null,
 
+  sinsEnum: {
+    sloth: "sloth",
+    gluttony: "gluttony",
+    lust: "lust",
+    greed: "greed",
+    envy: "envy",
+    pride: "pride",
+    wrath: "wrath",
+  },
+
   init: function () {
     this.render();
   },
@@ -47,7 +57,7 @@ let SinSelection = {
     sinsWrapper.setAttribute("id", "sinsWrapper");
     parent.appendChild(sinsWrapper);
 
-    this.unlockSin("sloth");
+    this.unlockSin(this.sinsEnum.sloth);
     /*
     this.unlockSin("gluttony");
     this.unlockSin("lust");
@@ -78,6 +88,7 @@ let SinSelection = {
   confess: function () {
     let name = this.chosenSin.trim();
     SM.set("run.activeSin", name);
+    SM.set("engine.hasWon", false);
     PM.ping("...");
     Main.changeModule(Region);
   },

@@ -16,6 +16,7 @@ let SM = {
       "run", // run specific stuff
       "event", // battle related stuff, specifically enemies made and their stats,
       "features", //rewards for battle, etc.
+      "engine",
     ];
     for (const category of categories) {
       if (!this.get(category)) {
