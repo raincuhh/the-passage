@@ -6,7 +6,7 @@
 const NodeTypesPool = [
   {
     type: "encounter",
-    probability: 0.4,
+    probability: 0.5,
     combat: true,
     arrivalPing:
       "As the caravan halts, ominous figures emerge in the distance.",
@@ -15,7 +15,7 @@ const NodeTypesPool = [
   },
   {
     type: "ambush",
-    probability: 0.2,
+    probability: 0.3,
     combat: true,
     arrivalPing: "The air grows tense as shadows converge around the caravan.",
     leavePing:
@@ -25,7 +25,7 @@ const NodeTypesPool = [
   },
   {
     type: "goblinMarket",
-    probability: 0.1,
+    probability: 0.05,
     combat: false,
     arrivalPing:
       "The caravan comes to a halt before a bustling market. A goblin approaches, offering goods.",
@@ -34,7 +34,7 @@ const NodeTypesPool = [
   },
   {
     type: "fortuneCache",
-    probability: 0.1,
+    probability: 0.05,
     combat: false,
     arrivalPing: "In front of the caravan lies an inconspicuous crate.",
     leavePing:
@@ -43,7 +43,7 @@ const NodeTypesPool = [
   },
   {
     type: "wanderingMerchant",
-    probability: 0.1,
+    probability: 0.05,
     combat: false,
     arrivalPing:
       "A mysterious stranger halts before the caravan, proposing a trade.",
@@ -52,7 +52,7 @@ const NodeTypesPool = [
   },
   {
     type: "samaritansAid",
-    probability: 0.1,
+    probability: 0.05,
     combat: false,
     arrivalPing:
       "In the distance, some individuals beckon for assistance, a mix of worry and relief on their faces.",

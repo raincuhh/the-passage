@@ -3,7 +3,7 @@ const ShrineOfAbyss = {
 
   init: function () {
     this.render();
-    Main.changeLocationHeader("shrine of the abyss");
+    Main.changeLocationHeader("The Shrine");
 
     // setting default values and states of metaprogression
 

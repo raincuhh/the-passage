@@ -101,10 +101,13 @@ let EM = {
     EM.pingEventState();
     EM.activeEvent = null;
 
-    Main.changeLocationHeader("the caravan");
+    Main.changeLocationHeader("The Caravan");
 
     let view = getID(EM.eventId);
-    view.remove();
+    if (view) {
+      view.remove();
+    }
+
     EM.eventId = null;
 
     let eventProperties = Object.entries(SM.get("event"));
@@ -113,12 +116,6 @@ let EM = {
       //console.log("toDelete:", toDelete);
       SM.delete("event." + toDelete);
     }
-    //eventProperties.forEach((property) => SM.delete("event." + property));
-
-    //let exploreButton = getID("exploreButton");
-    //let continueButton = getID("continueButton");
-    //exploreButton.style.display = "block";
-    //continueButton.style.display = "none";
 
     Button.disabled(Region.exploreButton.element, false);
     Region.exploreButton.updateListener();
@@ -138,6 +135,9 @@ let EM = {
 
   enterCombat: function (event) {
     const parent = getID(this.eventId);
+
+    Button.disabled(Region.exploreButton.element, true);
+    Region.exploreButton.updateListener();
     //console.log(event);
     this.performed = false;
     this.won = false;
@@ -147,6 +147,7 @@ let EM = {
 
     // defining enemy pool from which enemies are picked from
     let regionPool = Region.currentRegionPool;
+    console.log("region poooooooooooool:", regionPool);
     let worldPool = NonRegionEnemyPool;
 
     let enemyScopeEnum = {
@@ -163,18 +164,28 @@ let EM = {
     switch (event.type) {
       case "ambush":
         scope === enemyScopeEnum.worldScope;
+        Main.changeLocationHeader("The Ambush");
+        console.log("ambush scope");
         break;
       case "regionCheck":
         scope === enemyScopeEnum.regionCheckScope;
+        Main.changeLocationHeader("The Test");
+        console.log("regioncheck scope");
         break;
       case "sinMinions":
         scope === enemyScopeEnum.sinMinionsScope;
+        Main.changeLocationHeader("The Minions");
+        console.log("sin minions scope");
         break;
       case "sinBoss":
         scope === enemyScopeEnum.sinBossScope;
+        Main.changeLocationHeader("The Sin");
+        console.log("sinboss scope");
         break;
       default:
         scope === enemyScopeEnum.regionScope;
+        Main.changeLocationHeader("The Fight");
+        console.log("region scope");
         break;
     }
 
@@ -187,20 +198,23 @@ let EM = {
         for (let i = 0; i < enemiesAmount; i++) {
           let chosen;
           switch (scope) {
-            case enemyScopeEnum.regionScope:
-              chosen = this.weightedEnemySelection(regionPool);
+            case enemyScopeEnum.worldScope:
+              chosen = this.weightedEnemySelection(worldPool);
+              console.log("worldPool", chosen);
               break;
             case enemyScopeEnum.regionCheckScope:
               chosen = this.weightedEnemySelection(regionCheckPool);
+              console.log("regionCheckPool", chosen);
               break;
             case enemyScopeEnum.sinMinionsScope:
               chosen = this.weightedEnemySelection(abyssMinionsPool);
+              console.log("abyss minions", chosen);
               break;
             default:
-              chosen = this.weightedEnemySelection(worldPool);
+              chosen = this.weightedEnemySelection(regionPool);
+              console.log("regionPool", chosen);
               break;
           }
-
           temp.push(chosen);
           //console.log(chosen);
         }
@@ -210,12 +224,12 @@ let EM = {
         for (const boss of sinBossPool) {
           if (boss.name === sinBoss) {
             chosen = boss;
+            console.log("bossPool", chosen);
             break;
           }
         }
         temp.push(chosen);
       }
-
       SM.set("event.enemyActors", temp);
     }
     // putting enemies in the events enemyactor pool
@@ -229,7 +243,11 @@ let EM = {
     for (const i of pathfinders) {
       this.partyActors.push(i);
     }
+
     SM.set("event.state", this.eventStatesEnum.executing);
+
+    console.log("party:", this.partyActors);
+    console.log("enemies:", this.enemyActors);
   },
 
   weightedEnemySelection(pool) {
@@ -247,6 +265,7 @@ let EM = {
       }
     }
   },
+
   randRange: function (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },

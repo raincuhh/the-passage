@@ -1,5 +1,7 @@
 const GoblinMarket = {
   init: function () {
-    console.log("made nonCombatView");
+    this.render();
+    Main.changeLocationHeader("The Market");
   },
+  render: function () {},
 };

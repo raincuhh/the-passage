@@ -99,11 +99,12 @@ const RegionGen = {
       depth = this.maxDepth;
     }
     // in the future will make the getTypesFromPool more complex
+    // fuck that though
     let map = this.genMap(depth);
     this.assignTypesToNodes(map.nodes, NodeTypesPool, depth, name);
     //this.assignTypesToPaths(map.paths, PathTypesPool);
     this.lastMinAssignCheck(map);
-    console.log(name);
+    //console.log(name);
 
     return { map, name };
   },

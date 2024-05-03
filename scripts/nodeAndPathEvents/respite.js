@@ -1,5 +1,7 @@
 const Respite = {
   init: function () {
-    console.log("made nonCombatView");
+    this.render();
+    Main.changeLocationHeader("The Respite");
   },
+  render: function () {},
 };

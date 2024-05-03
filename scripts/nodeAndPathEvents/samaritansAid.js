@@ -1,5 +1,7 @@
 const SamaritansAid = {
   init: function () {
-    console.log("made nonCombatView");
+    this.render();
+    Main.changeLocationHeader("The Choice");
   },
+  render: function () {},
 };

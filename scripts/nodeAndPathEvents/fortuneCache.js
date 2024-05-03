@@ -1,5 +1,8 @@
 const FortuneCache = {
   init: function () {
-    console.log("made nonCombatView");
+    this.render();
+    Main.changeLocationHeader("The Cache");
   },
+
+  render: function () {},
 };

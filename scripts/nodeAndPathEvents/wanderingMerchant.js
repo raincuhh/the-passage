@@ -1,5 +1,7 @@
 const WanderingMerchant = {
   init: function () {
-    console.log("made nonCombatView");
+    this.render();
+    Main.changeLocationHeader("The Merchant");
   },
+  render: function () {},
 };

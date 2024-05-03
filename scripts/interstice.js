@@ -36,7 +36,8 @@ const Interstice = {
     if (SM.get("features.room.state") === this.roomEnum.lookAround) {
       PM.ping("you find yourself in lobby");
     }
-    //PM.ping("next to it, you see a door");
+
+    PM.ping("the shadows");
   },
 
   render: function () {
