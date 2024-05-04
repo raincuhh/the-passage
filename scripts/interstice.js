@@ -87,7 +87,7 @@ const Interstice = {
 
     this.finishTalkButton = new Button.custom({
       id: "finishTalkButton",
-      text: "leave.",
+      text: "go back.",
       click: this.finishTalk.bind(this),
     });
     buttonsWrapper.appendChild(this.finishTalkButton.element);
@@ -180,6 +180,8 @@ const Interstice = {
   finishTalk: function () {
     Button.disabled(Interstice.finishTalkButton.element, true);
     Interstice.finishTalkButton.updateListener();
+    PM.ping("a warm light engulfs you");
+    PM.ping("...");
     Main.changeModule(SinSelection);
     SM.delete("features.room");
   },

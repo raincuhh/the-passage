@@ -97,6 +97,9 @@ let EM = {
   },
 
   endEvent: function () {
+    let exploreButton = getID("exploreButton");
+    exploreButton.style.display = "block";
+
     SM.set("event.state", EM.eventStatesEnum.finished);
     EM.pingEventState();
     EM.activeEvent = null;
@@ -126,7 +129,7 @@ let EM = {
   enemyActors: [],
   partyActors: [],
 
-  turnBasedGameState: {
+  turnbasedStates: {
     playerTurn: "playerTurn",
     enemyTurn: "enemyTurn",
     won: "won",
@@ -136,9 +139,12 @@ let EM = {
   enterCombat: function (event) {
     const parent = getID(this.eventId);
 
-    Button.disabled(Region.exploreButton.element, true);
+    let exploreButton = getID("exploreButton");
+    exploreButton.style.display = "none";
     Region.exploreButton.updateListener();
     //console.log(event);
+
+    // setting up and getting actors
     this.performed = false;
     this.won = false;
 
@@ -147,7 +153,7 @@ let EM = {
 
     // defining enemy pool from which enemies are picked from
     let regionPool = Region.currentRegionPool;
-    console.log("region poooooooooooool:", regionPool);
+    //console.log("region poooooooooooool:", regionPool);
     let worldPool = NonRegionEnemyPool;
 
     let enemyScopeEnum = {
@@ -161,35 +167,38 @@ let EM = {
     let scope;
 
     // getting enemy scope
+
+    console.log("event type:", event.type);
     switch (event.type) {
       case "ambush":
-        scope === enemyScopeEnum.worldScope;
+        scope = enemyScopeEnum.worldScope;
         Main.changeLocationHeader("The Ambush");
-        console.log("ambush scope");
+        //console.log("ambush scope");
         break;
       case "regionCheck":
-        scope === enemyScopeEnum.regionCheckScope;
+        scope = enemyScopeEnum.regionCheckScope;
         Main.changeLocationHeader("The Test");
-        console.log("regioncheck scope");
+        //console.log("regioncheck scope");
         break;
       case "sinMinions":
-        scope === enemyScopeEnum.sinMinionsScope;
+        scope = enemyScopeEnum.sinMinionsScope;
         Main.changeLocationHeader("The Minions");
-        console.log("sin minions scope");
+        //console.log("sin minions scope");
         break;
       case "sinBoss":
-        scope === enemyScopeEnum.sinBossScope;
+        scope = enemyScopeEnum.sinBossScope;
         Main.changeLocationHeader("The Sin");
-        console.log("sinboss scope");
+        //console.log("sinboss scope");
         break;
       default:
-        scope === enemyScopeEnum.regionScope;
+        scope = enemyScopeEnum.regionScope;
         Main.changeLocationHeader("The Fight");
-        console.log("region scope");
+        //console.log("region scope");
         break;
     }
+    //console.log("scope:", scope);
 
-    // getting random amountof enemy actors
+    // getting random amount of enemy actors
     if (!SM.get("event.enemyActors")) {
       let temp = [];
       let enemiesAmount = EM.randRange(1, 4);
@@ -200,19 +209,19 @@ let EM = {
           switch (scope) {
             case enemyScopeEnum.worldScope:
               chosen = this.weightedEnemySelection(worldPool);
-              console.log("worldPool", chosen);
+              //console.log("worldPool", chosen);
               break;
             case enemyScopeEnum.regionCheckScope:
               chosen = this.weightedEnemySelection(regionCheckPool);
-              console.log("regionCheckPool", chosen);
+              //console.log("regionCheckPool", chosen);
               break;
             case enemyScopeEnum.sinMinionsScope:
               chosen = this.weightedEnemySelection(abyssMinionsPool);
-              console.log("abyss minions", chosen);
+              //console.log("abyss minions", chosen);
               break;
             default:
               chosen = this.weightedEnemySelection(regionPool);
-              console.log("regionPool", chosen);
+              //console.log("regionPool", chosen);
               break;
           }
           temp.push(chosen);
@@ -232,6 +241,7 @@ let EM = {
       }
       SM.set("event.enemyActors", temp);
     }
+
     // putting enemies in the events enemyactor pool
     let enemies = Object.entries(SM.get("event.enemyActors"));
     for (const i of enemies) {
@@ -248,6 +258,330 @@ let EM = {
 
     console.log("party:", this.partyActors);
     console.log("enemies:", this.enemyActors);
+
+    // after setting up, deciding the first 2 characters
+    // active character will always be the just shifting the 0th index from partyActors
+    // active enemy will be randomly gotten through the enemies
+
+    let activeCharacter = [];
+    let activeEnemy = [];
+    let inactiveCharacters = [];
+    let inactiveEnemies = [];
+
+    activeCharacter.push(this.partyActors.shift());
+
+    // creating the fighting panel
+    let fightPanel = createEl("div");
+    fightPanel.setAttribute("id", "fightPanel");
+    parent.appendChild(fightPanel);
+
+    // creating the battleDisplay ( has the sprite images, health and stuff)
+    let battleDisplay = EM.createbattleDisplay();
+    fightPanel.appendChild(battleDisplay);
+
+    // creating the battle menu ( holds attack, guard, items and switch stuff)
+    let battleMenu = EM.createBattleMenu();
+    fightPanel.appendChild(battleMenu);
+
+    this.hidePanels();
+    this.updatePanels(activeCharacter);
+    this.changePanel(EM.panelEnums.mainPanel);
+  },
+
+  createbattleDisplay: function () {
+    let placeholderValue = 0;
+
+    let elem = createEl("div");
+    elem.setAttribute("id", "battleDisplay");
+
+    // making the visual elements for the character side (health, sprite, name)
+
+    // enemy side
+    let enemySide = createEl("div");
+    enemySide.setAttribute("id", "enemySide");
+    elem.appendChild(enemySide);
+
+    let enemySprite = createEl("div");
+    enemySprite.setAttribute("id", "enemySprite");
+    enemySide.appendChild(enemySprite);
+    // placeholder
+    enemySprite.textContent = "E";
+
+    // info panel
+    let enemyInfoPanel = createEl("div");
+    enemyInfoPanel.setAttribute("id", "enemyInfoPanel");
+
+    // used to display total enemies (dead: X, alive: E)
+    let enemyPreview = createEl("div");
+    enemyPreview.setAttribute("id", "enemyPreview");
+    enemyPreview.textContent = "E E E";
+    enemyInfoPanel.appendChild(enemyPreview);
+
+    let enemyInfo = createEl("div");
+    enemyInfo.setAttribute("id", "enemyInfo");
+    enemyInfoPanel.appendChild(enemyInfo);
+
+    let enemyInfoName = createEl("div");
+    enemyInfoName.setAttribute("id", "enemyInfoName");
+    enemyInfoName.textContent = "placeholder";
+    enemyInfo.appendChild(enemyInfoName);
+
+    let enemyInfoHpWrapper = createEl("div");
+    enemyInfoHpWrapper.setAttribute("id", "enemyInfoHpWrapper");
+    enemyInfo.appendChild(enemyInfoHpWrapper);
+
+    let enemyInfoHpCurrent = createEl("div");
+    enemyInfoHpCurrent.setAttribute("id", "enemyInfoHpCurrent");
+    // placeholder value
+    enemyInfoHpCurrent.textContent = placeholderValue;
+    enemyInfoHpWrapper.appendChild(enemyInfoHpCurrent);
+
+    let enemyInfoHpSeperator = createEl("span");
+    enemyInfoHpSeperator.textContent = " / ";
+    enemyInfoHpWrapper.appendChild(enemyInfoHpSeperator);
+
+    let enemyInfoHpMax = createEl("span");
+    enemyInfoHpMax.setAttribute("id", "enemyInfoHpMax");
+    // placeholder value
+    enemyInfoHpMax.textContent = placeholderValue;
+    enemyInfoHpWrapper.appendChild(enemyInfoHpMax);
+
+    enemySide.appendChild(enemyInfoPanel);
+    enemySide.appendChild(enemySprite);
+
+    // character side
+    let characterSide = createEl("div");
+    characterSide.setAttribute("id", "characterSide");
+    elem.appendChild(characterSide);
+
+    let characterSprite = createEl("div");
+    characterSprite.setAttribute("id", "characterSprite");
+
+    // placeholder
+    characterSprite.textContent = "@";
+
+    // info panel
+    let characterInfoPanel = createEl("div");
+    characterInfoPanel.setAttribute("id", "characterInfoPanel");
+
+    // used to display total characters (dead: X, alive: @)
+    let characterPreview = createEl("div");
+    characterPreview.setAttribute("id", "characterPreview");
+    characterPreview.textContent = "@ @ @";
+    characterInfoPanel.appendChild(characterPreview);
+
+    let characterInfo = createEl("div");
+    characterInfo.setAttribute("id", "characterInfo");
+    characterInfoPanel.appendChild(characterInfo);
+
+    let characterInfoName = createEl("div");
+    characterInfoName.setAttribute("id", "characterInfoName");
+    characterInfoName.textContent = "placeholder";
+    characterInfo.appendChild(characterInfoName);
+
+    // hp stuff for character
+    let characterInfoHpWrapper = createEl("div");
+    characterInfoHpWrapper.setAttribute("id", "characterInfoHpWrapper");
+    characterInfo.appendChild(characterInfoHpWrapper);
+
+    let characterInfoHpCurrent = createEl("span");
+    characterInfoHpCurrent.setAttribute("id", "characterInfoHpCurrent");
+    // placeholder value
+    characterInfoHpCurrent.textContent = placeholderValue;
+    characterInfoHpWrapper.appendChild(characterInfoHpCurrent);
+
+    let characterInfoHpSeperator = createEl("span");
+    characterInfoHpSeperator.textContent = " / ";
+    characterInfoHpWrapper.appendChild(characterInfoHpSeperator);
+
+    let characterInfoHpMax = createEl("span");
+    characterInfoHpMax.setAttribute("id", "characterInfoHpMax");
+    // placeholder value
+    characterInfoHpMax.textContent = placeholderValue;
+    characterInfoHpWrapper.appendChild(characterInfoHpMax);
+
+    characterSide.appendChild(characterSprite);
+    characterSide.appendChild(characterInfoPanel);
+
+    return elem;
+  },
+  createBattleMenu: function () {
+    let elem = createEl("div");
+    elem.setAttribute("id", "battleMenu");
+
+    let mainPanel = EM.createMainPanel();
+    elem.appendChild(mainPanel);
+
+    let attackPanel = EM.createAttackPanel();
+    elem.appendChild(attackPanel);
+
+    let itemsPanel = EM.createItemsPanel();
+    elem.appendChild(itemsPanel);
+
+    let switchPanel = EM.createSwitchpanel();
+    elem.appendChild(switchPanel);
+
+    return elem;
+  },
+
+  createMainPanel: function () {
+    let mainPanel = createEl("div");
+    mainPanel.setAttribute("id", "mainPanel");
+
+    let descriptionPanel = createEl("div");
+    descriptionPanel.setAttribute("id", "descriptionPanel");
+    descriptionPanel.textContent = "what will you do?";
+    mainPanel.appendChild(descriptionPanel);
+
+    let optionsPanel = EM.createOptionsPanel();
+    mainPanel.appendChild(optionsPanel);
+
+    return mainPanel;
+  },
+
+  attackButton: null,
+  guardButton: null,
+  itemsButton: null,
+  switchButton: null,
+
+  createOptionsPanel: function () {
+    let elem = createEl("div");
+    elem.setAttribute("id", "optionsPanel");
+
+    // holds options
+    let wrapper = createEl("div");
+    wrapper.setAttribute("id", "wrapper");
+    elem.appendChild(wrapper);
+
+    EM.attackButton = new Button.custom({
+      id: "attackButton",
+      text: "attack.",
+    });
+    EM.attackButton.element.addEventListener("click", () => {
+      EM.changePanel(EM.panelEnums.attackPanel);
+    });
+    wrapper.appendChild(EM.attackButton.element);
+
+    EM.guardButton = new Button.custom({
+      id: "guardButton",
+      text: "guard.",
+    });
+    EM.guardButton.element.addEventListener("click", () => {
+      console.log("guarding turn");
+    });
+    wrapper.appendChild(EM.guardButton.element);
+
+    EM.itemsButton = new Button.custom({
+      id: "itemsButton",
+      text: "items.",
+    });
+    EM.itemsButton.element.addEventListener("click", () => {
+      EM.changePanel(EM.panelEnums.itemsPanel);
+    });
+    wrapper.appendChild(EM.itemsButton.element);
+
+    EM.switchButton = new Button.custom({
+      id: "switchButton",
+      text: "switch.",
+    });
+    EM.switchButton.element.addEventListener("click", () => {
+      EM.changePanel(EM.panelEnums.switchPanel);
+    });
+    wrapper.appendChild(EM.switchButton.element);
+
+    return elem;
+  },
+
+  hidePanels: function () {
+    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
+    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
+    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
+    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
+
+    mainPanel.style.display = "none";
+    attackPanel.style.display = "none";
+    itemsPanel.style.display = "none";
+    switchPanel.style.display = "none";
+  },
+
+  updatePanels: function (character) {
+    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
+    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
+    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
+    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
+
+    console.log("characterInfo:", character[0][1].skills);
+  },
+
+  panelEnums: {
+    mainPanel: "mainPanel",
+    attackPanel: "attackPanel",
+    itemsPanel: "itemsPanel",
+    switchPanel: "switchPanel",
+  },
+
+  changePanel: function (panel) {
+    EM.hidePanels();
+
+    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
+    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
+    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
+    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
+
+    switch (panel) {
+      case EM.panelEnums.mainPanel:
+        mainPanel.style.display = "flex";
+        break;
+      case EM.panelEnums.attackPanel:
+        attackPanel.style.display = "flex";
+        break;
+      case EM.panelEnums.itemsPanel:
+        itemsPanel.style.display = "flex";
+        break;
+      case EM.panelEnums.switchPanel:
+        switchPanel.style.display = "flex";
+        break;
+    }
+  },
+
+  attack1Button: null,
+  attack2Button: null,
+  attack3Button: null,
+  attack4Button: null,
+
+  createAttackPanel: function () {
+    let attackPanel = createEl("div");
+    attackPanel.setAttribute("id", "attackPanel");
+    attackPanel.setAttribute("class", "panel");
+
+    let attacksWrapper = createEl("div");
+    attacksWrapper.setAttribute("id", "attacksWrapper");
+    attackPanel.appendChild(attacksWrapper);
+
+    let returnButton = new Button.custom({
+      id: "returnButton",
+      text: "back",
+    });
+    returnButton.element.addEventListener("click", () => {
+      EM.changePanel(EM.panelEnums.mainPanel);
+    });
+    attackPanel.appendChild(returnButton.element);
+
+    return attackPanel;
+  },
+
+  createItemsPanel: function () {
+    let itemsPanel = createEl("div");
+    itemsPanel.setAttribute("id", "itemsPanel");
+    itemsPanel.setAttribute("class", "panel");
+    return itemsPanel;
+  },
+
+  createSwitchpanel: function () {
+    let switchPanel = createEl("div");
+    switchPanel.setAttribute("id", "switchPanel");
+    switchPanel.setAttribute("class", "panel");
+    return switchPanel;
   },
 
   weightedEnemySelection(pool) {

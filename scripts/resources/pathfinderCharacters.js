@@ -98,10 +98,6 @@ let PathfinderCharLib = [
         name: "forbidden knowledge",
         id: "forbiddenKnowledge",
       },
-      {
-        name: "eldritch reckoning",
-        id: "eldritchReckoning",
-      },
     ],
     stats: [
       {
@@ -137,10 +133,6 @@ let PathfinderCharLib = [
       {
         name: "paragons resolve",
         id: "paragonsResolve",
-      },
-      {
-        name: "titans fury",
-        id: "titansFury",
       },
     ],
     stats: [
@@ -178,10 +170,6 @@ let PathfinderCharLib = [
         name: "mighty swing",
         id: "mightySwing",
       },
-      {
-        name: "earthquake",
-        id: "earthquake",
-      },
     ],
     stats: [
       {
@@ -215,16 +203,8 @@ let PathfinderCharLib = [
         id: "strikeToTheHead",
       },
       {
-        name: "a holy blessing",
-        id: "aHolyBlessing",
-      },
-      {
         name: "surge of action",
         id: "surgeOfAction",
-      },
-      {
-        name: "crusade",
-        id: "crusade",
       },
     ],
     stats: [

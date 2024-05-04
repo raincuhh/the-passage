@@ -106,11 +106,8 @@ let SM = {
     }
   },
   setSkill: function (pathfinder, skill, bool, includePing) {
-    this.set(
-      "char.characters." + pathfinder + ".skills." + skill.name + ".locked",
-      bool
-    );
-    PFM.includeSkillPing(skill, includePing);
+    this.set("char.characters." + pathfinder + ".skills." + skill.id, bool);
+    //PFM.includeSkillPing(skill, includePing);
   },
   setStats: function (pathfinder, stats) {
     stats.forEach((stat) => {

@@ -106,7 +106,7 @@ const Region = {
     }
 
     if (SM.get("features.caravan.state") === this.caravanEnum.warm) {
-      Main.changeLocationHeader("The Caravan");
+      Main.changeLocationHeader("the caravan");
     }
 
     //PM.ping("you find yourself in a caravan" + afterFirstDeath);
@@ -206,17 +206,18 @@ const Region = {
       exploreButton.style.display = "block";
       //continueButton.style.display = "none";
     }
+
+    // exploration button and continue button will get hidden and unhidden in eventManager
+    // scratch that
   },
 
   lookAround: function () {
     Button.disabled(Region.lookAroundButton.element, true);
     Region.lookAroundButton.updateListener();
     PM.ping("You find an old lighter nearby, its metal casing worn with age.");
-
     setTimeout(() => {
       PM.ping("through the blinds, the moonlight reflects along the walls");
     }, Region.timeUntilDim);
-
     setTimeout(() => {
       PM.ping("you see a candle close to you, its wick untouched by flame");
       SM.set("features.caravan.state", Region.caravanEnum.dim);
@@ -230,13 +231,11 @@ const Region = {
     Button.disabled(Region.lightCandleButton.element, true);
     Region.lightCandleButton.updateListener();
     SM.set("features.caravan.state", Region.caravanEnum.warm);
-
     setTimeout(() => {
       PM.ping(
         "as the candlelight fills the space, you notice three strangers nearby, their faces partially obscured in the shadows."
       );
     }, Region.timeUntilCharactersSeen);
-
     setTimeout(() => {
       Region.onCandleChange();
     }, Region.timeUntilCandleChange);
@@ -244,37 +243,31 @@ const Region = {
 
   onCandleChange: function () {
     PM.ping("the caravan is " + SM.get("features.caravan.state"));
-    Main.changeLocationHeader("The Caravan");
+    Main.changeLocationHeader("the caravan");
     this.updateButtons();
   },
 
   explore: function () {
     Button.disabled(Region.exploreButton.element, true);
-    Region.exploreButton.updateListener();
     //console.log("event:", EM.activeEvent);
 
     if (EM.isActiveEvent()) {
       EM.endEvent();
       this.moveToRandomNextNode();
       Button.disabled(Region.exploreButton.element, false);
-      Region.exploreButton.updateListener();
     } else {
       setTimeout(() => {
         Region.beginExploring();
         Button.disabled(Region.exploreButton.element, false);
-        Region.exploreButton.updateListener();
-        /*
         if (!SM.get("run.currentNode")) {
           Button.disabled(Region.exploreButton.element, false);
           Region.exploreButton.updateListener();
         }
-        */
       }, Region.timeUntilEventBegin);
     }
 
     //console.log("exploring");
   },
-
   moveToRandomNextNode: function () {
     //console.log("moving to next random node");
 
@@ -293,6 +286,7 @@ const Region = {
       let nextNode = nodesAtNextDepth[randIndex];
 
       if (!nextNode) {
+        console.log("no next nodeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
         SM.set("engine.hasWon", true);
         this.resetRun();
       } else {
@@ -303,7 +297,7 @@ const Region = {
   },
 
   generateNewMap: function () {
-    //console.log("reached the respite, generating a new map");
+    console.log("reached the respite, generating a new map");
 
     let region = RegionGen.newReg();
     SM.set("run.currentMap", region.map);
@@ -319,10 +313,10 @@ const Region = {
 
     let regionName = SM.get("run.currentName");
     let pool = RegionEnemyPool[regionName];
-    this.currentRegionPool = [];
     pool.forEach((enemy) => {
       this.currentRegionPool.push(enemy);
     });
+
     this.setDocumentTitle();
   },
 
@@ -358,7 +352,6 @@ const Region = {
     SM.delete("char.characters");
 
     let charactersCreated = 0;
-    Region.currentParty = [];
     Region.choosePathfinders();
     for (const character of Region.currentParty) {
       if (charactersCreated < 4) {
@@ -398,7 +391,6 @@ const Region = {
       if (nextSin && !SM.get("meta.sinsUnlocked." + nextSin)) {
         SM.set("meta.sinsUnlocked." + nextSin, true);
       }
-
       PM.ping("you complete your journey");
       PM.ping("...");
       Main.changeModule(Main.modules.SinSelection);
@@ -523,10 +515,10 @@ const Region = {
   },
 
   choosePathfinders: function () {
-    console.log("choosing pathfinders");
     let pathfinderList = PathfinderCharLib;
     let maxCharacters = 4;
     let charactersChosen = 0;
+    console.log("choosing pathfinder");
 
     pathfinderList.sort(() => Math.random() - 0.5);
 

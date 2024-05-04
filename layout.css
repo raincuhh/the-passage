@@ -23,6 +23,8 @@
   --pings-width: clamp(250px, 80vw, 370px);
   --view-width: calc(1000px - var(--pings-width));
 
+  --fightSpriteSize: clamp(5rem, 70vw, 6.8rem);
+
   /* z-index */
 
   --z-index-navbar: 100;
@@ -393,8 +395,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    .topView,
-    .botView {
+    .topView {
       height: 50%;
       width: 100%;
     }
@@ -409,6 +410,137 @@
           width: 100%;
 
           /* individual event is styled under  */
+
+          /* general fight panel stuff */
+
+          #fightPanel {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            #battleDisplay {
+              height: 70%;
+              display: flex;
+              flex-direction: column;
+              user-select: none;
+              #characterSide,
+              #enemySide {
+                height: 50%;
+                width: 100%;
+                display: flex;
+              }
+              #characterSide {
+                #characterSprite {
+                  width: 50%;
+                  display: flex;
+                  justify-content: center;
+                  align-items: end;
+                  font-size: var(--fightSpriteSize);
+                }
+                #characterInfoPanel {
+                  width: 50%;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: end;
+                  gap: 0.5rem;
+                  #characterInfo {
+                    height: min-content;
+                    display: flex;
+                    flex-direction: column;
+
+                    padding: 0.5rem;
+                    width: 45%;
+                    border-right: 1px solid var(--text-base);
+                    border-top: 1px solid var(--text-base);
+                    gap: 0.2rem;
+                    #characterInfoName {
+                      font-size: 1.25rem;
+                      display: flex;
+                      justify-content: end;
+                    }
+                    #characterInfoHpWrapper {
+                      display: flex;
+                      justify-content: end;
+                      gap: 0.2rem;
+                    }
+                  }
+                }
+              }
+              #enemySide {
+                #enemySprite {
+                  width: 50%;
+                  display: flex;
+                  justify-content: center;
+                  align-items: start;
+                  font-size: var(--fightSpriteSize);
+                }
+                #enemyInfoPanel {
+                  width: 50%;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 0.5rem;
+
+                  #enemyInfo {
+                    height: min-content;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 0.5rem;
+                    width: 45%;
+                    border-left: 1px solid var(--text-base);
+                    border-top: 1px solid var(--text-base);
+                    gap: 0.2rem;
+                    #enemyInfoName {
+                      font-size: 1.25rem;
+                      display: flex;
+                      justify-content: start;
+                    }
+                    #enemyInfoHpWrapper {
+                      display: flex;
+                      justify-content: start;
+                      gap: 0.2rem;
+                    }
+                  }
+                }
+              }
+            }
+            #battleMenu {
+              border: 1px solid var(--text-base);
+              padding: 0.5rem;
+              width: 100%;
+              height: 86px;
+
+              #mainPanel {
+                width: 100%;
+                display: flex;
+
+                #descriptionPanel {
+                  width: 100%;
+                }
+
+                #optionsPanel {
+                  #wrapper {
+                    width: 238px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: end;
+                    gap: 0.5rem;
+
+                    .button {
+                      margin: 0;
+                    }
+                  }
+                }
+              }
+              #attackPanel {
+                display: flex;
+                #attacksWrapper {
+                  width: 100%;
+                }
+              }
+            }
+          }
 
           /* shrine of the abyss */
           #shrineHeader {
@@ -450,7 +582,8 @@
     }
     .botView {
       display: flex;
-      height: 100%;
+      height: 50%;
+      margin-bottom: clamp(0.75rem, 2.4vw, 1rem);
     }
   }
 }

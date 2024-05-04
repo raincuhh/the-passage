@@ -1,6 +1,6 @@
 /**
  * main
- * handles gameloop
+ * gameloop shit, handles changing from different modules
  */
 const Main = {
   version: 0.29,
@@ -24,7 +24,7 @@ const Main = {
     SM.init(); // outer stateManager
 
     if (!SM.get("engine.activeModule")) {
-      SM.set("engine.activeModule", "Intro");
+      SM.set("engine.activeModule", this.modules.Intro);
     }
     let moduleName = SM.get("engine.activeModule");
     let module;
@@ -132,7 +132,7 @@ const Main = {
   },
   createNavbar: function () {
     let navbarInfo = [
-      { id: "navbarDelete", text: "delete." },
+      { id: "navbarDelete", text: "(warning) erase save." },
       { id: "navbarGithub", text: "github." },
       { id: "navbarResetRun", text: "reset run." },
       //{ id: "navbarAchievements", text: "achievements." },

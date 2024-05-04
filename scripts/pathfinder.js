@@ -11,7 +11,7 @@ const PFM = {
 
     // disabled for demo
     //this.randomizeTraits(pathfinder, this.baseTraitNum);
-    //this.setBaseSkills(pathfinder, index);
+    this.setBaseSkills(pathfinder, index);
     this.setBaseStats(pathfinder, index);
   },
 
@@ -92,7 +92,13 @@ const PFM = {
       console.error("skill for given index not found");
       return;
     }
+
+    charListSkills.forEach((skill) => {
+      SM.setSkill(pathfinder, skill, true);
+    });
+
     // check for unlocked skills
+    /*
     let unlockedSkills = charListSkills.filter((skill) => !skill.locked());
     let lockedSkills = charListSkills.filter((skill) => skill.locked());
     unlockedSkills.forEach((skill) => {
@@ -101,6 +107,7 @@ const PFM = {
     lockedSkills.forEach((skill) => {
       SM.setSkill(pathfinder, skill, false);
     });
+    */
   },
 
   includeSkillPing: function (skill, bool) {},
