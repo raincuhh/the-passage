@@ -86,28 +86,17 @@ const PFM = {
   },
 
   setBaseSkills: function (pathfinder, index) {
-    let skillList = PathfinderCharLib[index].skills;
-
-    if (!skillList) {
+    let skills = PathfinderCharLib[index].skills;
+    //console.log(skills);
+    if (!skills) {
       console.error("skill for given index not found");
       return;
     }
+    //SM.setSkills(pathfinder, skills)
 
-    skillList.forEach((skill) => {
+    skills.forEach((skill) => {
       SM.setSkill(pathfinder, skill, true);
     });
-
-    // check for unlocked skills
-    /*
-    let unlockedSkills = charListSkills.filter((skill) => !skill.locked());
-    let lockedSkills = charListSkills.filter((skill) => skill.locked());
-    unlockedSkills.forEach((skill) => {
-      SM.setSkill(pathfinder, skill, true);
-    });
-    lockedSkills.forEach((skill) => {
-      SM.setSkill(pathfinder, skill, false);
-    });
-    */
   },
 
   includeSkillPing: function (skill, bool) {},

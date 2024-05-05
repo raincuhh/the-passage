@@ -105,10 +105,22 @@ let SM = {
       console.error("trait not found" + error);
     }
   },
+  /*
+  setSkills: function (pathfinder, skills) {
+    Object.entries(skills).forEach(([key, value]) => {
+      this.setSkill(pathfinder, key, value);
+    });
+  },
+  setSkill: function (pathfinder, key, value) {
+    this.set("char.characters." + pathfinder + ".skills." + key, value);
+  },
+  */
+
   setSkill: function (pathfinder, skill, bool, includePing) {
     this.set("char.characters." + pathfinder + ".skills." + skill.id, bool);
     //PFM.includeSkillPing(skill, includePing);
   },
+
   setStats: function (pathfinder, stats) {
     Object.entries(stats).forEach(([key, value]) => {
       this.setStat(pathfinder, key, value);

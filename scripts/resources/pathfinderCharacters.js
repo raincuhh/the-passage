@@ -12,18 +12,22 @@ let PathfinderCharLib = [
       {
         name: "leg breaker",
         id: "legBreaker",
+        dmg: 6,
       },
       {
         name: "fire fist",
         id: "fireFist",
+        dmg: 7,
       },
       {
         name: "meteor strike",
         id: "meteorStrike",
+        dmg: 9,
       },
       {
         name: "demon assault",
         id: "demonAssault",
+        dmg: 12,
       },
     ],
     stats: {
@@ -39,18 +43,22 @@ let PathfinderCharLib = [
       {
         name: "blade slice",
         id: "bladeSlice",
+        dmg: 4,
       },
       {
         name: "ethereal strike",
         id: "vanishingStrike",
+        dmg: 7,
       },
       {
         name: "lethality",
         id: "blindingDagger",
+        dmg: 6,
       },
       {
         name: "eviscerate",
         id: "eviscerate",
+        dmg: 9,
       },
     ],
     stats: {
@@ -66,18 +74,22 @@ let PathfinderCharLib = [
       {
         name: "soul siphon",
         id: "soulSiphon",
+        dmg: 5,
       },
       {
         name: "essence drain",
         id: "essenceDrain",
+        dmg: 6,
       },
       {
         name: "darkness",
         id: "darkness",
+        dmg: 9,
       },
       {
         name: "curse",
         id: "curse",
+        dmg: 11,
       },
     ],
     stats: {
@@ -93,18 +105,22 @@ let PathfinderCharLib = [
       {
         name: "shield bash",
         id: "shieldBash",
+        dmg: 5,
       },
       {
         name: "bulwark slam",
         id: "bulkwarkSlam",
+        dmg: 8,
       },
       {
         name: "shield wall",
         id: "shieldWall",
+        dmg: 3,
       },
       {
         name: "resolve ",
         id: "resolve",
+        dmg: 7,
       },
     ],
     stats: {
@@ -120,18 +136,22 @@ let PathfinderCharLib = [
       {
         name: "crushing blows",
         id: "crushingBlows",
+        dmg: 8,
       },
       {
         name: "head splitter",
         id: "headSplitter",
+        dmg: 12,
       },
       {
         name: "war cry",
         id: "warCry",
+        dmg: 5,
       },
       {
         name: "mighty swing",
         id: "mightySwing",
+        dmg: 14,
       },
     ],
     stats: {
@@ -147,18 +167,22 @@ let PathfinderCharLib = [
       {
         name: "valiant strike",
         id: "valiantStrike",
+        dmg: 7,
       },
       {
         name: "holy retribution",
         id: "holyRetribution",
+        dmg: 5,
       },
       {
         name: "strike to the head",
         id: "strikeToTheHead",
+        dmg: 10,
       },
       {
-        name: "surge of action",
-        id: "surgeOfAction",
+        name: "action surge",
+        id: "actionSurge",
+        dmg: 8,
       },
     ],
     stats: {

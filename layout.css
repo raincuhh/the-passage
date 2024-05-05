@@ -23,8 +23,8 @@
   --pings-width: clamp(250px, 80vw, 370px);
   --view-width: calc(1000px - var(--pings-width));
 
-  --allySpriteSize: clamp(5rem, 70vw, 6.8rem);
-  --enemySpriteSize: clamp(3rem, 70vw, 5.4rem);
+  --allySpriteSize: clamp(5rem, 7vw, 6.8rem);
+  --enemySpriteSize: clamp(3rem, 7vw, 5.8rem);
 
   /* z-index */
 
@@ -396,10 +396,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    .topView {
-      height: 50%;
-      width: 100%;
-    }
+
     .topView {
       display: flex;
       #event {
@@ -469,11 +466,12 @@
                     border-top: 1px solid var(--text-base);
                     gap: 0.2rem;
                     #characterInfoName {
-                      font-size: 1.25rem;
+                      font-size: clamp(0.875rem, 1.8vw, 1.25rem);
                       display: flex;
                       justify-content: end;
                     }
                     #characterInfoHpWrapper {
+                      font-size: clamp(0.875rem, 1.8vw, 1rem);
                       display: flex;
                       justify-content: end;
                       gap: 0.2rem;
@@ -505,11 +503,12 @@
                     border-top: 1px solid var(--text-base);
                     gap: 0.2rem;
                     #enemyInfoName {
-                      font-size: 1.25rem;
+                      font-size: clamp(0.875rem, 1.8vw, 1.25rem);
                       display: flex;
                       justify-content: start;
                     }
                     #enemyInfoHpWrapper {
+                      font-size: clamp(0.875rem, 1.8vw, 1rem);
                       display: flex;
                       justify-content: start;
                       gap: 0.2rem;

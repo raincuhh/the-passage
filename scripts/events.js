@@ -135,18 +135,13 @@ let EM = {
     let exploreButton = getID("exploreButton");
     exploreButton.style.display = "none";
     Region.exploreButton.updateListener();
-    //console.log(event);
 
     // setting up and getting actors
     this.performed = false;
     this.won = false;
 
-    //this.enemyActors = [];
-    //this.partyActors = [];
-
     // defining enemy pool from which enemies are picked from
     let regionPool = Region.currentRegionPool;
-    //console.log("region poooooooooooool:", regionPool);
     let worldPool = NonRegionEnemyPool;
 
     let enemyScopeEnum = {
@@ -196,32 +191,26 @@ let EM = {
           let chosen;
           switch (scope) {
             case enemyScopeEnum.worldScope:
-              chosen = this.weightedEnemySelection(worldPool);
-              //console.log("worldPool", chosen);
+              chosen = this.weightedEnemySelection([...worldPool]);
               break;
             case enemyScopeEnum.regionCheckScope:
-              chosen = this.weightedEnemySelection(regionCheckPool);
-              //console.log("regionCheckPool", chosen);
+              chosen = this.weightedEnemySelection([...regionCheckPool]);
               break;
             case enemyScopeEnum.sinMinionsScope:
-              chosen = this.weightedEnemySelection(abyssMinionsPool);
-              //console.log("abyss minions", chosen);
+              chosen = this.weightedEnemySelection([...abyssMinionsPool]);
               break;
             default:
-              chosen = this.weightedEnemySelection(regionPool);
-              //console.log("regionPool", chosen);
+              chosen = this.weightedEnemySelection([...regionPool]);
               break;
           }
           temp.push(chosen);
-          //console.log(chosen);
         }
       } else {
         let sinBoss = SM.get("run.activeSin");
         let chosen;
-        for (const boss of sinBossPool) {
+        for (const boss of [...sinBossPool]) {
           if (boss.name === sinBoss) {
             chosen = boss;
-            console.log("bossPool", chosen);
             break;
           }
         }
@@ -237,8 +226,11 @@ let EM = {
       let enemies = Object.values(SM.get("event.enemies"));
       let temp = [];
       enemies.forEach((enemy) => {
-        //console.log(enemy.name);
-        temp.push(enemy);
+        let copiedEnemy = { ...enemy }; // Create a copy using spread operator
+        let enemyHp = EM.lookupEnemyHp(copiedEnemy);
+        console.log("copied enemy hp:", enemyHp);
+        copiedEnemy.stats.hp = enemyHp;
+        temp.push(copiedEnemy);
       });
       SM.set("event.inactiveEnemies", temp);
     }
@@ -264,7 +256,7 @@ let EM = {
       chars.forEach((char) => {
         temp.push(char);
       });
-      console.log(temp);
+      //console.log(temp);
       SM.set("event.inactiveChars", temp);
     }
 
@@ -272,10 +264,10 @@ let EM = {
     if (!SM.get("event.activeChar")) {
       let inactiveChars = SM.get("event.inactiveChars");
 
-      console.log("inactiveChars:", inactiveChars);
+      //console.log("inactiveChars:", inactiveChars);
 
       let chosen = inactiveChars[0];
-      console.log(chosen);
+      //console.log(chosen);
 
       SM.set("event.activeChar", chosen);
 
@@ -293,9 +285,9 @@ let EM = {
       let enemySpeed = activeEnemy.stats.speed;
 
       if (charSpeed > enemySpeed) {
-        EM.changeTurn(EM.turnStates.playerTurn);
+        EM.changeBattleState(EM.turnStates.playerTurn);
       } else {
-        EM.changeTurn(EM.turnStates.enemyTurn);
+        EM.changeBattleState(EM.turnStates.enemyTurn);
       }
     }
 
@@ -312,15 +304,31 @@ let EM = {
     let battleMenu = EM.createBattleMenu();
     fightPanel.appendChild(battleMenu);
 
-    // finding out who has turn first (speed)
-
     this.hidePanels();
     this.updateAll();
-    this.changePanel(EM.panelEnums.mainPanel);
+    if (SM.get("event.turnState") === EM.turnStates.playerTurn) {
+      this.changePanel(EM.panelEnums.mainPanel);
+    } else if (SM.get("event.turnState") === EM.turnStates.enemyTurn) {
+      this.changePanel(EM.panelEnums.enemyTurnPanel);
+    }
+
+    /*
+    console.log("activeChar", SM.get("event.activeChar"));
+    console.log("inactiveChars", SM.get("event.inactiveChars"));
+    console.log("activeEnemy", SM.get("event.activeEnemy"));
+    console.log("inactiveEnemies", SM.get("event.inactiveEnemies"));
+    */
+    EM.deathCheck();
   },
 
-  changeTurn: function (turnState) {
-    SM.set("event.turnState", turnState);
+  lookupEnemyHp: function (enemyCopy) {
+    return hpLookup[enemyCopy.name] || 0;
+  },
+
+  testNum: 100,
+
+  changeBattleState: function (state) {
+    SM.set("event.turnState", state);
     EM.updateTurnState();
   },
 
@@ -332,53 +340,108 @@ let EM = {
       case EM.turnStates.enemyTurn:
         EM.enemyTurn();
         break;
+      case EM.turnStates.lost:
+        Region.resetRun();
+        break;
+      case EM.turnStates.won:
+        EM.endEvent();
+        break;
     }
   },
 
   playerTurn: function () {
-    console.log("player turn");
-    let activeChar = SM.get("event.activeChar");
-    let activeEnemy = SM.get("event.activeEnemy");
-    let dmg = EM.getEnemyAttackValue(activeEnemy);
-
-    EM.attack(activeChar, activeEnemy, dmg);
+    //console.log("player turn");
+    EM.hidePanels();
+    EM.changePanel(EM.panelEnums.mainPanel);
   },
+
   enemyTurn: function () {
-    console.log("enemy turn");
+    //console.log("enemy turn");
+    EM.hidePanels();
+    EM.changePanel(EM.panelEnums.enemyTurnPanel);
     let activeChar = SM.get("event.activeChar");
     let activeEnemy = SM.get("event.activeEnemy");
-    let dmg = EM.getEnemyAttackValue(activeEnemy);
+    let dmg = EM.getComputerAttackDmg();
     setTimeout(() => {
       PM.ping("...");
     }, 750);
 
     setTimeout(() => {
-      EM.attack(activeEnemy, activeChar, dmg);
+      EM.computerAttack(activeEnemy, activeChar, dmg);
     }, 1500);
   },
 
-  attack: function (attacker, defendant, value) {
-    console.log(attacker, defendant);
-    let attackerName = "";
-    let defendantName = "";
+  computerAttack: function (attacker, defendant, value) {
+    let attackerName = attacker.name;
+    let defendantName = defendant[0];
 
-    if (typeof attacker === "object" && attacker.hasOwnProperty("name")) {
-      attackerName = attacker.name;
-    } else if (Array.isArray(attacker) && attacker.length > 0) {
-      attackerName = attacker[0];
-    }
+    let oldHp = SM.get("event.activeChar[1].stats.hp");
+    //console.log("oldHp:", oldHp);
 
-    if (typeof defendant === "object" && defendant.hasOwnProperty("name")) {
-      defendantName = defendant.name;
-    } else if (Array.isArray(defendant) && defendant.length > 0) {
-      defendantName = defendant[0];
-    }
+    let newHp = Math.max(oldHp - value, 0);
+
+    SM.set("event.activeChar[1].stats.hp", newHp);
+    //console.log("newHp:", SM.get("event.activeChar[1].stats.hp"));
+
     PM.ping(attackerName + " attacks " + defendantName + " for " + value);
+
+    EM.deathCheck();
+
+    let inactiveChars = SM.get("event.inactiveChars");
+    let inactiveEnemies = SM.get("event.inactiveEnemies");
+
+    if (inactiveChars || inactiveEnemies) {
+      if (inactiveChars.length > 0 || inactiveEnemies.length > 0) {
+        EM.changeBattleState(EM.turnStates.playerTurn);
+        EM.updateAll();
+      }
+    }
   },
 
-  deathCheck: function () {},
+  playerAttack: function (attacker, defendant, value) {
+    let attackerName = attacker[0];
+    let defendantName = defendant.name;
 
-  getEnemyAttackValue: function (entity) {
+    let oldHp = SM.get("event.activeEnemy.stats.hp");
+    //console.log("oldHp:", oldHp);
+
+    let newHp = Math.max(oldHp - value, 0);
+
+    SM.set("event.activeEnemy.stats.hp", newHp);
+    //console.log("newHp:", newHp);
+
+    PM.ping(attackerName + " attacks " + defendantName + " for " + value);
+    EM.deathCheck();
+
+    let inactiveChars = SM.get("event.inactiveChars");
+    let inactiveEnemies = SM.get("event.inactiveEnemies");
+
+    if (inactiveChars || inactiveEnemies) {
+      if (inactiveChars.length > 0 || inactiveEnemies.length > 0) {
+        EM.changeBattleState(EM.turnStates.enemyTurn);
+        EM.updateAll();
+      }
+    }
+  },
+
+  deathCheck: function () {
+    let activeCharHp = SM.get("event.activeChar[1].stats.hp");
+    let activeEnemyHp = SM.get("event.activeEnemy.stats.hp");
+
+    if (activeCharHp <= 0) {
+      SM.delete("event.activeChar");
+      console.log("Active character is dead!");
+      this.shiftToNextChar(); // Shift to the next character
+    }
+
+    if (activeEnemyHp <= 0) {
+      SM.delete("event.activeEnemy");
+      console.log("Active enemy is dead!");
+      this.shiftToNextEnemy(); // Shift to the next enemy
+    }
+  },
+
+  getComputerAttackDmg: function () {
     let highRange = EM.randRange(7, 15);
     let lowRange = EM.randRange(1, 6);
 
@@ -525,6 +588,9 @@ let EM = {
     let switchPanel = EM.createSwitchpanel();
     elem.appendChild(switchPanel);
 
+    let enemyTurnPanel = EM.createEnemyTurnPanel();
+    elem.appendChild(enemyTurnPanel);
+
     return elem;
   },
 
@@ -533,11 +599,21 @@ let EM = {
     let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
     let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
     let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
+    let enemyTurnPanel = getQuerySelector(
+      "#fightPanel #battleMenu #enemyTurnPanel"
+    );
 
-    mainPanel.style.display = "none";
-    attackPanel.style.display = "none";
-    itemsPanel.style.display = "none";
-    switchPanel.style.display = "none";
+    const setDisplayStyle = (element, displayValue) => {
+      if (element) {
+        element.style.display = displayValue;
+      }
+    };
+
+    setDisplayStyle(mainPanel, "none");
+    setDisplayStyle(attackPanel, "none");
+    setDisplayStyle(itemsPanel, "none");
+    setDisplayStyle(switchPanel, "none");
+    setDisplayStyle(enemyTurnPanel, "none");
   },
 
   updateAll: function () {
@@ -564,6 +640,7 @@ let EM = {
 
     characterPreview.innerHTML = "";
 
+    /*
     let characters = Object.values(SM.get("event.inactiveChars"));
     characters.forEach((char, index) => {
       let charName = char[0];
@@ -579,6 +656,23 @@ let EM = {
     characterName.textContent = activeChar[0];
     characterHpCurrent.textContent = activeChar[1].stats.hp;
     characterHpMax.textContent = activeChar[1].stats.maxHp;
+    */
+    let activeChar = SM.get("event.activeChar");
+    if (activeChar) {
+      let characters = Object.values(SM.get("event.inactiveChars"));
+      characters.forEach((char, index) => {
+        let charName = char[0];
+
+        let elem = createEl("div");
+        elem.setAttribute("id", "char" + index);
+        elem.textContent = "@";
+        characterPreview.appendChild(elem);
+      });
+
+      characterName.textContent = activeChar[0];
+      characterHpCurrent.textContent = activeChar[1].stats.hp;
+      characterHpMax.textContent = activeChar[1].stats.maxHp;
+    }
 
     // enemy display and info
     let enemyPreview = getQuerySelector(
@@ -596,21 +690,21 @@ let EM = {
 
     enemyPreview.innerHTML = "";
 
-    let enemies = SM.get("event.inactiveEnemies");
-
-    enemies.forEach((enemy) => {
-      //console.log(enemy);
-      let elem = createEl("div");
-      elem.setAttribute("id", "placeholder");
-      elem.textContent = "E";
-      enemyPreview.appendChild(elem);
-    });
-
     let activeEnemy = SM.get("event.activeEnemy");
+    if (activeEnemy) {
+      let enemies = SM.get("event.inactiveEnemies");
 
-    enemyName.textContent = activeEnemy.name;
-    enemyHpCurrent.textContent = activeEnemy.stats.hp;
-    enemyHpMax.textContent = activeEnemy.stats.maxHp;
+      enemies.forEach((enemy) => {
+        let elem = createEl("div");
+        elem.setAttribute("id", "placeholder");
+        elem.textContent = "E";
+        enemyPreview.appendChild(elem);
+      });
+
+      enemyName.textContent = activeEnemy.name;
+      enemyHpCurrent.textContent = activeEnemy.stats.hp;
+      enemyHpMax.textContent = activeEnemy.stats.maxHp;
+    }
   },
 
   updateAttackPanel: function () {
@@ -620,18 +714,20 @@ let EM = {
     attackPanelWrapper.innerHTML = "";
 
     let activeChar = SM.get("event.activeChar");
+    let activeEnemy = SM.get("event.activeEnemy");
     let activeCharSkills = activeChar[1].skills;
 
     if (activeCharSkills && typeof activeCharSkills === "object") {
       for (const skill in activeCharSkills) {
         if (activeCharSkills.hasOwnProperty(skill) && activeCharSkills[skill]) {
           let fullName = EM.getSkillProperty(skill, "name");
+          let dmg = EM.getSkillProperty(skill, "dmg");
           let elem = new Button.custom({
             id: skill,
             text: fullName,
           });
           elem.element.addEventListener("click", () => {
-            console.log(fullName);
+            EM.playerAttack(activeChar, activeEnemy, dmg);
           });
           attackPanelWrapper.appendChild(elem.element);
         }
@@ -694,6 +790,7 @@ let EM = {
         SM.set("event.inactiveChars", inactiveChars);
         PM.ping("you switch to " + character[0]);
         this.updateAll();
+        console.log("changing panel from switchActiveChar function");
         this.changePanel(EM.panelEnums.mainPanel);
       } else {
         console.log("char to switch not found");
@@ -702,8 +799,31 @@ let EM = {
       console.log("character to switch not among the inactive character list");
     }
   },
+
+  shiftToNextChar: function () {
+    let inactiveChars = SM.get("event.inactiveChars");
+
+    if (inactiveChars.length > 0) {
+      let nextChar = inactiveChars.shift(); // Remove the first character from the list
+      SM.set("event.activeChar", nextChar);
+      SM.set("event.inactiveChars", inactiveChars); // Update the state with the modified array
+    } else {
+      //console.log("no characters to shift to");
+      EM.changeBattleState(EM.turnStates.lost);
+    }
+  },
   shiftToNextEnemy: function () {
     let inactiveEnemies = SM.get("event.inactiveEnemies");
+
+    if (inactiveEnemies.length > 0) {
+      let nextEnemy = inactiveEnemies.shift();
+      SM.set("event.activeEnemy", nextEnemy);
+      SM.set("event.inactiveEnemies", inactiveEnemies);
+      //EM.changeBattleState(EM.turnStates.playerTurn);
+    } else {
+      //console.log("no enemies to shift to");
+      EM.changeBattleState(EM.turnStates.won);
+    }
   },
 
   getSkillProperty: function (id, property) {
@@ -726,6 +846,7 @@ let EM = {
     attackPanel: "attackPanel",
     itemsPanel: "itemsPanel",
     switchPanel: "switchPanel",
+    enemyTurnPanel: "enemyTurnPanel",
   },
 
   changePanel: function (panel) {
@@ -735,19 +856,31 @@ let EM = {
     let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
     let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
     let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
+    let enemyTurnPanel = getQuerySelector(
+      "#fightPanel #battleMenu #enemyTurnPanel"
+    );
+
+    const setDisplayStyle = (element, displayValue) => {
+      if (element) {
+        element.style.display = displayValue;
+      }
+    };
 
     switch (panel) {
       case EM.panelEnums.mainPanel:
-        mainPanel.style.display = "flex";
+        setDisplayStyle(mainPanel, "flex");
         break;
       case EM.panelEnums.attackPanel:
-        attackPanel.style.display = "flex";
+        setDisplayStyle(attackPanel, "flex");
         break;
       case EM.panelEnums.itemsPanel:
-        itemsPanel.style.display = "flex";
+        setDisplayStyle(itemsPanel, "flex");
         break;
       case EM.panelEnums.switchPanel:
-        switchPanel.style.display = "flex";
+        setDisplayStyle(switchPanel, "flex");
+        break;
+      case EM.panelEnums.enemyTurnPanel:
+        setDisplayStyle(enemyTurnPanel, "flex");
         break;
     }
   },
@@ -841,6 +974,15 @@ let EM = {
     returnPanel.appendChild(returnButton.element);
 
     return attackPanel;
+  },
+
+  createEnemyTurnPanel: function () {
+    let enemyTurnPanel = createEl("div");
+    enemyTurnPanel.setAttribute("id", "enemyTurnPanel");
+    enemyTurnPanel.setAttribute("class", "panel");
+    enemyTurnPanel.textContent = "enemy turn";
+
+    return enemyTurnPanel;
   },
 
   createItemsPanel: function () {
