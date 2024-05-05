@@ -24,9 +24,9 @@ let SaveManager = {
   saveGame: function () {
     try {
       let string = JSON.stringify(SM.components);
-      //let encodedString = btoa(string);
-      localStorage.setItem("save", string);
-      //localStorage.setItem("save", encodedString);
+      let encodedString = btoa(string);
+      //localStorage.setItem("save", string);
+      localStorage.setItem("save", encodedString);
 
       this.saveNotif();
     } catch (error) {
@@ -44,9 +44,9 @@ let SaveManager = {
     let encodedString = localStorage.getItem("save");
     if (encodedString) {
       try {
-        //let decodedString = atob(encodedString);
-        //let save = JSON.parse(decodedString);
-        let save = JSON.parse(encodedString);
+        let decodedString = atob(encodedString);
+        let save = JSON.parse(decodedString);
+        //let save = JSON.parse(encodedString);
         SM.components = save;
       } catch (error) {
         console.error("error occured: ", error);
@@ -90,6 +90,7 @@ let SaveManager = {
     return save;
   },
 
+  /*
   import: function () {
     const IMPORTDIV = getID("changethiswhenyoumaketheimportdiv");
     let string = IMPORTDIV.textContent;
@@ -105,4 +106,5 @@ let SaveManager = {
       alert("error: please try re-importing");
     }
   },
+  */
 };
