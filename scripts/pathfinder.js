@@ -6,8 +6,11 @@ const PFM = {
   init: function () {},
   baseTraitNum: 2,
   createPathfinder: function (pathfinder) {
-    let charList = PathfinderCharLib;
-    let index = charList.findIndex((e) => e.name === pathfinder);
+    let index = PathfinderCharLib.findIndex((char) => char.name === pathfinder);
+    if (index === -1) {
+      console.error("Character not found in PathfinderCharLib:", pathfinder);
+      return;
+    }
 
     // disabled for demo
     //this.randomizeTraits(pathfinder, this.baseTraitNum);
