@@ -134,8 +134,8 @@ let PathfinderCharLib = [
     id: "theBlatherer",
     skills: [
       {
-        name: "crushing blows",
-        id: "crushingBlows",
+        name: "crushing hits",
+        id: "crushingHits",
         dmg: 8,
       },
       {
@@ -165,18 +165,18 @@ let PathfinderCharLib = [
     id: "theKnight",
     skills: [
       {
-        name: "valiant strike",
-        id: "valiantStrike",
+        name: "hit",
+        id: "hit",
         dmg: 7,
       },
       {
-        name: "holy retribution",
-        id: "holyRetribution",
+        name: "retribution",
+        id: "retribution",
         dmg: 5,
       },
       {
-        name: "strike to the head",
-        id: "strikeToTheHead",
+        name: "strike head",
+        id: "strikeHead",
         dmg: 10,
       },
       {

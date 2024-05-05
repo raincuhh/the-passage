@@ -1,7 +1,20 @@
 /**
  * eventsManager
  * handles ui + nodeEvents, pathEvents, randomEvents,
+ *
  */
+
+/* known bugs
+  - no errorhandling on some stuff
+  - weird bug with characters dying, next event
+    will still have those characters but their hp is 0 and they instadie.
+  - deathcheck sometimes does some weird stuff
+  - sometimes you cant do an attack and it just freezes at userturn
+    if you attack enemy and it dies.
+    ui basically doesnt update for some reason
+  - bug with enemies keeping their hp through different events - FIXED (probably)
+  - attacking sometimes doesnt update ui
+*/
 let EM = {
   activeEvent: null,
   eventId: null,
@@ -61,6 +74,7 @@ let EM = {
     this.pingEventState();
 
     if (event.combat) {
+      PM.ping("NOTE - if you get stuck in combat try refreshing");
       this.enterCombat(event);
     } else {
       this.enterNonCombat(event);
@@ -228,7 +242,7 @@ let EM = {
       enemies.forEach((enemy) => {
         let copiedEnemy = { ...enemy }; // Create a copy using spread operator
         let enemyHp = EM.lookupEnemyHp(copiedEnemy);
-        console.log("copied enemy hp:", enemyHp);
+        //console.log("copied enemy hp:", enemyHp);
         copiedEnemy.stats.hp = enemyHp;
         temp.push(copiedEnemy);
       });
@@ -306,6 +320,7 @@ let EM = {
 
     this.hidePanels();
     this.updateAll();
+
     if (SM.get("event.turnState") === EM.turnStates.playerTurn) {
       this.changePanel(EM.panelEnums.mainPanel);
     } else if (SM.get("event.turnState") === EM.turnStates.enemyTurn) {
@@ -351,14 +366,30 @@ let EM = {
 
   playerTurn: function () {
     //console.log("player turn");
+
+    EM.deathCheck();
     EM.hidePanels();
     EM.changePanel(EM.panelEnums.mainPanel);
+    //EM.enableMainPanelButtons();
   },
+  isEnemyTurn: null,
 
   enemyTurn: function () {
     //console.log("enemy turn");
+
+    EM.deathCheck();
+    EM.isEnemyTurn = true;
+
+    setTimeout(() => {
+      if (EM.isEnemyTurn) {
+        EM.changeBattleState(EM.turnStates.playerTurn);
+      }
+    }, 3000);
+
     EM.hidePanels();
     EM.changePanel(EM.panelEnums.enemyTurnPanel);
+    //EM.disableMainPanelButtons();
+
     let activeChar = SM.get("event.activeChar");
     let activeEnemy = SM.get("event.activeEnemy");
     let dmg = EM.getComputerAttackDmg();
@@ -367,13 +398,19 @@ let EM = {
     }, 750);
 
     setTimeout(() => {
+      EM.isEnemyTurn = false;
       EM.computerAttack(activeEnemy, activeChar, dmg);
     }, 1500);
   },
 
   computerAttack: function (attacker, defendant, value) {
-    let attackerName = attacker.name;
-    let defendantName = defendant[0];
+    let attackerName = attacker ? attacker.name : null;
+    let defendantName = defendant ? defendant[0] : null;
+
+    if (!attackerName) {
+      console.log(" attacker is dead or missing, returning");
+      return;
+    }
 
     let oldHp = SM.get("event.activeChar[1].stats.hp");
     //console.log("oldHp:", oldHp);
@@ -384,7 +421,6 @@ let EM = {
     //console.log("newHp:", SM.get("event.activeChar[1].stats.hp"));
 
     PM.ping(attackerName + " attacks " + defendantName + " for " + value);
-
     EM.deathCheck();
 
     let inactiveChars = SM.get("event.inactiveChars");
@@ -393,7 +429,8 @@ let EM = {
     if (inactiveChars || inactiveEnemies) {
       if (inactiveChars.length > 0 || inactiveEnemies.length > 0) {
         EM.changeBattleState(EM.turnStates.playerTurn);
-        EM.updateAll();
+        EM.updateBattleDisplay();
+        EM.updateAttackPanel();
       }
     }
   },
@@ -419,25 +456,29 @@ let EM = {
     if (inactiveChars || inactiveEnemies) {
       if (inactiveChars.length > 0 || inactiveEnemies.length > 0) {
         EM.changeBattleState(EM.turnStates.enemyTurn);
-        EM.updateAll();
+        EM.updateBattleDisplay();
+        EM.updateAttackPanel();
       }
     }
   },
 
   deathCheck: function () {
+    let activeChar = SM.get("event.activeChar");
+    let activeEnemy = SM.get("event.activeEnemy");
+
     let activeCharHp = SM.get("event.activeChar[1].stats.hp");
     let activeEnemyHp = SM.get("event.activeEnemy.stats.hp");
 
     if (activeCharHp <= 0) {
+      PM.ping(activeChar[0] + " died");
       SM.delete("event.activeChar");
-      console.log("Active character is dead!");
-      this.shiftToNextChar(); // Shift to the next character
+      this.shiftToNextChar();
     }
 
     if (activeEnemyHp <= 0) {
+      PM.ping(activeEnemy.name + " died");
       SM.delete("event.activeEnemy");
-      console.log("Active enemy is dead!");
-      this.shiftToNextEnemy(); // Shift to the next enemy
+      this.shiftToNextEnemy();
     }
   },
 
@@ -638,35 +679,30 @@ let EM = {
       "#fightPanel #battleDisplay #characterSide #characterInfoPanel #characterInfo #characterInfoHpWrapper #characterInfoHpMax"
     );
 
-    characterPreview.innerHTML = "";
+    try {
+      if (characterPreview) {
+        characterPreview.innerHTML = "";
+      }
+    } catch (error) {
+      console.error("Error setting innerHTML for characterPreview:", error);
+    }
 
-    /*
-    let characters = Object.values(SM.get("event.inactiveChars"));
-    characters.forEach((char, index) => {
-      let charName = char[0];
-
-      let elem = createEl("div");
-      elem.setAttribute("id", "char" + index);
-      elem.textContent = "@";
-      characterPreview.appendChild(elem);
-    });
-
-    let activeChar = SM.get("event.activeChar");
-
-    characterName.textContent = activeChar[0];
-    characterHpCurrent.textContent = activeChar[1].stats.hp;
-    characterHpMax.textContent = activeChar[1].stats.maxHp;
-    */
     let activeChar = SM.get("event.activeChar");
     if (activeChar) {
-      let characters = Object.values(SM.get("event.inactiveChars"));
-      characters.forEach((char, index) => {
+      let inactiveChars = Object.values(SM.get("event.inactiveChars"));
+      inactiveChars.forEach((char, index) => {
         let charName = char[0];
 
         let elem = createEl("div");
         elem.setAttribute("id", "char" + index);
         elem.textContent = "@";
-        characterPreview.appendChild(elem);
+        try {
+          if (characterPreview) {
+            characterPreview.appendChild(elem);
+          }
+        } catch (error) {
+          console.error("Error appending child to characterPreview:", error);
+        }
       });
 
       characterName.textContent = activeChar[0];
@@ -688,17 +724,29 @@ let EM = {
       "#fightPanel #battleDisplay #enemySide #enemyInfoPanel #enemyInfo #enemyInfoHpWrapper #enemyInfoHpMax"
     );
 
-    enemyPreview.innerHTML = "";
+    try {
+      if (enemyPreview) {
+        enemyPreview.innerHTML = "";
+      }
+    } catch (error) {
+      console.error("Error setting innerHTML for enemyPreview:", error);
+    }
 
     let activeEnemy = SM.get("event.activeEnemy");
     if (activeEnemy) {
-      let enemies = SM.get("event.inactiveEnemies");
+      let inactiveEnemies = SM.get("event.inactiveEnemies");
 
-      enemies.forEach((enemy) => {
+      inactiveEnemies.forEach((enemy) => {
         let elem = createEl("div");
         elem.setAttribute("id", "placeholder");
         elem.textContent = "E";
-        enemyPreview.appendChild(elem);
+        try {
+          if (enemyPreview) {
+            enemyPreview.appendChild(elem);
+          }
+        } catch (error) {
+          console.error("Error appending child to enemyPreview:", error);
+        }
       });
 
       enemyName.textContent = activeEnemy.name;
@@ -711,13 +759,19 @@ let EM = {
     let attackPanelWrapper = getQuerySelector(
       "#fightPanel #battleMenu #attackPanel #optionsPanel #wrapper"
     );
-    attackPanelWrapper.innerHTML = "";
+    if (attackPanelWrapper) attackPanelWrapper.innerHTML = "";
 
     let activeChar = SM.get("event.activeChar");
     let activeEnemy = SM.get("event.activeEnemy");
-    let activeCharSkills = activeChar[1].skills;
 
-    if (activeCharSkills && typeof activeCharSkills === "object") {
+    if (
+      activeChar &&
+      activeChar[1] &&
+      activeChar[1].skills &&
+      typeof activeChar[1].skills === "object"
+    ) {
+      let activeCharSkills = activeChar[1].skills;
+
       for (const skill in activeCharSkills) {
         if (activeCharSkills.hasOwnProperty(skill) && activeCharSkills[skill]) {
           let fullName = EM.getSkillProperty(skill, "name");
@@ -739,23 +793,23 @@ let EM = {
     let switchPanelWrapper = getQuerySelector(
       "#fightPanel #battleMenu #switchPanel #optionsPanel #wrapper"
     );
-    switchPanelWrapper.innerHTML = "";
-    // updating the characters you can switch
-    //switchPanelWrapper.textContent = "hello world!";
+    if (switchPanelWrapper) switchPanelWrapper.innerHTML = "";
 
     let inactiveChars = SM.get("event.inactiveChars");
 
-    inactiveChars.forEach((char) => {
-      let charName = char[0];
-      let elem = new Button.custom({
-        id: "character",
-        text: charName,
+    if (Array.isArray(inactiveChars) && inactiveChars.length > 0) {
+      inactiveChars.forEach((char) => {
+        let charName = char[0];
+        let elem = new Button.custom({
+          id: "character",
+          text: charName,
+        });
+        elem.element.addEventListener("click", () => {
+          EM.switchActiveCharacter(char);
+        });
+        switchPanelWrapper.appendChild(elem.element);
       });
-      elem.element.addEventListener("click", () => {
-        EM.switchActiveCharacter(char);
-      });
-      switchPanelWrapper.appendChild(elem.element);
-    });
+    }
   },
 
   updateItemsPanel: function () {
@@ -773,7 +827,7 @@ let EM = {
       });
       itemsPanelWrapper.appendChild(elem);
     });
-    console.log("combatItems:", combatItems);
+    //console.log("combatItems:", combatItems);
   },
 
   switchActiveCharacter: function (character) {
@@ -804,14 +858,15 @@ let EM = {
     let inactiveChars = SM.get("event.inactiveChars");
 
     if (inactiveChars.length > 0) {
-      let nextChar = inactiveChars.shift(); // Remove the first character from the list
+      let nextChar = inactiveChars.shift();
       SM.set("event.activeChar", nextChar);
-      SM.set("event.inactiveChars", inactiveChars); // Update the state with the modified array
+      SM.set("event.inactiveChars", inactiveChars);
     } else {
       //console.log("no characters to shift to");
       EM.changeBattleState(EM.turnStates.lost);
     }
   },
+
   shiftToNextEnemy: function () {
     let inactiveEnemies = SM.get("event.inactiveEnemies");
 
@@ -833,7 +888,7 @@ let EM = {
           if (skill[property]) {
             return skill[property];
           } else {
-            console.log("skill property:", property, " is undefined");
+            console.error("skill property:", property, " is undefined");
             return undefined;
           }
         }
@@ -885,6 +940,27 @@ let EM = {
     }
   },
 
+  disableMainPanelButtons: function () {
+    Button.disabled(EM.attackButton.element, true);
+    Button.disabled(EM.guardButton.element, true);
+    Button.disabled(EM.itemsButton.element, true);
+    Button.disabled(EM.switchButton.element, true);
+    EM.attackButton.updateListener();
+    EM.guardButton.updateListener();
+    EM.itemsButton.updateListener();
+    EM.switchButton.updateListener();
+  },
+  enableMainPanelButtons: function () {
+    Button.disabled(EM.attackButton.element, false);
+    Button.disabled(EM.guardButton.element, true); // disabled for now cause weird
+    Button.disabled(EM.itemsButton.element, false);
+    Button.disabled(EM.switchButton.element, false);
+    EM.attackButton.updateListener();
+    EM.guardButton.updateListener();
+    EM.itemsButton.updateListener();
+    EM.switchButton.updateListener();
+  },
+
   attackButton: null,
   guardButton: null,
   itemsButton: null,
@@ -920,6 +996,7 @@ let EM = {
       id: "guardButton",
       text: "guard.",
     });
+    Button.disabled(EM.guardButton.element, true);
     EM.guardButton.element.addEventListener("click", () => {
       console.log("guarding turn");
     });
@@ -929,6 +1006,7 @@ let EM = {
       id: "itemsButton",
       text: "items.",
     });
+    Button.disabled(EM.itemsButton.element, true);
     EM.itemsButton.element.addEventListener("click", () => {
       EM.changePanel(EM.panelEnums.itemsPanel);
     });

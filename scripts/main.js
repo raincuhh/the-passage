@@ -20,19 +20,24 @@ const Main = {
     this.ready = true;
     this.render();
     SaveManager.loadGame();
-    PM.init(); // pingsManager
-    SM.init(); // outer stateManager
+    PM.init();
+    SM.init();
+
+    PM.ping("beware of bugs");
 
     if (!SM.get("engine.activeModule")) {
       SM.set("engine.activeModule", this.modules.Intro);
     }
+
     let moduleName = SM.get("engine.activeModule");
     let module;
+
     if (typeof moduleName === "string") {
       module = moduleName.split(".").reduce(this.indexModule, this.modules);
     } else {
       module = moduleName;
     }
+
     if (typeof module !== "undefined") {
       try {
         this.changeModule(module);
@@ -51,9 +56,7 @@ const Main = {
         SaveManager.saveGame();
       }, this.autoSaveDelay);
     } else {
-      PM.ping(
-        "autosave is off, remember to save your progress manually, or turn on autosave in settings"
-      );
+      PM.ping("autosave is off");
     }
   },
   render: function () {
@@ -132,9 +135,10 @@ const Main = {
   },
   createNavbar: function () {
     let navbarInfo = [
-      { id: "navbarDelete", text: "(warning) erase save." },
       { id: "navbarGithub", text: "github." },
+      { id: "navbarDelete", text: "(warning) erase save." },
       { id: "navbarResetRun", text: "reset run." },
+      { id: "navbarCheatExplore", text: "(cheat) explore." },
       //{ id: "navbarAchievements", text: "achievements." },
       //{ id: "navbarSettings", text: "settings." },
     ];
@@ -173,6 +177,10 @@ const Main = {
     const resetRun = getID("navbarResetRun");
     resetRun.addEventListener("click", () => {
       Region.resetRun();
+    });
+    const cheatExplore = getID("navbarCheatExplore");
+    cheatExplore.addEventListener("click", () => {
+      Region.explore();
     });
   },
   error: function () {

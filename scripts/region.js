@@ -306,31 +306,6 @@ const Region = {
         }
         break;
     }
-
-    /*
-    if (this.currentNode.type === "respite") {
-      this.generateNewMap();
-    } else {
-      // If not at a respite node, proceed as before
-      let nextDepth = this.currentNode.depth + 1;
-
-      let nodesAtNextDepth = this.currentMap.nodes.filter(
-        (node) => node.depth === nextDepth
-      );
-
-      let randIndex = Math.floor(Math.random() * nodesAtNextDepth.length);
-      let nextNode = nodesAtNextDepth[randIndex];
-
-      if (!nextNode) {
-        console.log("no next nodeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-        SM.set("engine.hasWon", true);
-        this.resetRun();
-      } else {
-        SM.set("run.currentNode", nextNode);
-        //console.log(nextNode);
-      }
-    }
-    */
   },
 
   generateNewMap: function () {
@@ -388,29 +363,39 @@ const Region = {
     SM.delete("location.regions");
     SM.delete("char.characters");
 
-    let charactersCreated = 0;
-    Region.choosePathfinders();
-    for (const character of Region.currentParty) {
-      if (charactersCreated < 4) {
-        if (!SM.get("char.characters." + character)) {
-          SM.set("char.characters." + character, {});
-          PFM.createPathfinder(character);
-          charactersCreated++;
-        }
-      } else {
-        console.log("above 4 characters, breaking");
-        break;
-      }
-    }
-    //console.log("party before > 4 check:", Region.currentParty);
+    try {
+      let charactersCreated = 0;
 
-    let currentCharacters = Object.keys(SM.get("char.characters"));
-    if (currentCharacters.length > 4) {
-      let charactersToDelete = currentCharacters.slice(4);
-      for (const character of charactersToDelete) {
-        SM.delete("char.characters." + character);
+      Region.choosePathfinders();
+      for (const character of Region.currentParty) {
+        if (charactersCreated < 4) {
+          if (!SM.get("char.characters." + character)) {
+            SM.set("char.characters." + character, {});
+            PFM.createPathfinder(character);
+            charactersCreated++;
+          }
+        } else {
+          console.log("above 4 characters, breaking");
+          break;
+        }
       }
+
+      //console.log("party before > 4 check:", Region.currentParty);
+
+      let currentCharacters = Object.keys(SM.get("char.characters"));
+      if (currentCharacters.length > 4) {
+        let charactersToDelete = currentCharacters.slice(4);
+        for (const character of charactersToDelete) {
+          SM.delete("char.characters." + character);
+        }
+      }
+    } catch (error) {
+      console.error(
+        "error trying to create characters after resetting run:",
+        error
+      );
     }
+
     // then deleting inventory and non metaprogress resources(like currency)
     let resourcesProperties = Object.keys(SM.get("resources"));
     iterOverToDeleteList(resourcesProperties, "resources");

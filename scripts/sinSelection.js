@@ -127,7 +127,7 @@ let SinSelection = {
     Button.disabled(this.confessButton.element, false);
     this.confessButton.updateListener();
     this.chosenSin = sin;
-    console.log(this.chosenSin);
+    //console.log(this.chosenSin);
     PM.ping("you think about the sin of " + sin);
 
     //SM.set("run.sin." + sin, true);
