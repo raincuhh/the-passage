@@ -3,8 +3,8 @@
  * gameloop shit, handles changing from different modules
  */
 const Main = {
-  version: 0.29,
-  beta: true,
+  version: 0.72,
+  demo: true,
   autoSaveDelay: 60000,
   ready: false,
   activeModule: null,

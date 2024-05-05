@@ -86,14 +86,14 @@ const PFM = {
   },
 
   setBaseSkills: function (pathfinder, index) {
-    let charListSkills = PathfinderCharLib[index].skills;
+    let skillList = PathfinderCharLib[index].skills;
 
-    if (!charListSkills) {
+    if (!skillList) {
       console.error("skill for given index not found");
       return;
     }
 
-    charListSkills.forEach((skill) => {
+    skillList.forEach((skill) => {
       SM.setSkill(pathfinder, skill, true);
     });
 

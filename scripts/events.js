@@ -82,11 +82,13 @@ let EM = {
     }
   },
 
+  /*
   getEnumFromEvent: function (name) {
     let nodeTypeEnums = this.nodeTypeEnums;
     let type = nodeTypeEnums.find((e) => Object.values(e)[0] === name.type);
     return type ? Object.keys(type) : null;
   },
+  */
 
   isActiveEvent: function () {
     if (this.activeEvent && this.activeEvent !== null) {
@@ -126,15 +128,6 @@ let EM = {
 
   performed: null,
   won: null,
-  enemyActors: [],
-  partyActors: [],
-
-  turnbasedStates: {
-    playerTurn: "playerTurn",
-    enemyTurn: "enemyTurn",
-    won: "won",
-    lost: "lost",
-  },
 
   enterCombat: function (event) {
     const parent = getID(this.eventId);
@@ -148,8 +141,8 @@ let EM = {
     this.performed = false;
     this.won = false;
 
-    this.enemyActors = [];
-    this.partyActors = [];
+    //this.enemyActors = [];
+    //this.partyActors = [];
 
     // defining enemy pool from which enemies are picked from
     let regionPool = Region.currentRegionPool;
@@ -166,9 +159,6 @@ let EM = {
 
     let scope;
 
-    // getting enemy scope
-
-    console.log("event type:", event.type);
     switch (event.type) {
       case "ambush":
         scope = enemyScopeEnum.worldScope;
@@ -196,10 +186,8 @@ let EM = {
         //console.log("region scope");
         break;
     }
-    //console.log("scope:", scope);
 
-    // getting random amount of enemy actors
-    if (!SM.get("event.enemyActors")) {
+    if (!SM.get("event.enemies")) {
       let temp = [];
       let enemiesAmount = EM.randRange(1, 4);
 
@@ -239,43 +227,84 @@ let EM = {
         }
         temp.push(chosen);
       }
-      SM.set("event.enemyActors", temp);
-    }
-
-    // putting enemies in the events enemyactor pool
-    let enemies = Object.entries(SM.get("event.enemyActors"));
-    for (const i of enemies) {
-      this.enemyActors.push(i);
-    }
-
-    // same with the pathfinders
-    let pathfinders = Object.entries(SM.get("char.characters"));
-    for (const i of pathfinders) {
-      this.partyActors.push(i);
+      SM.set("event.enemies", temp);
     }
 
     SM.set("event.state", this.eventStatesEnum.executing);
 
-    console.log("party:", this.partyActors);
-    console.log("enemies:", this.enemyActors);
+    // setting inactive enemies
+    if (!SM.get("event.inactiveEnemies")) {
+      let enemies = Object.values(SM.get("event.enemies"));
+      let temp = [];
+      enemies.forEach((enemy) => {
+        //console.log(enemy.name);
+        temp.push(enemy);
+      });
+      SM.set("event.inactiveEnemies", temp);
+    }
 
-    // after setting up, deciding the first 2 characters
-    // active character will always be the just shifting the 0th index from partyActors
-    // active enemy will be randomly gotten through the enemies
+    // setting active enemy
+    if (!SM.get("event.activeEnemy")) {
+      let inactiveEnemies = SM.get("event.inactiveEnemies");
 
-    let activeCharacter = [];
-    let activeEnemy = [];
-    let inactiveCharacters = [];
-    let inactiveEnemies = [];
+      let randomIndex = Math.floor(Math.random() * inactiveEnemies.length);
+      let chosen = inactiveEnemies[randomIndex];
 
-    activeCharacter.push(this.partyActors.shift());
+      SM.set("event.activeEnemy", chosen);
+
+      // mdoifying the original inactiveEnemies
+      inactiveEnemies.splice(randomIndex, 1);
+      SM.set("event.inactiveEnemies", inactiveEnemies);
+    }
+
+    // setting inactive characters
+    if (!SM.get("event.inactiveChars")) {
+      let chars = Object.entries(SM.get("char.characters"));
+      let temp = [];
+      chars.forEach((char) => {
+        temp.push(char);
+      });
+      console.log(temp);
+      SM.set("event.inactiveChars", temp);
+    }
+
+    // setting active character
+    if (!SM.get("event.activeChar")) {
+      let inactiveChars = SM.get("event.inactiveChars");
+
+      console.log("inactiveChars:", inactiveChars);
+
+      let chosen = inactiveChars[0];
+      console.log(chosen);
+
+      SM.set("event.activeChar", chosen);
+
+      inactiveChars.splice(0, 1);
+      SM.set("event.inactiveChars", inactiveChars);
+    }
+
+    // getting turn
+    if (!SM.get("event.turnState")) {
+      // finding first attacker
+      let activeChar = SM.get("event.activeChar");
+      let activeEnemy = SM.get("event.activeEnemy");
+
+      let charSpeed = activeChar[1].stats.speed;
+      let enemySpeed = activeEnemy.stats.speed;
+
+      if (charSpeed > enemySpeed) {
+        EM.changeTurn(EM.turnStates.playerTurn);
+      } else {
+        EM.changeTurn(EM.turnStates.enemyTurn);
+      }
+    }
 
     // creating the fighting panel
     let fightPanel = createEl("div");
     fightPanel.setAttribute("id", "fightPanel");
     parent.appendChild(fightPanel);
 
-    // creating the battleDisplay ( has the sprite images, health and stuff)
+    // creating the battleDisplay ( has the sprite, health and stuff)
     let battleDisplay = EM.createbattleDisplay();
     fightPanel.appendChild(battleDisplay);
 
@@ -283,9 +312,85 @@ let EM = {
     let battleMenu = EM.createBattleMenu();
     fightPanel.appendChild(battleMenu);
 
+    // finding out who has turn first (speed)
+
     this.hidePanels();
-    this.updatePanels(activeCharacter);
+    this.updateAll();
     this.changePanel(EM.panelEnums.mainPanel);
+  },
+
+  changeTurn: function (turnState) {
+    SM.set("event.turnState", turnState);
+    EM.updateTurnState();
+  },
+
+  updateTurnState: function () {
+    switch (SM.get("event.turnState")) {
+      case EM.turnStates.playerTurn:
+        EM.playerTurn();
+        break;
+      case EM.turnStates.enemyTurn:
+        EM.enemyTurn();
+        break;
+    }
+  },
+
+  playerTurn: function () {
+    console.log("player turn");
+    let activeChar = SM.get("event.activeChar");
+    let activeEnemy = SM.get("event.activeEnemy");
+    let dmg = EM.getEnemyAttackValue(activeEnemy);
+
+    EM.attack(activeChar, activeEnemy, dmg);
+  },
+  enemyTurn: function () {
+    console.log("enemy turn");
+    let activeChar = SM.get("event.activeChar");
+    let activeEnemy = SM.get("event.activeEnemy");
+    let dmg = EM.getEnemyAttackValue(activeEnemy);
+    setTimeout(() => {
+      PM.ping("...");
+    }, 750);
+
+    setTimeout(() => {
+      EM.attack(activeEnemy, activeChar, dmg);
+    }, 1500);
+  },
+
+  attack: function (attacker, defendant, value) {
+    console.log(attacker, defendant);
+    let attackerName = "";
+    let defendantName = "";
+
+    if (typeof attacker === "object" && attacker.hasOwnProperty("name")) {
+      attackerName = attacker.name;
+    } else if (Array.isArray(attacker) && attacker.length > 0) {
+      attackerName = attacker[0];
+    }
+
+    if (typeof defendant === "object" && defendant.hasOwnProperty("name")) {
+      defendantName = defendant.name;
+    } else if (Array.isArray(defendant) && defendant.length > 0) {
+      defendantName = defendant[0];
+    }
+    PM.ping(attackerName + " attacks " + defendantName + " for " + value);
+  },
+
+  deathCheck: function () {},
+
+  getEnemyAttackValue: function (entity) {
+    let highRange = EM.randRange(7, 15);
+    let lowRange = EM.randRange(1, 6);
+
+    let attackValue = EM.randRange(lowRange, highRange);
+    return attackValue;
+  },
+
+  turnStates: {
+    playerTurn: "playerTurn",
+    enemyTurn: "enemyTurn",
+    lost: "lost",
+    won: "won",
   },
 
   createbattleDisplay: function () {
@@ -314,7 +419,6 @@ let EM = {
     // used to display total enemies (dead: X, alive: E)
     let enemyPreview = createEl("div");
     enemyPreview.setAttribute("id", "enemyPreview");
-    enemyPreview.textContent = "E E E";
     enemyInfoPanel.appendChild(enemyPreview);
 
     let enemyInfo = createEl("div");
@@ -367,7 +471,6 @@ let EM = {
     // used to display total characters (dead: X, alive: @)
     let characterPreview = createEl("div");
     characterPreview.setAttribute("id", "characterPreview");
-    characterPreview.textContent = "@ @ @";
     characterInfoPanel.appendChild(characterPreview);
 
     let characterInfo = createEl("div");
@@ -405,6 +508,7 @@ let EM = {
 
     return elem;
   },
+
   createBattleMenu: function () {
     let elem = createEl("div");
     elem.setAttribute("id", "battleMenu");
@@ -424,6 +528,235 @@ let EM = {
     return elem;
   },
 
+  hidePanels: function () {
+    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
+    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
+    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
+    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
+
+    mainPanel.style.display = "none";
+    attackPanel.style.display = "none";
+    itemsPanel.style.display = "none";
+    switchPanel.style.display = "none";
+  },
+
+  updateAll: function () {
+    EM.updateAttackPanel();
+    EM.updateSwitchPanel();
+    EM.updateItemsPanel();
+    EM.updateBattleDisplay();
+  },
+
+  updateBattleDisplay: function () {
+    // character display and info
+    let characterPreview = getQuerySelector(
+      "#fightPanel #battleDisplay #characterSide #characterInfoPanel #characterPreview"
+    );
+    let characterName = getQuerySelector(
+      "#fightPanel #battleDisplay #characterSide #characterInfoPanel #characterInfo #characterInfoName"
+    );
+    let characterHpCurrent = getQuerySelector(
+      "#fightPanel #battleDisplay #characterSide #characterInfoPanel #characterInfo #characterInfoHpWrapper #characterInfoHpCurrent"
+    );
+    let characterHpMax = getQuerySelector(
+      "#fightPanel #battleDisplay #characterSide #characterInfoPanel #characterInfo #characterInfoHpWrapper #characterInfoHpMax"
+    );
+
+    characterPreview.innerHTML = "";
+
+    let characters = Object.values(SM.get("event.inactiveChars"));
+    characters.forEach((char, index) => {
+      let charName = char[0];
+
+      let elem = createEl("div");
+      elem.setAttribute("id", "char" + index);
+      elem.textContent = "@";
+      characterPreview.appendChild(elem);
+    });
+
+    let activeChar = SM.get("event.activeChar");
+
+    characterName.textContent = activeChar[0];
+    characterHpCurrent.textContent = activeChar[1].stats.hp;
+    characterHpMax.textContent = activeChar[1].stats.maxHp;
+
+    // enemy display and info
+    let enemyPreview = getQuerySelector(
+      "#fightPanel #battleDisplay #enemySide #enemyInfoPanel #enemyPreview"
+    );
+    let enemyName = getQuerySelector(
+      "#fightPanel #battleDisplay #enemySide #enemyInfoPanel #enemyInfo #enemyInfoName"
+    );
+    let enemyHpCurrent = getQuerySelector(
+      "#fightPanel #battleDisplay #enemySide #enemyInfoPanel #enemyInfo #enemyInfoHpWrapper #enemyInfoHpCurrent"
+    );
+    let enemyHpMax = getQuerySelector(
+      "#fightPanel #battleDisplay #enemySide #enemyInfoPanel #enemyInfo #enemyInfoHpWrapper #enemyInfoHpMax"
+    );
+
+    enemyPreview.innerHTML = "";
+
+    let enemies = SM.get("event.inactiveEnemies");
+
+    enemies.forEach((enemy) => {
+      //console.log(enemy);
+      let elem = createEl("div");
+      elem.setAttribute("id", "placeholder");
+      elem.textContent = "E";
+      enemyPreview.appendChild(elem);
+    });
+
+    let activeEnemy = SM.get("event.activeEnemy");
+
+    enemyName.textContent = activeEnemy.name;
+    enemyHpCurrent.textContent = activeEnemy.stats.hp;
+    enemyHpMax.textContent = activeEnemy.stats.maxHp;
+  },
+
+  updateAttackPanel: function () {
+    let attackPanelWrapper = getQuerySelector(
+      "#fightPanel #battleMenu #attackPanel #optionsPanel #wrapper"
+    );
+    attackPanelWrapper.innerHTML = "";
+
+    let activeChar = SM.get("event.activeChar");
+    let activeCharSkills = activeChar[1].skills;
+
+    if (activeCharSkills && typeof activeCharSkills === "object") {
+      for (const skill in activeCharSkills) {
+        if (activeCharSkills.hasOwnProperty(skill) && activeCharSkills[skill]) {
+          let fullName = EM.getSkillProperty(skill, "name");
+          let elem = new Button.custom({
+            id: skill,
+            text: fullName,
+          });
+          elem.element.addEventListener("click", () => {
+            console.log(fullName);
+          });
+          attackPanelWrapper.appendChild(elem.element);
+        }
+      }
+    }
+  },
+
+  updateSwitchPanel: function () {
+    let switchPanelWrapper = getQuerySelector(
+      "#fightPanel #battleMenu #switchPanel #optionsPanel #wrapper"
+    );
+    switchPanelWrapper.innerHTML = "";
+    // updating the characters you can switch
+    //switchPanelWrapper.textContent = "hello world!";
+
+    let inactiveChars = SM.get("event.inactiveChars");
+
+    inactiveChars.forEach((char) => {
+      let charName = char[0];
+      let elem = new Button.custom({
+        id: "character",
+        text: charName,
+      });
+      elem.element.addEventListener("click", () => {
+        EM.switchActiveCharacter(char);
+      });
+      switchPanelWrapper.appendChild(elem.element);
+    });
+  },
+
+  updateItemsPanel: function () {
+    let itemsPanelWrapper = getQuerySelector(
+      "#fightPanel #battleMenu #switchPanel #optionsPanel #wrapper"
+    );
+
+    let combatItems = Object.entries(SM.get("resources.inventory.combatItems"));
+    combatItems.forEach((item) => {
+      let elem = createEl("div");
+      elem.setAttribute("class", "item");
+
+      elem.addEventListener("click", () => {
+        console.log(item);
+      });
+      itemsPanelWrapper.appendChild(elem);
+    });
+    console.log("combatItems:", combatItems);
+  },
+
+  switchActiveCharacter: function (character) {
+    let activeChar = SM.get("event.activeChar");
+    let inactiveChars = SM.get("event.inactiveChars");
+
+    if (inactiveChars.includes(character)) {
+      inactiveChars.push(activeChar);
+      SM.set("event.activeChar", character);
+
+      let index = inactiveChars.findIndex((char) => char === character);
+      if (index !== -1) {
+        inactiveChars.splice(index, 1);
+        SM.set("event.inactiveChars", inactiveChars);
+        PM.ping("you switch to " + character[0]);
+        this.updateAll();
+        this.changePanel(EM.panelEnums.mainPanel);
+      } else {
+        console.log("char to switch not found");
+      }
+    } else {
+      console.log("character to switch not among the inactive character list");
+    }
+  },
+  shiftToNextEnemy: function () {
+    let inactiveEnemies = SM.get("event.inactiveEnemies");
+  },
+
+  getSkillProperty: function (id, property) {
+    for (const char of PathfinderCharLib) {
+      for (const skill of char.skills) {
+        if (skill.id === id) {
+          if (skill[property]) {
+            return skill[property];
+          } else {
+            console.log("skill property:", property, " is undefined");
+            return undefined;
+          }
+        }
+      }
+    }
+  },
+
+  panelEnums: {
+    mainPanel: "mainPanel",
+    attackPanel: "attackPanel",
+    itemsPanel: "itemsPanel",
+    switchPanel: "switchPanel",
+  },
+
+  changePanel: function (panel) {
+    EM.hidePanels();
+
+    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
+    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
+    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
+    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
+
+    switch (panel) {
+      case EM.panelEnums.mainPanel:
+        mainPanel.style.display = "flex";
+        break;
+      case EM.panelEnums.attackPanel:
+        attackPanel.style.display = "flex";
+        break;
+      case EM.panelEnums.itemsPanel:
+        itemsPanel.style.display = "flex";
+        break;
+      case EM.panelEnums.switchPanel:
+        switchPanel.style.display = "flex";
+        break;
+    }
+  },
+
+  attackButton: null,
+  guardButton: null,
+  itemsButton: null,
+  switchButton: null,
+
   createMainPanel: function () {
     let mainPanel = createEl("div");
     mainPanel.setAttribute("id", "mainPanel");
@@ -433,25 +766,13 @@ let EM = {
     descriptionPanel.textContent = "what will you do?";
     mainPanel.appendChild(descriptionPanel);
 
-    let optionsPanel = EM.createOptionsPanel();
+    let optionsPanel = createEl("div");
+    optionsPanel.setAttribute("id", "optionsPanel");
     mainPanel.appendChild(optionsPanel);
 
-    return mainPanel;
-  },
-
-  attackButton: null,
-  guardButton: null,
-  itemsButton: null,
-  switchButton: null,
-
-  createOptionsPanel: function () {
-    let elem = createEl("div");
-    elem.setAttribute("id", "optionsPanel");
-
-    // holds options
     let wrapper = createEl("div");
     wrapper.setAttribute("id", "wrapper");
-    elem.appendChild(wrapper);
+    optionsPanel.appendChild(wrapper);
 
     EM.attackButton = new Button.custom({
       id: "attackButton",
@@ -489,74 +810,26 @@ let EM = {
     });
     wrapper.appendChild(EM.switchButton.element);
 
-    return elem;
+    return mainPanel;
   },
-
-  hidePanels: function () {
-    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
-    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
-    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
-    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
-
-    mainPanel.style.display = "none";
-    attackPanel.style.display = "none";
-    itemsPanel.style.display = "none";
-    switchPanel.style.display = "none";
-  },
-
-  updatePanels: function (character) {
-    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
-    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
-    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
-    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
-
-    console.log("characterInfo:", character[0][1].skills);
-  },
-
-  panelEnums: {
-    mainPanel: "mainPanel",
-    attackPanel: "attackPanel",
-    itemsPanel: "itemsPanel",
-    switchPanel: "switchPanel",
-  },
-
-  changePanel: function (panel) {
-    EM.hidePanels();
-
-    let mainPanel = getQuerySelector("#fightPanel #battleMenu #mainPanel");
-    let attackPanel = getQuerySelector("#fightPanel #battleMenu #attackPanel");
-    let itemsPanel = getQuerySelector("#fightPanel #battleMenu #itemsPanel");
-    let switchPanel = getQuerySelector("#fightPanel #battleMenu #switchPanel");
-
-    switch (panel) {
-      case EM.panelEnums.mainPanel:
-        mainPanel.style.display = "flex";
-        break;
-      case EM.panelEnums.attackPanel:
-        attackPanel.style.display = "flex";
-        break;
-      case EM.panelEnums.itemsPanel:
-        itemsPanel.style.display = "flex";
-        break;
-      case EM.panelEnums.switchPanel:
-        switchPanel.style.display = "flex";
-        break;
-    }
-  },
-
-  attack1Button: null,
-  attack2Button: null,
-  attack3Button: null,
-  attack4Button: null,
 
   createAttackPanel: function () {
     let attackPanel = createEl("div");
     attackPanel.setAttribute("id", "attackPanel");
     attackPanel.setAttribute("class", "panel");
 
-    let attacksWrapper = createEl("div");
-    attacksWrapper.setAttribute("id", "attacksWrapper");
-    attackPanel.appendChild(attacksWrapper);
+    let optionsPanel = createEl("div");
+    optionsPanel.setAttribute("id", "optionsPanel");
+    attackPanel.appendChild(optionsPanel);
+
+    let wrapper = createEl("div");
+    wrapper.setAttribute("id", "wrapper");
+    optionsPanel.appendChild(wrapper);
+
+    // return button for attackpanel
+    let returnPanel = createEl("div");
+    returnPanel.setAttribute("id", "returnPanel");
+    attackPanel.appendChild(returnPanel);
 
     let returnButton = new Button.custom({
       id: "returnButton",
@@ -565,7 +838,7 @@ let EM = {
     returnButton.element.addEventListener("click", () => {
       EM.changePanel(EM.panelEnums.mainPanel);
     });
-    attackPanel.appendChild(returnButton.element);
+    returnPanel.appendChild(returnButton.element);
 
     return attackPanel;
   },
@@ -574,6 +847,29 @@ let EM = {
     let itemsPanel = createEl("div");
     itemsPanel.setAttribute("id", "itemsPanel");
     itemsPanel.setAttribute("class", "panel");
+
+    let optionsPanel = createEl("div");
+    optionsPanel.setAttribute("id", "optionsPanel");
+    itemsPanel.appendChild(optionsPanel);
+
+    let wrapper = createEl("div");
+    wrapper.setAttribute("id", "wrapper");
+    optionsPanel.appendChild(wrapper);
+
+    // return
+    let returnPanel = createEl("div");
+    returnPanel.setAttribute("id", "returnPanel");
+    itemsPanel.appendChild(returnPanel);
+
+    let returnButton = new Button.custom({
+      id: "returnButton",
+      text: "back",
+    });
+    returnButton.element.addEventListener("click", () => {
+      EM.changePanel(EM.panelEnums.mainPanel);
+    });
+    returnPanel.appendChild(returnButton.element);
+
     return itemsPanel;
   },
 
@@ -581,6 +877,28 @@ let EM = {
     let switchPanel = createEl("div");
     switchPanel.setAttribute("id", "switchPanel");
     switchPanel.setAttribute("class", "panel");
+
+    let optionsPanel = createEl("div");
+    optionsPanel.setAttribute("id", "optionsPanel");
+    switchPanel.appendChild(optionsPanel);
+
+    let wrapper = createEl("div");
+    wrapper.setAttribute("id", "wrapper");
+    optionsPanel.appendChild(wrapper);
+
+    // return
+    let returnPanel = createEl("div");
+    returnPanel.setAttribute("id", "returnPanel");
+    switchPanel.appendChild(returnPanel);
+
+    let returnButton = new Button.custom({
+      id: "returnButton",
+      text: "back",
+    });
+    returnButton.element.addEventListener("click", () => {
+      EM.changePanel(EM.panelEnums.mainPanel);
+    });
+    returnPanel.appendChild(returnButton.element);
     return switchPanel;
   },
 
@@ -604,19 +922,6 @@ let EM = {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },
 
-  /**
-   * Active non combat mobule doesnt really need
-   * to be saved in sm cause when i
-   * make the module view, its gonna create the different
-   * values if it hasnt already been created.
-   *
-   * So like in the goblinmarket for example, if first time then
-   * its gonna create a list of random items. But if not first time
-   * then its just gonna load the list of items that were created.
-   */
-
-  activeNonCombatModule: null,
-
   nonCombatModuleEnums: {
     FortuneCache: "FortuneCache",
     Respite: "Respite",
@@ -624,6 +929,8 @@ let EM = {
     ShrineOfAbyss: "ShrineOfAbyss",
     WanderingMerchant: "WanderingMerchant",
   },
+
+  activeNonCombatModule: null,
 
   enterNonCombat: function (event) {
     //const parent = getID(this.eventId);

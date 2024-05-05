@@ -23,6 +23,7 @@ const NodeTypesPool = [
     inItPing:
       "Adrenaline courses through your veins as you prepare for the impending ambush.",
   },
+  /*
   {
     type: "goblinMarket",
     probability: 0.05,
@@ -60,6 +61,7 @@ const NodeTypesPool = [
     inItPing:
       "The weary travelers gaze at the pathfinders with hopeful anticipation.",
   },
+  */
 ];
 
 const specialNodeTypesPool = [

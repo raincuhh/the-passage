@@ -26,20 +26,11 @@ let PathfinderCharLib = [
         id: "demonAssault",
       },
     ],
-    stats: [
-      {
-        name: "hp",
-        id: "hp",
-        value: 27,
-        type: "num",
-      },
-      {
-        name: "spd",
-        id: "speed",
-        value: 4,
-        type: "num",
-      },
-    ],
+    stats: {
+      hp: 27,
+      maxHp: 27,
+      speed: 4,
+    },
   },
   {
     name: "the faceless",
@@ -50,12 +41,11 @@ let PathfinderCharLib = [
         id: "bladeSlice",
       },
       {
-        name: "vanishing strike",
+        name: "ethereal strike",
         id: "vanishingStrike",
       },
-
       {
-        name: "blinding dagger",
+        name: "lethality",
         id: "blindingDagger",
       },
       {
@@ -63,20 +53,11 @@ let PathfinderCharLib = [
         id: "eviscerate",
       },
     ],
-    stats: [
-      {
-        name: "hp",
-        id: "hp",
-        value: 24,
-        type: "num",
-      },
-      {
-        name: "spd",
-        id: "speed",
-        value: 5,
-        type: "num",
-      },
-    ],
+    stats: {
+      hp: 24,
+      maxHp: 24,
+      speed: 5,
+    },
   },
   {
     name: "the occultist",
@@ -91,28 +72,19 @@ let PathfinderCharLib = [
         id: "essenceDrain",
       },
       {
-        name: "curse of darkness",
-        id: "curseOfDarkness",
+        name: "darkness",
+        id: "darkness",
       },
       {
-        name: "forbidden knowledge",
-        id: "forbiddenKnowledge",
+        name: "curse",
+        id: "curse",
       },
     ],
-    stats: [
-      {
-        name: "hp",
-        id: "hp",
-        value: 21,
-        type: "num",
-      },
-      {
-        name: "spd",
-        id: "speed",
-        value: 3,
-        type: "num",
-      },
-    ],
+    stats: {
+      hp: 21,
+      maxHp: 21,
+      speed: 3,
+    },
   },
   {
     name: "the paragon",
@@ -131,24 +103,15 @@ let PathfinderCharLib = [
         id: "shieldWall",
       },
       {
-        name: "paragons resolve",
-        id: "paragonsResolve",
+        name: "resolve ",
+        id: "resolve",
       },
     ],
-    stats: [
-      {
-        name: "hp",
-        id: "hp",
-        value: 37,
-        type: "num",
-      },
-      {
-        name: "spd",
-        id: "speed",
-        value: 2,
-        type: "num",
-      },
-    ],
+    stats: {
+      hp: 37,
+      maxHp: 37,
+      speed: 2,
+    },
   },
   {
     name: "the blatherer",
@@ -171,20 +134,11 @@ let PathfinderCharLib = [
         id: "mightySwing",
       },
     ],
-    stats: [
-      {
-        name: "hp",
-        id: "hp",
-        value: 31,
-        type: "num",
-      },
-      {
-        name: "spd",
-        id: "speed",
-        value: 3,
-        type: "num",
-      },
-    ],
+    stats: {
+      hp: 31,
+      maxHp: 31,
+      speed: 3,
+    },
   },
   {
     name: "the knight",
@@ -207,19 +161,10 @@ let PathfinderCharLib = [
         id: "surgeOfAction",
       },
     ],
-    stats: [
-      {
-        name: "hp",
-        id: "hp",
-        value: 34,
-        type: "num",
-      },
-      {
-        name: "spd",
-        id: "speed",
-        value: 4,
-        type: "num",
-      },
-    ],
+    stats: {
+      hp: 34,
+      maxHp: 34,
+      speed: 4,
+    },
   },
 ];

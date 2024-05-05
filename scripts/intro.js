@@ -2,6 +2,8 @@ const Intro = {
   name: "Intro",
   init: function () {
     this.render();
+
+    PM.ping("welcome");
   },
   launch: function () {
     this.setDocumentTitle();
@@ -25,6 +27,12 @@ const Intro = {
     elem.setAttribute("class", "wrapper");
     const parent = getID("introView");
     parent.appendChild(elem);
+
+    PM.ping("ver: " + Main.version);
+    if (Main.demo === true) {
+      console.log();
+      PM.ping("demo");
+    }
 
     Main.changeLocationHeader("the passage");
 

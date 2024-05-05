@@ -23,7 +23,8 @@
   --pings-width: clamp(250px, 80vw, 370px);
   --view-width: calc(1000px - var(--pings-width));
 
-  --fightSpriteSize: clamp(5rem, 70vw, 6.8rem);
+  --allySpriteSize: clamp(5rem, 70vw, 6.8rem);
+  --enemySpriteSize: clamp(3rem, 70vw, 5.4rem);
 
   /* z-index */
 
@@ -431,13 +432,21 @@
                 width: 100%;
                 display: flex;
               }
+              #enemySide {
+                #enemyInfoPanel {
+                  #enemyPreview {
+                    display: flex;
+                    gap: 0.25rem;
+                  }
+                }
+              }
               #characterSide {
                 #characterSprite {
                   width: 50%;
                   display: flex;
                   justify-content: center;
                   align-items: end;
-                  font-size: var(--fightSpriteSize);
+                  font-size: var(--allySpriteSize);
                 }
                 #characterInfoPanel {
                   width: 50%;
@@ -445,6 +454,10 @@
                   flex-direction: column;
                   align-items: end;
                   gap: 0.5rem;
+                  #characterPreview {
+                    display: flex;
+                    gap: 0.25rem;
+                  }
                   #characterInfo {
                     height: min-content;
                     display: flex;
@@ -474,7 +487,7 @@
                   display: flex;
                   justify-content: center;
                   align-items: start;
-                  font-size: var(--fightSpriteSize);
+                  font-size: var(--enemySpriteSize);
                 }
                 #enemyInfoPanel {
                   width: 50%;
@@ -534,9 +547,59 @@
                 }
               }
               #attackPanel {
+                width: 100%;
                 display: flex;
-                #attacksWrapper {
-                  width: 100%;
+                justify-content: space-between;
+
+                #optionsPanel {
+                  #wrapper {
+                    width: 238px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: end;
+
+                    gap: 0.5rem;
+                    .button {
+                      margin: 0;
+                    }
+                  }
+                }
+              }
+              #itemsPanel {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+
+                #optionsPanel {
+                  #wrapper {
+                    width: 238px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: end;
+
+                    gap: 0.5rem;
+                    .button {
+                      margin: 0;
+                    }
+                  }
+                }
+              }
+              #switchPanel {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+
+                #optionsPanel {
+                  #wrapper {
+                    width: 238px;
+                    display: flex;
+                    flex-wrap: wrap;
+
+                    gap: 0.5rem;
+                    .button {
+                      margin: 0;
+                    }
+                  }
                 }
               }
             }

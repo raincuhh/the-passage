@@ -181,9 +181,15 @@ const Interstice = {
     Button.disabled(Interstice.finishTalkButton.element, true);
     Interstice.finishTalkButton.updateListener();
     PM.ping("a warm light engulfs you");
-    PM.ping("...");
-    Main.changeModule(SinSelection);
-    SM.delete("features.room");
+
+    setTimeout(() => {
+      PM.ping("...");
+    }, 750);
+
+    setTimeout(() => {
+      SM.delete("features.room");
+      Main.changeModule(SinSelection);
+    }, 1500);
   },
 
   launch: function () {

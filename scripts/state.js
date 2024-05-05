@@ -21,7 +21,7 @@ let SM = {
     for (const category of categories) {
       if (!this.get(category)) {
         this.set(category, {});
-        console.log("category made: " + category);
+        //console.log("made:", category);
       }
     }
     this.set("ver", Main.version);
@@ -110,12 +110,12 @@ let SM = {
     //PFM.includeSkillPing(skill, includePing);
   },
   setStats: function (pathfinder, stats) {
-    stats.forEach((stat) => {
-      this.setStat(pathfinder, stat.id, stat.value);
+    Object.entries(stats).forEach(([key, value]) => {
+      this.setStat(pathfinder, key, value);
     });
   },
-  setStat: function (pathfinder, stat, value) {
-    this.set("char.characters." + pathfinder + ".stats." + stat, value);
+  setStat: function (pathfinder, key, value) {
+    this.set("char.characters." + pathfinder + ".stats." + key, value);
   },
   setRegionAttr: function (region, attribute, value) {
     this.set("location.regions." + region + "." + attribute, value);

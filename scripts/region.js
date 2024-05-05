@@ -109,6 +109,10 @@ const Region = {
       Main.changeLocationHeader("the caravan");
     }
 
+    if (!SM.get("resources.inventory.combatItems")) {
+      SM.set("resources.inventory.combatItems", {});
+    }
+
     //PM.ping("you find yourself in a caravan" + afterFirstDeath);
   },
 
@@ -215,9 +219,11 @@ const Region = {
     Button.disabled(Region.lookAroundButton.element, true);
     Region.lookAroundButton.updateListener();
     PM.ping("You find an old lighter nearby, its metal casing worn with age.");
+
     setTimeout(() => {
       PM.ping("through the blinds, the moonlight reflects along the walls");
     }, Region.timeUntilDim);
+
     setTimeout(() => {
       PM.ping("you see a candle close to you, its wick untouched by flame");
       SM.set("features.caravan.state", Region.caravanEnum.dim);
@@ -231,11 +237,13 @@ const Region = {
     Button.disabled(Region.lightCandleButton.element, true);
     Region.lightCandleButton.updateListener();
     SM.set("features.caravan.state", Region.caravanEnum.warm);
+
     setTimeout(() => {
       PM.ping(
         "as the candlelight fills the space, you notice three strangers nearby, their faces partially obscured in the shadows."
       );
     }, Region.timeUntilCharactersSeen);
+
     setTimeout(() => {
       Region.onCandleChange();
     }, Region.timeUntilCandleChange);
@@ -259,6 +267,7 @@ const Region = {
       setTimeout(() => {
         Region.beginExploring();
         Button.disabled(Region.exploreButton.element, false);
+
         if (!SM.get("run.currentNode")) {
           Button.disabled(Region.exploreButton.element, false);
           Region.exploreButton.updateListener();
@@ -272,6 +281,33 @@ const Region = {
     //console.log("moving to next random node");
 
     // Check if the current node is a "respite" node
+    switch (this.currentNode.type) {
+      case "respite":
+        this.generateNewMap();
+        break;
+      case "sinBoss":
+        console.log("finished game");
+        SM.set("engine.hasWon", true);
+        this.resetRun();
+        break;
+      default:
+        let nextDepth = this.currentNode.depth + 1;
+        let nodesAtNextDepth = this.currentMap.nodes.filter(
+          (node) => node.depth === nextDepth
+        );
+
+        let randIndex = Math.floor(Math.random() * nodesAtNextDepth.length);
+        let nextNode = nodesAtNextDepth[randIndex];
+
+        if (!nextNode) {
+          console.log("no next node?");
+        } else {
+          SM.set("run.currentNode", nextNode);
+        }
+        break;
+    }
+
+    /*
     if (this.currentNode.type === "respite") {
       this.generateNewMap();
     } else {
@@ -294,6 +330,7 @@ const Region = {
         //console.log(nextNode);
       }
     }
+    */
   },
 
   generateNewMap: function () {
@@ -379,7 +416,7 @@ const Region = {
     iterOverToDeleteList(resourcesProperties, "resources");
 
     // depending on if you have won or died, will send to different modules
-    if (SM.get("engine.hasWon")) {
+    if (SM.get("engine.hasWon") && SM.get("engine.hasWon") === true) {
       // unlocking next sin before deleting run properties (Includes run sin)
       let currentSin = SM.get("run.activeSin");
       let currentSinIndex = Object.values(SinSelection.sinsEnum).indexOf(

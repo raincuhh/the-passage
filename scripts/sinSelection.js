@@ -86,11 +86,19 @@ let SinSelection = {
   },
 
   confess: function () {
-    let name = this.chosenSin.trim();
-    SM.set("run.activeSin", name);
+    Button.disabled(SinSelection.confessButton.element, true);
+    let sin = this.chosenSin.trim();
+    SM.set("run.activeSin", sin);
     SM.set("engine.hasWon", false);
-    PM.ping("...");
-    Main.changeModule(Region);
+    PM.ping("you confess the sin of " + sin);
+
+    setTimeout(() => {
+      PM.ping("...");
+    }, 750);
+
+    setTimeout(() => {
+      Main.changeModule(Region);
+    }, 1500);
   },
 
   updateUnlockedSins: function () {
@@ -120,6 +128,7 @@ let SinSelection = {
     this.confessButton.updateListener();
     this.chosenSin = sin;
     console.log(this.chosenSin);
+    PM.ping("you think about the sin of " + sin);
 
     //SM.set("run.sin." + sin, true);
     // calc sin stuff later, gonna change enemy hp and stuff "slightly", as in like a 1.05x boost

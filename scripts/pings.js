@@ -11,15 +11,18 @@ let PM = {
 
     let fade = createEl("div");
     fade.setAttribute("id", "fade");
-    //elem.appendChild(fade);
+    elem.appendChild(fade);
   },
-  ping: function (string) {
-    if (typeof string == "undefined") {
+  ping: function (data) {
+    if (typeof data == "undefined") {
       return;
     }
-    string = periodify(string);
-    string = uppercaseify(string);
-    this.send(string);
+    if (typeof data !== "string") {
+      data = data.toString();
+    }
+    data = periodify(data);
+    data = uppercaseify(data);
+    this.send(data);
   },
   send: function (e) {
     // outputs the finalized message to the pings node

@@ -23,9 +23,11 @@ let SaveManager = {
 
   saveGame: function () {
     try {
-      //console.log(SM.components);
       let string = JSON.stringify(SM.components);
+      //let encodedString = btoa(string);
       localStorage.setItem("save", string);
+      //localStorage.setItem("save", encodedString);
+
       this.saveNotif();
     } catch (error) {
       if (error === DOMException.QUOTA_EXCEEDED_ERR) {
@@ -39,16 +41,13 @@ let SaveManager = {
   },
 
   loadGame: function () {
-    let string = localStorage.getItem("save");
-    //console.log("statemanager components:");
-    //console.log(SM.components);
-    if (string) {
+    let encodedString = localStorage.getItem("save");
+    if (encodedString) {
       try {
-        let save = JSON.parse(string);
-        //console.log(save);
+        //let decodedString = atob(encodedString);
+        //let save = JSON.parse(decodedString);
+        let save = JSON.parse(encodedString);
         SM.components = save;
-        // SM.components = { ...SM.components, ...save };
-        //console.log("save loaded");
       } catch (error) {
         console.error("error occured: ", error);
         alert("tried to load save, attempt failed, view error in console");
